@@ -1,0 +1,9 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#f3f4f6"/>
+  <rect x="120" y="120" width="960" height="560" rx="32" fill="#ffffff" stroke="#d6d9de" stroke-width="2"/>
+  <rect x="200" y="200" width="420" height="36" rx="8" fill="#e8eaed"/>
+  <rect x="200" y="260" width="520" height="18" rx="6" fill="#e8eaed"/>
+  <text x="200" y="360" fill="#c7cbd1" font-family="Arial" font-size="32">Слабый контраст текста</text>
+  <rect x="200" y="420" width="260" height="56" rx="16" fill="#e8eaed"/>
+  <text x="236" y="456" fill="#b0b5bd" font-family="Arial" font-size="20">Кнопка</text>
+</svg>

@@ -1,0 +1,8 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#1f2933"/>
+  <rect x="120" y="120" width="960" height="560" rx="32" fill="#111827" stroke="#2d3748" stroke-width="2"/>
+  <text x="200" y="220" fill="#f9fafb" font-family="Arial" font-size="34">Подписка</text>
+  <text x="200" y="270" fill="#cbd5e1" font-family="Arial" font-size="18">Выбери яркий цвет кнопки</text>
+  <rect x="200" y="360" width="420" height="80" rx="20" fill="#2d3748" stroke="#4b5563" stroke-width="2"/>
+  <text x="250" y="412" fill="#9aa0a6" font-family="Arial" font-size="24">Оформить</text>
+</svg>

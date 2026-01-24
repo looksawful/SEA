@@ -1,0 +1,9 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#f3f4f6"/>
+  <rect x="120" y="120" width="960" height="560" rx="32" fill="#ffffff" stroke="#d6d9de" stroke-width="2"/>
+  <text x="200" y="220" fill="#202124" font-family="Arial" font-size="32">Список задач</text>
+  <rect x="200" y="280" width="620" height="64" rx="18" fill="#e8eaed"/>
+  <rect x="200" y="370" width="620" height="64" rx="18" fill="#e8eaed"/>
+  <rect x="200" y="500" width="620" height="64" rx="18" fill="#e8eaed"/>
+  <text x="240" y="322" fill="#9aa0a6" font-family="Arial" font-size="18">Отступ сверху слишком большой</text>
+</svg>

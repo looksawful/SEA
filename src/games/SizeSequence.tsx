@@ -1,0 +1,249 @@
+'use client'
+import { useState, useCallback, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { Card } from '@/components/Card'
+import { useGameStore } from '@/store/gameStore'
+import { useNumberKeys } from '@/hooks/useKeyboard'
+import { useSound } from '@/hooks/useSound'
+import { randomInt, pickRandom } from '@/utils/helpers'
+import { getFontSizeClass } from '@/utils/fonts'
+import { Difficulty, difficultyDots, getDifficulty } from '@/utils/difficulty'
+
+type ScaleType = 'modular' | 'linear' | 'fibonacci' | 'golden' | 'major-third' | 'perfect-fourth'
+
+interface Challenge {
+  sizes: number[]
+  errorIndex: number
+  scaleType: ScaleType
+  ratio: number
+  difficulty: Difficulty
+}
+
+const SCALE_NAMES: Record<ScaleType, string> = {
+  modular: 'модульная',
+  linear: 'линейная',
+  fibonacci: 'Фибоначчи',
+  golden: 'золотое сечение',
+  'major-third': 'major third',
+  'perfect-fourth': 'perfect fourth',
+}
+
+const SCALE_EXPLANATIONS: Record<ScaleType, string> = {
+  modular: 'Модульная шкала умножает базовый размер на постоянный коэффициент (обычно 1.2-1.5)',
+  linear: 'Линейная шкала добавляет фиксированное значение к каждому следующему размеру',
+  fibonacci: 'Шкала Фибоначчи: каждое число — сумма двух предыдущих',
+  golden: 'Золотое сечение использует коэффициент 1.618 для каждого следующего размера',
+  'major-third': 'Major Third масштабирует размеры по коэффициенту 1.25',
+  'perfect-fourth': 'Perfect Fourth масштабирует размеры по коэффициенту 1.333',
+}
+
+const generateScale = (type: ScaleType, count: number): number[] => {
+  const sizes: number[] = []
+  
+  switch (type) {
+    case 'modular': {
+      const base = 16
+      const ratio = pickRandom([1.2, 1.25, 1.333, 1.414, 1.5])
+      for (let i = 0; i < count; i++) {
+        sizes.push(Math.round(base * Math.pow(ratio, i)))
+      }
+      break
+    }
+    case 'linear': {
+      const base = 12
+      const step = pickRandom([2, 3, 4])
+      for (let i = 0; i < count; i++) {
+        sizes.push(base + i * step)
+      }
+      break
+    }
+    case 'fibonacci': {
+      const fib = [8, 13, 21, 34, 55, 89]
+      sizes.push(...fib.slice(0, count))
+      break
+    }
+    case 'golden': {
+      const base = 10
+      const ratio = 1.618
+      for (let i = 0; i < count; i++) {
+        sizes.push(Math.round(base * Math.pow(ratio, i)))
+      }
+      break
+    }
+    case 'major-third': {
+      const base = 14
+      const ratio = 1.25
+      for (let i = 0; i < count; i++) {
+        sizes.push(Math.round(base * Math.pow(ratio, i)))
+      }
+      break
+    }
+    case 'perfect-fourth': {
+      const base = 14
+      const ratio = 1.333
+      for (let i = 0; i < count; i++) {
+        sizes.push(Math.round(base * Math.pow(ratio, i)))
+      }
+      break
+    }
+  }
+  
+  return sizes
+}
+
+const generateErrorSize = (sizes: number[], errorIndex: number, difficulty: Difficulty): number => {
+  const original = sizes[errorIndex]
+  let error: number
+  
+  switch (difficulty) {
+    case 'easy':
+      error = original + (Math.random() > 0.5 ? 1 : -1) * randomInt(6, 10)
+      break
+    case 'medium':
+      error = original + (Math.random() > 0.5 ? 1 : -1) * randomInt(3, 5)
+      break
+    case 'hard':
+      error = original + (Math.random() > 0.5 ? 1 : -1) * randomInt(1, 2)
+      break
+    case 'expert':
+      error = original + (Math.random() > 0.5 ? 1 : -1) * 1
+      break
+  }
+  
+  return Math.max(8, error)
+}
+
+const generateChallenge = (round: number): Challenge => {
+  const difficulty = getDifficulty(round)
+  const scaleType = pickRandom(['modular', 'linear', 'golden', 'fibonacci', 'major-third', 'perfect-fourth'] as ScaleType[])
+  const count = difficulty === 'hard' || difficulty === 'expert' ? 6 : 5
+  
+  const sizes = generateScale(scaleType, count)
+  const errorIndex = randomInt(1, count - 2)
+  const errorSize = generateErrorSize(sizes, errorIndex, difficulty)
+  
+  const resultSizes = [...sizes]
+  resultSizes[errorIndex] = errorSize
+  
+  return {
+    sizes: resultSizes,
+    errorIndex,
+    scaleType,
+    ratio: scaleType === 'modular' ? 1.333 : scaleType === 'golden' ? 1.618 : scaleType === 'major-third' ? 1.25 : scaleType === 'perfect-fourth' ? 1.333 : 1,
+    difficulty,
+  }
+}
+
+interface Props {
+  onAnswer: (correct: boolean) => void
+}
+
+export const SizeSequenceGame = ({ onAnswer }: Props) => {
+  const [challenge, setChallenge] = useState<Challenge | null>(null)
+  const [selected, setSelected] = useState<number | null>(null)
+  const [showResult, setShowResult] = useState(false)
+  const [round, setRound] = useState(0)
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake } = useGameStore()
+  const { playCorrect, playWrong } = useSound()
+
+  useEffect(() => {
+    setChallenge(generateChallenge(round))
+  }, [])
+
+  const handleSelect = useCallback((index: number) => {
+    if (showResult || !challenge) return
+    
+    setSelected(index)
+    setShowResult(true)
+    
+    const correct = index === challenge.errorIndex
+    const correctScale = generateScale(challenge.scaleType, challenge.sizes.length)
+    
+    if (correct) {
+      const points = challenge.difficulty === 'expert' ? 180 : challenge.difficulty === 'hard' ? 150 : challenge.difficulty === 'medium' ? 120 : 100
+      addScore(points)
+      incrementStreak()
+      playCorrect()
+    } else {
+      resetStreak()
+      playWrong()
+      addMistake({
+        question: `Найди ошибку в ${SCALE_NAMES[challenge.scaleType]} шкале`,
+        userAnswer: `Позиция ${index + 1} (${challenge.sizes[index]}px)`,
+        correctAnswer: `Позиция ${challenge.errorIndex + 1} (должно быть ${correctScale[challenge.errorIndex]}px, показано ${challenge.sizes[challenge.errorIndex]}px)`,
+        explanation: `${SCALE_EXPLANATIONS[challenge.scaleType]}. Правильная последовательность: ${correctScale.join(', ')}px`,
+      })
+    }
+    
+    updateStats('size-sequence', correct)
+    
+    setTimeout(() => {
+      onAnswer(correct)
+      setRound(r => r + 1)
+      setChallenge(generateChallenge(round + 1))
+      setSelected(null)
+      setShowResult(false)
+    }, 1000)
+  }, [challenge, showResult, round])
+
+  useNumberKeys((num) => {
+    if (num < (challenge?.sizes.length || 0)) {
+      handleSelect(num)
+    }
+  }, !showResult)
+
+  if (!challenge) return null
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-xl font-medium">Найди ошибку в шкале</h2>
+        <div className="text-xs text-soft mt-1">
+          Тип: {SCALE_NAMES[challenge.scaleType]} •
+          Сложность: {difficultyDots(challenge.difficulty)}
+        </div>
+      </div>
+      
+      <div className="flex flex-col gap-3">
+        {challenge.sizes.map((size, index) => {
+          const displaySize = Math.min(size, 48)
+          return (
+          <Card
+            key={index}
+            onClick={() => handleSelect(index)}
+            selected={selected === index}
+            correct={showResult ? index === challenge.errorIndex : null}
+            className="overflow-hidden"
+          >
+            <div className="flex items-center gap-4">
+              <span className="w-8 text-center font-mono text-sm text-soft">
+                {index + 1}
+              </span>
+              <motion.span
+                className={`font-medium text-strong flex-1 ${getFontSizeClass(displaySize, 'text-[48px]')}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                Aa
+              </motion.span>
+              <span className="font-mono text-sm text-muted">
+                {size}px
+              </span>
+            </div>
+          </Card>
+        )})}
+      </div>
+      
+      {showResult && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center text-sm text-muted"
+        >
+          <div>Ошибка на позиции {challenge.errorIndex + 1}</div>
+          <div className="text-xs mt-1 text-soft">{SCALE_EXPLANATIONS[challenge.scaleType]}</div>
+        </motion.div>
+      )}
+    </div>
+  )
+}
