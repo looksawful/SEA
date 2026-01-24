@@ -133,7 +133,7 @@ export const GuessHexGame = ({ onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-lg sm:text-xl font-medium">Угадай HEX-код</h2>
+        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">Угадай HEX-код</h2>
         <div className="text-xs text-soft mt-1">
           Сложность: {difficultyDots(challenge.difficulty)}
         </div>
@@ -180,3 +180,4 @@ export const GuessHexGame = ({ onAnswer }: Props) => {
     </div>
   )
 }
+

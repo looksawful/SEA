@@ -415,7 +415,9 @@ export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-medium">{question.prompt || config.title}</h2>
+        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
+          {question.prompt || config.title}
+        </h2>
         {question.helper && <div className="text-xs text-soft mt-1">{question.helper}</div>}
       </div>
 
@@ -778,7 +780,9 @@ export const CustomQuestionManager = ({
     <div className="bg-surface border border-subtle rounded-3xl shadow-card p-4 sm:p-6 space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-display font-semibold">Свои вопросы: {GAMES[gameId].name}</h2>
+          <h2 className="text-2xl font-display font-semibold tracking-tight">
+            Свои вопросы: {GAMES[gameId].name}
+          </h2>
           <p className="text-sm text-muted">Создай вопросы, подсказки и объяснения для режима игры.</p>
         </div>
         {showClose && (
@@ -917,7 +921,7 @@ export const CustomQuestionsModal = ({ onClose, initialGameId }: CustomQuestions
         <div className="bg-surface border border-subtle rounded-3xl shadow-card p-4 sm:p-6 space-y-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-xl font-display font-semibold">Свои вопросы</h2>
+              <h2 className="text-2xl font-display font-semibold tracking-tight">Свои вопросы</h2>
               <p className="text-sm text-muted">Выбери игру и добавь вопросы в одном стиле с базовыми заданиями.</p>
             </div>
             <Button variant="ghost" onClick={onClose}>

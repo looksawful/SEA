@@ -204,7 +204,9 @@ export const GameWrapper = ({
               <button onClick={() => setShowMistakes(false)} className="p-2 -ml-2 text-muted">
                 ← Назад
               </button>
-              <h2 className="font-semibold text-strong">Разбор ошибок ({currentMistakes.length})</h2>
+              <h2 className="text-lg sm:text-xl font-display font-semibold tracking-tight text-strong">
+                Разбор ошибок ({currentMistakes.length})
+              </h2>
               <div className="w-10" />
             </div>
           </header>
@@ -237,7 +239,7 @@ export const GameWrapper = ({
           >
             {accuracy >= 80 ? "Отлично" : accuracy >= 50 ? "Хорошо" : "Неплохо"}
           </motion.div>
-          <h2 className="text-2xl font-bold mb-2">Раунд завершён!</h2>
+          <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-2">Раунд завершён!</h2>
           <div className="text-4xl font-mono font-bold mb-2">{score.toLocaleString()}</div>
           <div className="text-muted mb-6">
             Правильно: {resolvedCorrect} из {totalChallenges} ({accuracy}%)
@@ -307,7 +309,7 @@ export const GameWrapper = ({
               <GameIcon className="text-3xl" aria-hidden />
             </span>
           </div>
-          <h1 className="text-2xl font-display font-semibold mb-2">{game.name}</h1>
+          <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-2">{game.name}</h1>
           <p className="text-muted mb-6">{game.description}</p>
           <div className="flex flex-col gap-3 mb-6 text-sm text-muted">
             <div className="flex justify-between px-4 py-2 bg-surface-2 border border-subtle rounded-lg">
@@ -384,7 +386,7 @@ export const GameWrapper = ({
           >
             <div className="text-center">
               <div className="text-4xl mb-4" />
-              <h2 className="text-xl font-display font-semibold mb-4">Пауза</h2>
+              <h2 className="text-2xl font-display font-bold tracking-tight mb-4">Пауза</h2>
               <Button onClick={handlePause} hotkey="P">
                 Продолжить
               </Button>

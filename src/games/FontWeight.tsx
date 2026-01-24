@@ -130,7 +130,7 @@ export const FontWeightGame = ({ onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-lg sm:text-xl font-medium">
+        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
           {challenge.mode === "heavier" ? "Найди самый жирный текст" : "Найди самый лёгкий текст"}
         </h2>
         <div className="text-xs text-soft mt-1">Сложность: {difficultyDots(challenge.difficulty)}</div>
@@ -170,3 +170,4 @@ export const FontWeightGame = ({ onAnswer }: Props) => {
     </div>
   );
 };
+

@@ -554,7 +554,7 @@ export const QuizGame = ({ onAnswer }: Props) => {
             {difficultyDots(challenge.question.difficulty)}
           </span>
         </div>
-        <h2 className="text-lg sm:text-xl font-medium">{challenge.question.question}</h2>
+        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">{challenge.question.question}</h2>
       </div>
 
       <div className="flex flex-col gap-3">
@@ -588,3 +588,4 @@ export const QuizGame = ({ onAnswer }: Props) => {
     </div>
   );
 };
+

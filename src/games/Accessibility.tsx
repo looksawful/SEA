@@ -211,7 +211,7 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-lg sm:text-xl font-medium">
+        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
           {challenge.mode === "level"
             ? "Determine the WCAG level"
             : challenge.mode === "large-text"
@@ -269,3 +269,4 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
     </div>
   );
 };
+

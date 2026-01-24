@@ -202,7 +202,9 @@ export default function Home() {
                 <button onClick={() => setView('menu')} className="p-2 -ml-2 text-muted hover:text-strong">
                   <FaArrowLeft />
                 </button>
-                <h2 className="text-xl font-display font-semibold flex-1">Выбери упражнение</h2>
+                <h2 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight flex-1">
+                  Выбери упражнение
+                </h2>
                 <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
                   <button
                     onClick={() => setGamesView('list')}
@@ -381,7 +383,7 @@ export default function Home() {
                 <button onClick={() => setView('menu')} className="p-2 -ml-2 text-muted hover:text-strong">
                   <FaArrowLeft />
                 </button>
-                <h2 className="text-xl font-display font-semibold">Статистика</h2>
+                <h2 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight">Статистика</h2>
               </div>
 
               <Card className="shadow-card">
@@ -409,7 +411,7 @@ export default function Home() {
                 </div>
               </Card>
 
-              <h3 className="font-medium mt-6 mb-3 text-strong">По играм</h3>
+              <h3 className="text-lg font-display font-semibold tracking-tight mt-6 mb-3 text-strong">По играм</h3>
               <div className="space-y-2">
                 {GAME_ORDER.map((id) => {
                   const game = GAMES[id]
@@ -563,7 +565,9 @@ function RandomMode({ onBack }: { onBack: () => void }) {
         <button onClick={onBack} className="p-2 -ml-2 text-muted hover:text-strong">
           <FaArrowLeft />
         </button>
-        <h2 className="text-xl font-display font-semibold text-center">Случайный режим</h2>
+        <h2 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight text-center">
+          Случайный режим
+        </h2>
         <div className="w-8" />
       </div>
 
