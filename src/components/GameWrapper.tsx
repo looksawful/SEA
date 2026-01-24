@@ -268,8 +268,8 @@ export const GameWrapper = ({
             </motion.div>
           )}
 
-          <div className="flex gap-3 justify-center">
-            <Button onClick={handleExit} variant="secondary">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button onClick={handleExit} variant="secondary" fullWidth>
               Выйти
             </Button>
             <Button
@@ -279,11 +279,12 @@ export const GameWrapper = ({
                 handleStart();
               }}
               variant={nextGame ? "secondary" : "primary"}
+              fullWidth
             >
               Ещё раз
             </Button>
             {nextGame && (
-              <Button onClick={handleNext} variant="primary">
+              <Button onClick={handleNext} variant="primary" fullWidth>
                 Следующая игра
               </Button>
             )}
@@ -335,15 +336,16 @@ export const GameWrapper = ({
               <span className="font-mono">+{game.pointsPerCorrect}</span>
             </div>
           </div>
-          <div className="flex gap-3 justify-center">
-            <Button onClick={handleExit} variant="ghost">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button onClick={handleExit} variant="ghost" fullWidth>
               Назад
             </Button>
-            <Button onClick={handleStart} hotkey="Space">
+            <Button onClick={handleStart} hotkey="Space" fullWidth>
               Начать
             </Button>
           </div>
-          <div className="mt-6 text-xs text-soft">1-4 — выбор ответа • P — пауза • Esc — выход</div>
+          <div className="mt-6 text-xs text-soft hidden sm:block">1-4 — выбор ответа • P — пауза • Esc — выход</div>
+          <div className="mt-4 text-xs text-soft sm:hidden">Выбирай касанием, пауза доступна в меню</div>
         </motion.div>
       </div>
     );

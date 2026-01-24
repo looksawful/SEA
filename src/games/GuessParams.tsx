@@ -157,7 +157,7 @@ export const GuessParamsGame = ({ onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-medium">Угадай HSL-параметры</h2>
+        <h2 className="text-lg sm:text-xl font-medium">Угадай HSL-параметры</h2>
         <div className="text-xs text-soft mt-1">
           Сложность: {difficultyDots(challenge.difficulty)}
         </div>
@@ -185,7 +185,7 @@ export const GuessParamsGame = ({ onAnswer }: Props) => {
               <div>H: <span className="font-bold">{hsl.h}°</span></div>
               <div>S: <span className="font-bold">{hsl.s}%</span></div>
               <div>L: <span className="font-bold">{hsl.l}%</span></div>
-              <div className="text-xs text-soft">[{index + 1}]</div>
+              <div className="hidden sm:inline text-xs text-soft">[{index + 1}]</div>
             </div>
           </Card>
         ))}

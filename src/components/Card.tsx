@@ -52,7 +52,7 @@ export const Card = ({
         rounded-2xl border-2 transition-colors focus-visible:ring-2 focus-visible:ring-[color:var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--surface-0)]
         ${getBorderColor()}
         ${paddings[padding]}
-        ${isInteractive ? 'cursor-pointer' : ''}
+        ${isInteractive ? 'cursor-pointer select-none touch-manipulation min-h-[56px]' : ''}
         ${className}
       `}
     >

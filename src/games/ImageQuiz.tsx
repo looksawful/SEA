@@ -155,7 +155,7 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
   if (!question) {
     return (
       <div className="text-center space-y-3">
-        <div className="text-xl font-medium">Вопросы скоро появятся</div>
+        <div className="text-lg sm:text-xl font-medium">Вопросы скоро появятся</div>
         <div className="text-sm text-muted">Добавь собственные вопросы в меню сверху.</div>
       </div>
     );
@@ -170,7 +170,7 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-1">
-        <h2 className="text-xl font-medium">{question.prompt}</h2>
+        <h2 className="text-lg sm:text-xl font-medium">{question.prompt}</h2>
         {question.helper && <div className="text-xs text-soft">{question.helper}</div>}
         <div className="text-xs text-soft">Сложность: {difficultyDots(difficulty)}</div>
       </div>
@@ -216,7 +216,7 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
           >
             <div className="flex flex-col items-center gap-2">
               {renderOption(option)}
-              <span className="text-xs text-soft">[{index + 1}]</span>
+              <span className="hidden sm:inline text-xs text-soft">[{index + 1}]</span>
             </div>
           </Card>
         ))}

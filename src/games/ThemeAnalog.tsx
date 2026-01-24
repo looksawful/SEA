@@ -210,7 +210,7 @@ export const ThemeAnalogGame = ({ onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-medium">
+        <h2 className="text-lg sm:text-xl font-medium">
           Adapt for the {challenge.themeType === "light-to-dark" ? "dark" : "light"} theme
         </h2>
         <div className="text-xs text-soft mt-1">
@@ -256,7 +256,7 @@ export const ThemeAnalogGame = ({ onAnswer }: Props) => {
                 <div>S: {option.hsl.s}%</div>
                 <div>L: {option.hsl.l}%</div>
               </div>
-              <span className="ml-auto text-xs opacity-50">
+              <span className="ml-auto text-xs opacity-50 hidden sm:inline">
                 [{index + 1}]
               </span>
             </div>

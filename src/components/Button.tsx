@@ -56,7 +56,7 @@ export const Button = ({
     >
       {children}
       {hotkey && (
-        <span className="ml-2 px-1.5 py-0.5 text-xs bg-white/20 rounded">
+        <span className="ml-2 px-1.5 py-0.5 text-xs bg-white/20 rounded hidden sm:inline-flex">
           {hotkey}
         </span>
       )}

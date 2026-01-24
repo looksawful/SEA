@@ -197,7 +197,7 @@ export const SizeSequenceGame = ({ onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-medium">Найди ошибку в шкале</h2>
+        <h2 className="text-lg sm:text-xl font-medium">Найди ошибку в шкале</h2>
         <div className="text-xs text-soft mt-1">
           Тип: {SCALE_NAMES[challenge.scaleType]} •
           Сложность: {difficultyDots(challenge.difficulty)}

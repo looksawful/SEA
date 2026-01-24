@@ -193,7 +193,7 @@ export const ColorCompareGame = ({ onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-medium">{prompt.title}</h2>
+        <h2 className="text-lg sm:text-xl font-medium">{prompt.title}</h2>
         <div className="text-xs text-soft mt-1">
           Сложность: {difficultyDots(challenge.difficulty)}
         </div>
@@ -210,7 +210,7 @@ export const ColorCompareGame = ({ onAnswer }: Props) => {
           >
             <div className="flex flex-col items-center gap-3">
               <Swatch color={option.color} className="w-full h-24 rounded-xl border border-subtle shadow-card" />
-              <span className="text-xs text-soft">[{index + 1}]</span>
+              <span className="hidden sm:inline text-xs text-soft">[{index + 1}]</span>
             </div>
           </Card>
         ))}

@@ -554,7 +554,7 @@ export const QuizGame = ({ onAnswer }: Props) => {
             {difficultyDots(challenge.question.difficulty)}
           </span>
         </div>
-        <h2 className="text-xl font-medium">{challenge.question.question}</h2>
+        <h2 className="text-lg sm:text-xl font-medium">{challenge.question.question}</h2>
       </div>
 
       <div className="flex flex-col gap-3">
@@ -564,6 +564,7 @@ export const QuizGame = ({ onAnswer }: Props) => {
             onClick={() => handleSelect(index)}
             selected={selected === index}
             correct={showResult ? index === challenge.correctIndex : null}
+            className="min-h-[56px]"
           >
             <div className="flex items-center gap-3">
               <span className="w-6 h-6 bg-surface-2 rounded-full flex items-center justify-center text-sm font-mono text-muted">

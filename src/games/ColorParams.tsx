@@ -263,7 +263,7 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-medium">
+        <h2 className="text-lg sm:text-xl font-medium">
           {challenge.mode === "value"
             ? `Determine ${PARAM_NAMES[challenge.paramType]}`
             : "Что изменилось между цветами?"}
@@ -308,12 +308,12 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
               <div className="text-center font-mono text-lg">
                 {value}
                 {challenge.paramType === "hue" ? "°" : "%"}
-                <span className="text-xs text-soft ml-2">[{index + 1}]</span>
+                <span className="hidden sm:inline text-xs text-soft ml-2">[{index + 1}]</span>
               </div>
             ) : (
               <div className="text-center font-medium">
                 {PARAM_NAMES[value as ParamType]}
-                <span className="text-xs text-soft ml-2">[{index + 1}]</span>
+                <span className="hidden sm:inline text-xs text-soft ml-2">[{index + 1}]</span>
               </div>
             )}
           </Card>

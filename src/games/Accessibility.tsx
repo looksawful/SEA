@@ -211,7 +211,7 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-medium">
+        <h2 className="text-lg sm:text-xl font-medium">
           {challenge.mode === "level"
             ? "Determine the WCAG level"
             : challenge.mode === "large-text"
@@ -246,7 +246,7 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
               <span className={`font-mono text-lg ${levelTone[level]}`}>
                 {challenge.mode === "pass-fail" || challenge.mode === "large-text" ? (level === "AA" ? "Pass" : "Fail") : level}
               </span>
-              <span className="text-xs text-soft ml-2">[{index + 1}]</span>
+              <span className="hidden sm:inline text-xs text-soft ml-2">[{index + 1}]</span>
             </div>
           </Card>
         ))}

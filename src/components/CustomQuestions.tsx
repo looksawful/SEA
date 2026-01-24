@@ -775,7 +775,7 @@ export const CustomQuestionManager = ({
     optionsComplete;
 
   const content = (
-    <div className="bg-surface border border-subtle rounded-3xl shadow-soft p-4 sm:p-6 space-y-6">
+    <div className="bg-surface border border-subtle rounded-3xl shadow-card p-4 sm:p-6 space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-xl font-display font-semibold">Свои вопросы: {GAMES[gameId].name}</h2>
@@ -914,7 +914,7 @@ export const CustomQuestionsModal = ({ onClose, initialGameId }: CustomQuestions
   return (
     <div className="fixed inset-0 z-30 bg-[color:var(--surface-1-95)] backdrop-blur-sm overflow-y-auto">
       <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-4">
-        <div className="bg-surface border border-subtle rounded-3xl shadow-soft p-4 sm:p-6 space-y-4">
+        <div className="bg-surface border border-subtle rounded-3xl shadow-card p-4 sm:p-6 space-y-4">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-display font-semibold">Свои вопросы</h2>

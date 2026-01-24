@@ -25,6 +25,7 @@ import {
   FaBars,
   FaVolumeMute,
   FaVolumeUp,
+  FaHome,
 } from 'react-icons/fa'
 
 type View = 'menu' | 'games' | 'stats' | 'random'
@@ -39,7 +40,7 @@ export default function Home() {
   const [gamesView, setGamesView] = useState<GamesView>('list')
   const { stats, bestStreak, soundEnabled, toggleSound, resetAll, results, customQuestions } =
     useGameStore()
-  const mainClass = 'flex-1 p-4 w-full flex items-center justify-center'
+  const mainClass = 'flex-1 p-4 pb-24 sm:pb-4 w-full flex items-center justify-center'
   const router = useRouter()
   const normalizedSearch = gameSearch.trim().toLowerCase()
   const filteredGameIds = normalizedSearch
@@ -140,9 +141,9 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="space-y-4 w-full max-w-md"
+              className="space-y-6 w-full max-w-md mx-auto"
             >
-              <div className="space-y-3">
+              <div className="bg-surface border border-subtle rounded-3xl p-6 shadow-card space-y-3">
                 <Button onClick={() => setView('games')} fullWidth size="lg">
                   <span className="inline-flex items-center justify-center gap-2">
                     <FaListUl className="text-base" />
@@ -161,10 +162,16 @@ export default function Home() {
                     Статистика
                   </span>
                 </Button>
+                <div className="text-center text-xs text-soft pt-2 hidden sm:block">
+                  Горячие клавиши: 1-4 выбор • P пауза • Esc выход
+                </div>
+                <div className="text-center text-xs text-soft pt-1 sm:hidden">
+                  Выбирай касанием по экрану
+                </div>
               </div>
 
               {stats.totalGames > 0 && (
-                <Card className="mt-8">
+                <Card className="mt-8 shadow-card">
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div>
                       <div className="text-2xl font-mono font-bold">{stats.totalScore.toLocaleString()}</div>
@@ -182,9 +189,6 @@ export default function Home() {
                 </Card>
               )}
 
-              <div className="text-center text-xs text-soft mt-8">
-                Горячие клавиши: 1-4 выбор • P пауза • Esc выход
-              </div>
             </motion.div>
           )}
 
@@ -264,7 +268,7 @@ export default function Home() {
                   return (
                     <Card
                       key={id}
-                      className="transition-colors"
+                      className="transition-colors shadow-card"
                       onClick={() => router.push(`/game/${id}`)}
                     >
                       <div className={gamesView === 'grid' ? 'flex flex-col gap-4' : 'flex items-start gap-4'}>
@@ -367,7 +371,7 @@ export default function Home() {
                 <h2 className="text-xl font-display font-semibold">Статистика</h2>
               </div>
 
-              <Card>
+              <Card className="shadow-card">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="text-center">
                     <div className="text-3xl font-mono font-bold">{stats.totalScore.toLocaleString()}</div>
@@ -401,7 +405,7 @@ export default function Home() {
                   const GameIcon = game.icon
 
                   return (
-                    <div key={id} className="flex items-center gap-3 p-3 bg-surface-2 border border-subtle rounded-lg">
+                    <div key={id} className="flex items-center gap-3 p-3 bg-surface border border-subtle rounded-lg shadow-card">
                       <span className="w-9 h-9 rounded-xl bg-surface border border-subtle flex items-center justify-center text-accent">
                         <GameIcon className="text-lg" />
                       </span>
@@ -434,6 +438,48 @@ export default function Home() {
           )}
         </AnimatePresence>
       </main>
+
+      <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-subtle bg-[color:var(--surface-1-80)] backdrop-blur sm:hidden">
+        <div className="grid grid-cols-4 gap-1 px-2 py-2">
+          <button
+            onClick={() => setView('menu')}
+            className={`flex flex-col items-center gap-1 py-2 rounded-xl text-xs ${
+              view === 'menu' ? 'bg-surface-3 text-strong' : 'text-muted'
+            }`}
+          >
+            <FaHome className="text-base" />
+            Главная
+          </button>
+          <button
+            onClick={() => setView('games')}
+            className={`flex flex-col items-center gap-1 py-2 rounded-xl text-xs ${
+              view === 'games' ? 'bg-surface-3 text-strong' : 'text-muted'
+            }`}
+          >
+            <FaListUl className="text-base" />
+            Игры
+          </button>
+          <button
+            onClick={() => setView('random')}
+            className={`flex flex-col items-center gap-1 py-2 rounded-xl text-xs ${
+              view === 'random' ? 'bg-surface-3 text-strong' : 'text-muted'
+            }`}
+          >
+            <FaDice className="text-base" />
+            Случайно
+          </button>
+          <button
+            onClick={() => setView('stats')}
+            className={`flex flex-col items-center gap-1 py-2 rounded-xl text-xs ${
+              view === 'stats' ? 'bg-surface-3 text-strong' : 'text-muted'
+            }`}
+          >
+            <FaChartBar className="text-base" />
+            Статистика
+          </button>
+        </div>
+      </nav>
+
       {showCustomModal && (
         <CustomQuestionsModal
           onClose={() => {
@@ -498,26 +544,27 @@ function RandomMode({ onBack }: { onBack: () => void }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="space-y-4"
+      className="space-y-6 w-full max-w-xl mx-auto"
     >
-      <div className="flex items-center gap-4 mb-6">
+      <div className="grid grid-cols-[auto,1fr,auto] items-center">
         <button onClick={onBack} className="p-2 -ml-2 text-muted hover:text-strong">
           <FaArrowLeft />
         </button>
-        <h2 className="text-xl font-display font-semibold">Случайный режим</h2>
+        <h2 className="text-xl font-display font-semibold text-center">Случайный режим</h2>
+        <div className="w-8" />
       </div>
 
-      <div className="text-center py-4">
-        <div className="text-sm text-muted mb-2">
+      <div className="text-center bg-surface border border-subtle rounded-3xl p-6 space-y-3 shadow-card">
+        <div className="text-xs text-muted uppercase tracking-[0.2em]">
           Игра {currentIndex + 1} из {queue.length}
         </div>
-        <div className="text-4xl mb-2 text-accent">
+        <div className="text-5xl text-accent">
           <CurrentIcon />
         </div>
         <div className="text-xl font-medium">{GAMES[currentGame].name}</div>
       </div>
 
-      <div className="flex gap-3">
+      <div className="grid grid-cols-2 gap-3 max-w-md mx-auto w-full">
         <Button onClick={onBack} variant="ghost" fullWidth>
           Отмена
         </Button>
@@ -529,7 +576,7 @@ function RandomMode({ onBack }: { onBack: () => void }) {
         </Button>
       </div>
 
-      <div className="flex gap-1 justify-center mt-4">
+      <div className="flex gap-1 justify-center">
         {queue.map((_, i) => (
           <div
             key={i}

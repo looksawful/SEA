@@ -11,7 +11,7 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
-      <Card className="w-full max-w-lg text-center space-y-4">
+      <Card className="w-full max-w-lg text-center space-y-4 shadow-card">
         <div className="space-y-1">
           <h1 className="text-2xl font-display font-semibold">Что-то пошло не так</h1>
           <p className="text-sm text-muted">Попробуйте перезапустить страницу или вернуться в меню.</p>
