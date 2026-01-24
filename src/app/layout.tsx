@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { AuroraBackground } from "@/components/AuroraBackground";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "painful",
+  title: "Awful-Exercises",
   description: "Train your design eye",
 };
 
@@ -24,7 +25,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased font-body text-strong">{children}</body>
+      <body className="antialiased font-body text-strong relative">
+        <AuroraBackground />
+        <div className="relative z-10 min-h-screen">{children}</div>
+      </body>
     </html>
   );
 }

@@ -1,8 +1,8 @@
 const nextConfig = {
   output: 'export',
   images: { unoptimized: true },
-  basePath: process.env.NODE_ENV === 'production' ? '/painful' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/painful/' : '',
+  basePath: process.env.NODE_ENV === 'production' ? '/Awful-Exercises' : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/Awful-Exercises/' : '',
   trailingSlash: true,
 }
 

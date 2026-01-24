@@ -188,7 +188,7 @@ export const useGameStore = create<GameStore>()(
       })),
     }),
     {
-      name: 'painful',
+      name: 'awful-exercises',
       partialize: (state) => ({ 
         stats: state.stats, 
         results: state.results,

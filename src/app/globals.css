@@ -14,36 +14,37 @@
   --font-body: "Manrope", system-ui, -apple-system, sans-serif;
   --font-display: "Space Grotesk", "Manrope", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
-  --surface-0: #f2f2f2;
-  --surface-1: #ffffff;
-  --surface-2: #ededed;
-  --surface-3: #d9d9d9;
-  --surface-1-80: rgba(255, 255, 255, 0.96);
-  --surface-1-95: rgba(255, 255, 255, 0.99);
-  --border-subtle: #bdbdbd;
-  --border-strong: #111111;
-  --text-strong: #0a0a0a;
-  --text-muted: #2b2b2b;
-  --text-soft: #4a4a4a;
-  --accent: #111111;
-  --accent-strong: #000000;
-  --accent-soft: #e6e6e6;
-  --danger: #c0362c;
-  --danger-strong: #9f1f19;
-  --danger-soft: #f2d9d6;
-  --warning: #c58a00;
-  --warning-strong: #9a6a00;
-  --warning-soft: #f4eddc;
-  --success: #2f7d39;
-  --success-strong: #215b28;
-  --success-soft: #dfeee1;
-  --shadow-soft: 0 10px 0 rgba(0, 0, 0, 0.28);
-  --shadow-card: 0 6px 0 rgba(0, 0, 0, 0.2);
+  --surface-0: #070707;
+  --surface-1: #0b0b0b;
+  --surface-2: #111111;
+  --surface-3: #1a1a1a;
+  --surface-1-80: rgba(7, 7, 7, 0.85);
+  --surface-1-95: rgba(7, 7, 7, 0.96);
+  --border-subtle: #222222;
+  --border-strong: #f2f2f2;
+  --text-strong: #f5f5f5;
+  --text-muted: #cfcfcf;
+  --text-soft: #9a9a9a;
+  --accent: #3b82f6;
+  --accent-strong: #1d4ed8;
+  --accent-soft: rgba(59, 130, 246, 0.2);
+  --danger: #ef4444;
+  --danger-strong: #b91c1c;
+  --danger-soft: #3b1a1a;
+  --warning: #f59e0b;
+  --warning-strong: #b45309;
+  --warning-soft: #3a2a12;
+  --success: #22c55e;
+  --success-strong: #15803d;
+  --success-soft: #193325;
+  --shadow-soft: 0 10px 0 rgba(255, 255, 255, 0.16);
+  --shadow-card: 0 6px 0 rgba(255, 255, 255, 0.12);
 }
 
 html {
   font-family: var(--font-body);
   -webkit-tap-highlight-color: transparent;
+  color-scheme: dark;
 }
 
 body {
@@ -156,9 +157,9 @@ button {
   .skeleton {
     background: linear-gradient(
       110deg,
-      rgba(255, 255, 255, 0.25) 10%,
-      rgba(255, 255, 255, 0.6) 28%,
-      rgba(255, 255, 255, 0.25) 55%
+      rgba(255, 255, 255, 0.08) 10%,
+      rgba(255, 255, 255, 0.18) 28%,
+      rgba(255, 255, 255, 0.08) 55%
     );
     background-size: 200% 100%;
     animation: shimmer 1.4s linear infinite;

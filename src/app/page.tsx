@@ -42,6 +42,7 @@ export default function Home() {
     useGameStore()
   const mainClass = 'flex-1 p-4 pb-24 sm:pb-4 w-full flex items-center justify-center'
   const router = useRouter()
+  const isGrid = gamesView === 'grid'
   const normalizedSearch = gameSearch.trim().toLowerCase()
   const filteredGameIds = normalizedSearch
     ? GAME_ORDER.filter((id) => {
@@ -106,7 +107,7 @@ export default function Home() {
       <header className="sticky top-0 z-10 border-b border-subtle bg-[color:var(--surface-1-80)] backdrop-blur">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <button onClick={() => setView('menu')} className="flex items-center gap-2">
-            <span className="text-lg font-display font-semibold">painful</span>
+            <span className="text-lg font-display font-semibold">Awful-Exercises</span>
           </button>
           <div className="flex items-center gap-2">
             <button
@@ -165,9 +166,6 @@ export default function Home() {
                 <div className="text-center text-xs text-soft pt-2 hidden sm:block">
                   Горячие клавиши: 1-4 выбор • P пауза • Esc выход
                 </div>
-                <div className="text-center text-xs text-soft pt-1 sm:hidden">
-                  Выбирай касанием по экрану
-                </div>
               </div>
 
               {stats.totalGames > 0 && (
@@ -200,12 +198,12 @@ export default function Home() {
               exit={{ opacity: 0 }}
               className="space-y-4 w-full max-w-4xl"
             >
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex flex-wrap items-center gap-3 mb-6">
                 <button onClick={() => setView('menu')} className="p-2 -ml-2 text-muted hover:text-strong">
                   <FaArrowLeft />
                 </button>
                 <h2 className="text-xl font-display font-semibold flex-1">Выбери упражнение</h2>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
                   <button
                     onClick={() => setGamesView('list')}
                     className={`w-9 h-9 rounded-xl border border-subtle flex items-center justify-center ${
@@ -252,7 +250,7 @@ export default function Home() {
                 )}
               </div>
 
-              <div className={gamesView === 'grid' ? 'grid gap-3 sm:grid-cols-2 lg:grid-cols-3' : 'grid gap-3'}>
+              <div className={isGrid ? 'grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3' : 'grid gap-3'}>
                 {filteredGameIds.map((id) => {
                   const game = GAMES[id]
                   const played = stats.gamesPlayed[id] || 0
@@ -268,38 +266,49 @@ export default function Home() {
                   return (
                     <Card
                       key={id}
-                      className="transition-colors shadow-card"
+                      className="transition-colors shadow-card min-w-0"
+                      padding={isGrid ? 'sm' : 'md'}
                       onClick={() => router.push(`/game/${id}`)}
                     >
-                      <div className={gamesView === 'grid' ? 'flex flex-col gap-4' : 'flex items-start gap-4'}>
+                      <div className={isGrid ? 'flex flex-col gap-3' : 'flex items-start gap-4'}>
                         <div
-                          className={`w-12 h-12 rounded-2xl bg-surface-2 border border-subtle flex items-center justify-center text-accent ${
-                            gamesView === 'grid' ? '' : 'flex-shrink-0'
+                          className={`${
+                            isGrid ? 'w-10 h-10' : 'w-12 h-12'
+                          } rounded-2xl bg-surface-2 border border-subtle flex items-center justify-center text-accent ${
+                            isGrid ? '' : 'flex-shrink-0'
                           }`}
                         >
-                          <GameIcon className="text-2xl" />
+                          <GameIcon className={isGrid ? 'text-xl' : 'text-2xl'} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="font-medium">{game.name}</div>
-                          <div className="text-sm text-muted truncate">{game.description}</div>
-                          <div className="text-xs text-soft mt-2 space-y-1">
+                          <div className={isGrid ? 'font-medium text-sm sm:text-base' : 'font-medium'}>
+                            {game.name}
+                          </div>
+                          {!isGrid && (
+                            <div className="text-sm text-muted">
+                              <span className="truncate block">{game.description}</span>
+                            </div>
+                          )}
+                          <div className={isGrid ? 'text-[11px] text-soft mt-2 space-y-1' : 'text-xs text-soft mt-2 space-y-1'}>
                             {questionStats ? (
                               <div>
-                                Вопросов: {questionStats.total} • Сложность: {formatDifficulty(questionStats)}
+                                Вопросов: {questionStats.total}
                               </div>
                             ) : (
-                              <div>Вопросы: генеративные • Сложность: адаптивная</div>
+                              <div>Вопросы: генеративные</div>
                             )}
                             <div>
-                              Сыграно: {played} • Точность: {Math.round(accuracy || 0)}%
+                              Сыграно: {played} • {Math.round(accuracy || 0)}%
                             </div>
-                            <div>
-                              Последний результат:{' '}
-                              {lastResult
-                                ? `${lastResult.correct}/${lastResult.total} (${lastAccuracy}%)`
-                                : '—'}
-                            </div>
-                            {customCount > 0 && <div>Свои вопросы: {customCount}</div>}
+                            {!isGrid && (
+                              <div>
+                                Последний результат:{' '}
+                                {lastResult
+                                  ? `${lastResult.correct}/${lastResult.total} (${lastAccuracy}%)`
+                                  : '—'}
+                              </div>
+                            )}
+                            {!isGrid && customCount > 0 && <div>Свои вопросы: {customCount}</div>}
                           </div>
                         </div>
                         <div className={gamesView === 'grid' ? 'flex justify-between gap-2' : 'text-soft'}>
@@ -313,17 +322,19 @@ export default function Home() {
                         </div>
                       </div>
 
-                      <div className="mt-4 flex flex-wrap gap-2">
+                      <div className={isGrid ? 'mt-3 grid grid-cols-2 gap-2' : 'mt-4 flex flex-wrap gap-2'}>
                         <button
                           onClick={(event) => {
                             event.stopPropagation()
                             setCustomModalGame(id)
                             setShowCustomModal(true)
                           }}
-                          className="inline-flex items-center gap-2 px-3 py-2 text-xs rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors"
+                          className={`inline-flex items-center justify-center gap-2 px-3 py-2 text-xs rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors ${
+                            isGrid ? 'w-full' : ''
+                          }`}
                         >
                           <FaPlus className="text-xs" />
-                          Добавить вопросы
+                          <span className={isGrid ? 'hidden sm:inline' : ''}>Добавить вопросы</span>
                         </button>
                         <button
                           onClick={(event) => {
@@ -331,10 +342,12 @@ export default function Home() {
                             setCustomModalGame(id)
                             setShowCustomModal(true)
                           }}
-                          className="inline-flex items-center gap-2 px-3 py-2 text-xs rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors"
+                          className={`inline-flex items-center justify-center gap-2 px-3 py-2 text-xs rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors ${
+                            isGrid ? 'w-full' : ''
+                          }`}
                         >
                           <FaPen className="text-xs" />
-                          Редактировать
+                          <span className={isGrid ? 'hidden sm:inline' : ''}>Редактировать</span>
                         </button>
                       </div>
                     </Card>
