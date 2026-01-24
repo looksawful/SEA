@@ -1,7 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useGameStore } from '@/store/gameStore'
 import { GAMES, GAME_ORDER } from '@/utils/gameConfig'
@@ -106,7 +105,6 @@ export default function Home() {
       <header className="sticky top-0 z-10 border-b border-subtle bg-[color:var(--surface-1-80)] backdrop-blur">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <button onClick={() => setView('menu')} className="flex items-center gap-2">
-            <Image src="/brand/logo-mark.svg" alt="" width={36} height={36} className="h-9 w-9" />
             <span className="text-lg font-display font-semibold">painful</span>
           </button>
           <div className="flex items-center gap-2">

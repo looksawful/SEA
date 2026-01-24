@@ -48,8 +48,8 @@ export const IMAGE_QUIZ_IDS = [
 
 export type ImageQuizGameId = (typeof IMAGE_QUIZ_IDS)[number];
 
-const commons = (file: string) =>
-  `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}`;
+const commons = (file: string, width = 1200) =>
+  `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
 
 const sources = {
   commons: { label: "Wikimedia Commons", url: "https://commons.wikimedia.org" },

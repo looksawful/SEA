@@ -18,8 +18,8 @@
   --surface-1: #ffffff;
   --surface-2: #ededed;
   --surface-3: #d9d9d9;
-  --surface-1-80: rgba(255, 255, 255, 0.92);
-  --surface-1-95: rgba(255, 255, 255, 0.98);
+  --surface-1-80: rgba(255, 255, 255, 0.96);
+  --surface-1-95: rgba(255, 255, 255, 0.99);
   --border-subtle: #bdbdbd;
   --border-strong: #111111;
   --text-strong: #0a0a0a;
@@ -28,15 +28,15 @@
   --accent: #111111;
   --accent-strong: #000000;
   --accent-soft: #e6e6e6;
-  --danger: #111111;
-  --danger-strong: #000000;
-  --danger-soft: #eaeaea;
-  --warning: #1a1a1a;
-  --warning-strong: #000000;
-  --warning-soft: #e0e0e0;
-  --success: #0f0f0f;
-  --success-strong: #000000;
-  --success-soft: #e3e3e3;
+  --danger: #c0362c;
+  --danger-strong: #9f1f19;
+  --danger-soft: #f2d9d6;
+  --warning: #c58a00;
+  --warning-strong: #9a6a00;
+  --warning-soft: #f4eddc;
+  --success: #2f7d39;
+  --success-strong: #215b28;
+  --success-soft: #dfeee1;
   --shadow-soft: 0 10px 0 rgba(0, 0, 0, 0.28);
   --shadow-card: 0 6px 0 rgba(0, 0, 0, 0.2);
 }
@@ -50,10 +50,7 @@ body {
   min-height: 100vh;
   min-height: 100dvh;
   background-color: var(--surface-0);
-  background-image:
-    linear-gradient(180deg, #ffffff 0% 35%, #eaeaea 35% 70%, #f2f2f2 70% 100%),
-    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0 1px, transparent 1px 12px),
-    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 14px);
+  background-image: none;
   color: var(--text-strong);
 }
 

@@ -121,7 +121,7 @@ const createDefaultPreview = (config: CustomQuestionConfig): CustomQuestionPrevi
   if (config.previewKind === "image") {
     return {
       kind: "image",
-      imageSrc: "https://commons.wikimedia.org/wiki/Special:FilePath/Example.jpg",
+      imageSrc: "https://commons.wikimedia.org/wiki/Special:FilePath/Example.jpg?width=1200",
       imageAlt: "Пример фото",
       source: "Wikimedia Commons",
     };
@@ -208,6 +208,7 @@ const renderPreview = (preview?: CustomQuestionPreview) => {
             alt={preview.imageAlt || "Preview"}
             className="w-full h-full object-cover max-h-72"
             loading="lazy"
+            decoding="async"
           />
         </div>
         {preview.source && (

@@ -177,7 +177,13 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
 
       <div className={containerClass}>
         <div className={`overflow-hidden rounded-2xl border border-subtle shadow-card ${frameClass}`}>
-          <img src={question.imageSrc} alt={question.imageAlt} className={`w-full h-full ${imageClass}`} />
+          <img
+            src={question.imageSrc}
+            alt={question.imageAlt}
+            className={`w-full h-full ${imageClass}`}
+            loading="lazy"
+            decoding="async"
+          />
         </div>
       </div>
 
