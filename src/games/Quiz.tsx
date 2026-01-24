@@ -5,6 +5,7 @@ import { useSound } from "@/hooks/useSound";
 import { useGameStore } from "@/store/gameStore";
 import { pickRandom, shuffle } from "@/utils/helpers";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
+import { Language, t } from "@/utils/i18n";
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 
@@ -447,6 +448,23 @@ interface Challenge {
   correctIndex: number;
 }
 
+const categoryLabels: Record<Language, Record<QuizQuestion["category"], string>> = {
+  ru: {
+    color: "цвет",
+    typography: "типографика",
+    layout: "композиция",
+    ux: "UX",
+    accessibility: "доступность",
+  },
+  en: {
+    color: "color",
+    typography: "type",
+    layout: "layout",
+    ux: "UX",
+    accessibility: "accessibility",
+  },
+};
+
 const generateChallenge = (usedQuestions: Set<number>, round: number): Challenge | null => {
   const difficulty = getDifficulty(round);
 
@@ -477,7 +495,7 @@ export const QuizGame = ({ onAnswer }: Props) => {
   const [showResult, setShowResult] = useState(false);
   const [round, setRound] = useState(0);
   const [usedQuestions] = useState(() => new Set<number>());
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake } = useGameStore();
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, language } = useGameStore();
   const { playCorrect, playWrong } = useSound();
 
   useEffect(() => {
@@ -533,7 +551,7 @@ export const QuizGame = ({ onAnswer }: Props) => {
     if (num < (challenge?.shuffledOptions.length || 0)) handleSelect(num);
   }, !showResult);
 
-  if (!challenge) return <div className="text-center p-8 text-muted">Вопросы закончились!</div>;
+  if (!challenge) return <div className="text-center p-8 text-muted">{t(language, "noQuestionsLeft")}</div>;
 
   const catColors: Record<string, string> = {
     color: "bg-[color:var(--accent-soft)] text-accent",
@@ -548,7 +566,7 @@ export const QuizGame = ({ onAnswer }: Props) => {
       <div className="text-center space-y-1 sm:space-y-2">
         <div className="hidden sm:flex justify-center gap-2">
           <span className={`text-xs px-2 py-1 rounded-full ${catColors[challenge.question.category]}`}>
-            {challenge.question.category}
+            {categoryLabels[language][challenge.question.category]}
           </span>
           <span className="text-xs px-2 py-1 rounded-full bg-surface-2 text-muted">
             {difficultyDots(challenge.question.difficulty)}

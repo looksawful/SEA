@@ -5,6 +5,7 @@ import { useTimer } from "@/hooks/useTimer";
 import { useGameStore } from "@/store/gameStore";
 import { GameId, MistakeRecord } from "@/types";
 import { GAMES } from "@/utils/gameConfig";
+import { Language, getGameLabel, t } from "@/utils/i18n";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
@@ -24,7 +25,15 @@ interface GameWrapperProps {
   correctCount?: number | null;
 }
 
-const MistakeCard = ({ mistake, index }: { mistake: MistakeRecord; index: number }) => (
+const MistakeCard = ({
+  mistake,
+  index,
+  language,
+}: {
+  mistake: MistakeRecord;
+  index: number;
+  language: Language;
+}) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -39,11 +48,11 @@ const MistakeCard = ({ mistake, index }: { mistake: MistakeRecord; index: number
         <div className="font-medium text-strong mb-1">{mistake.question}</div>
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="bg-[color:var(--danger-soft)] text-[color:var(--danger-strong)] px-3 py-2 rounded-lg">
-            <span className="text-[color:var(--danger)] text-xs block">Твой ответ</span>
+            <span className="text-[color:var(--danger)] text-xs block">{t(language, "yourAnswer")}</span>
             {mistake.userAnswer}
           </div>
           <div className="bg-[color:var(--success-soft)] text-[color:var(--success-strong)] px-3 py-2 rounded-lg">
-            <span className="text-[color:var(--success)] text-xs block">Правильный</span>
+            <span className="text-[color:var(--success)] text-xs block">{t(language, "correctAnswer")}</span>
             {mistake.correctAnswer}
           </div>
         </div>
@@ -93,7 +102,9 @@ export const GameWrapper = ({
     addResult,
     currentMistakes,
     clearMistakes,
+    language,
   } = useGameStore();
+  const gameLabel = getGameLabel(gameId, language);
 
   const { start, stop, reset } = useTimer({
     initialTime: sessionTimeLimit,
@@ -202,21 +213,21 @@ export const GameWrapper = ({
           <header className="sticky top-0 z-10 bg-surface border-b border-subtle px-4 py-3">
             <div className="max-w-2xl mx-auto flex items-center justify-between">
               <button onClick={() => setShowMistakes(false)} className="p-2 -ml-2 text-muted">
-                ← Назад
+                ← {t(language, "back")}
               </button>
               <h2 className="text-lg sm:text-xl font-display font-semibold tracking-tight text-strong">
-                Разбор ошибок ({currentMistakes.length})
+                {t(language, "mistakeReviewTitle", { count: currentMistakes.length })}
               </h2>
               <div className="w-10" />
             </div>
           </header>
           <main className="max-w-2xl mx-auto p-4 space-y-4">
             {currentMistakes.map((mistake, i) => (
-              <MistakeCard key={i} mistake={mistake} index={i} />
+              <MistakeCard key={i} mistake={mistake} index={i} language={language} />
             ))}
             <div className="pt-4">
               <Button onClick={handleStart} fullWidth size="lg">
-                Попробовать снова
+                {t(language, "tryAgain")}
               </Button>
             </div>
           </main>
@@ -237,16 +248,22 @@ export const GameWrapper = ({
             transition={{ delay: 0.2, type: "spring" }}
             className="text-6xl mb-4"
           >
-            {accuracy >= 80 ? "Отлично" : accuracy >= 50 ? "Хорошо" : "Неплохо"}
+            {accuracy >= 80
+              ? t(language, "resultGreat")
+              : accuracy >= 50
+                ? t(language, "resultGood")
+                : t(language, "resultOk")}
           </motion.div>
-          <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-2">Раунд завершён!</h2>
+          <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-2">
+            {t(language, "roundComplete")}
+          </h2>
           <div className="text-4xl font-mono font-bold mb-2">{score.toLocaleString()}</div>
           <div className="text-muted mb-6">
-            Правильно: {resolvedCorrect} из {totalChallenges} ({accuracy}%)
+            {t(language, "correctSummary", { correct: resolvedCorrect, total: totalChallenges, accuracy })}
           </div>
           {nextGame && (
             <div className="text-sm text-muted mb-4">
-              Далее: {GAMES[nextGame.id].name}
+              {t(language, "nextGame", { name: getGameLabel(nextGame.id, language).name })}
             </div>
           )}
 
@@ -258,21 +275,23 @@ export const GameWrapper = ({
               className="mb-6 p-4 bg-[color:var(--danger-soft)] border border-[color:var(--danger)] rounded-xl"
             >
               <div className="text-[color:var(--danger-strong)] font-medium mb-1">
-                {currentMistakes.length}{" "}
-                {currentMistakes.length === 1 ? "ошибка" : currentMistakes.length < 5 ? "ошибки" : "ошибок"}
+                {t(language, "mistakesCount", {
+                  count: currentMistakes.length,
+                  label: t(language, "mistakesLabel", { count: currentMistakes.length }),
+                })}
               </div>
               <button
                 onClick={() => setShowMistakes(true)}
                 className="text-[color:var(--danger)] text-sm underline hover:no-underline"
               >
-                Посмотреть разбор →
+                {t(language, "reviewMistakes")}
               </button>
             </motion.div>
           )}
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button onClick={handleExit} variant="secondary" fullWidth>
-              Выйти
+              {t(language, "exit")}
             </Button>
             <Button
               onClick={() => {
@@ -283,11 +302,11 @@ export const GameWrapper = ({
               variant={nextGame ? "secondary" : "primary"}
               fullWidth
             >
-              Ещё раз
+              {t(language, "again")}
             </Button>
             {nextGame && (
               <Button onClick={handleNext} variant="primary" fullWidth>
-                Следующая игра
+                {t(language, "next")}
               </Button>
             )}
           </div>
@@ -309,11 +328,11 @@ export const GameWrapper = ({
               <GameIcon className="text-3xl" aria-hidden />
             </span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-2">{game.name}</h1>
-          <p className="text-muted mb-6">{game.description}</p>
+          <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-2">{gameLabel.name}</h1>
+          <p className="text-muted mb-6">{gameLabel.description}</p>
           <div className="flex flex-col gap-3 mb-6 text-sm text-muted">
             <div className="flex justify-between px-4 py-2 bg-surface-2 border border-subtle rounded-lg">
-              <span>Время</span>
+              <span>{t(language, "time")}</span>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -328,25 +347,25 @@ export const GameWrapper = ({
                     setSessionTimeLimit(clamped);
                   }}
                   className="w-20 px-2 py-1 rounded-md bg-surface border border-subtle text-right font-mono text-strong"
-                  aria-label="Время на раунд, секунд"
+                  aria-label={t(language, "timeRoundLabel")}
                 />
-                <span className="font-mono">с</span>
+                <span className="font-mono">{t(language, "seconds")}</span>
               </div>
             </div>
             <div className="flex justify-between px-4 py-2 bg-surface-2 border border-subtle rounded-lg">
-              <span>За правильный ответ</span>
+              <span>{t(language, "pointsPerCorrect")}</span>
               <span className="font-mono">+{game.pointsPerCorrect}</span>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button onClick={handleExit} variant="ghost" fullWidth>
-              Назад
+              {t(language, "back")}
             </Button>
             <Button onClick={handleStart} hotkey="Space" fullWidth>
-              Начать
+              {t(language, "start")}
             </Button>
           </div>
-          <div className="mt-6 text-xs text-soft hidden sm:block">1-4 — выбор ответа • P — пауза • Esc — выход</div>
+          <div className="mt-6 text-xs text-soft hidden sm:block">{t(language, "hotkeys")}</div>
         </motion.div>
       </div>
     );
@@ -360,7 +379,7 @@ export const GameWrapper = ({
             <button
               onClick={handleExit}
               className="p-2 -ml-2 text-soft hover:text-strong"
-              aria-label="Выйти из игры"
+              aria-label={t(language, "exit")}
             >
               X
             </button>
@@ -385,9 +404,9 @@ export const GameWrapper = ({
           >
             <div className="text-center">
               <div className="text-4xl mb-4" />
-              <h2 className="text-2xl font-display font-bold tracking-tight mb-4">Пауза</h2>
+              <h2 className="text-2xl font-display font-bold tracking-tight mb-4">{t(language, "pause")}</h2>
               <Button onClick={handlePause} hotkey="P">
-                Продолжить
+                {t(language, "resume")}
               </Button>
             </div>
           </motion.div>

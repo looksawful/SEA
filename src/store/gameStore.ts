@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { GameId, GameResult, Stats, MistakeRecord } from '@/types'
+import { Language } from '@/utils/i18n'
 import { CustomQuestion } from '@/utils/customQuestions'
 
 interface GameStore {
@@ -15,6 +16,7 @@ interface GameStore {
   results: GameResult[]
   stats: Stats
   soundEnabled: boolean
+  language: Language
   currentMistakes: MistakeRecord[]
   customQuestions: Record<GameId, CustomQuestion[]>
   customMode: Record<GameId, boolean>
@@ -33,6 +35,7 @@ interface GameStore {
   addResult: (result: GameResult) => void
   updateStats: (gameId: GameId, correct: boolean) => void
   toggleSound: () => void
+  setLanguage: (language: Language) => void
   resetGame: () => void
   resetAll: () => void
   addMistake: (mistake: MistakeRecord) => void
@@ -65,6 +68,7 @@ export const useGameStore = create<GameStore>()(
       results: [],
       stats: initialStats,
       soundEnabled: true,
+      language: 'ru',
       currentMistakes: [],
       customQuestions: {} as Record<GameId, CustomQuestion[]>,
       customMode: {} as Record<GameId, boolean>,
@@ -122,6 +126,8 @@ export const useGameStore = create<GameStore>()(
       }),
       
       toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
+
+      setLanguage: (language) => set({ language }),
       
       addMistake: (mistake) => set((state) => ({
         currentMistakes: [...state.currentMistakes, mistake]
@@ -194,6 +200,7 @@ export const useGameStore = create<GameStore>()(
         results: state.results,
         bestStreak: state.bestStreak,
         soundEnabled: state.soundEnabled,
+        language: state.language,
         customQuestions: state.customQuestions,
         customMode: state.customMode
       }),

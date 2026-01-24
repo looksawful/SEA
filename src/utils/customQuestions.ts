@@ -1,7 +1,10 @@
 import { GameId } from "@/types";
+import { Language } from "@/utils/i18n";
 
 export type CustomOptionKind = "text" | "color" | "size" | "weight" | "font" | "palette";
 export type CustomPreviewKind = "none" | "single-color" | "dual-color" | "contrast" | "sample" | "image";
+
+type LocalizedText = { ru: string; en: string };
 
 export interface CustomQuestionOption {
   label: string;
@@ -35,6 +38,16 @@ export interface CustomQuestion {
   preview?: CustomQuestionPreview;
 }
 
+export interface CustomQuestionConfigBase {
+  title: LocalizedText;
+  optionKind: CustomOptionKind;
+  previewKind: CustomPreviewKind;
+  defaultOptions: number;
+  optionLabel: LocalizedText;
+  previewLabels?: LocalizedText[];
+  sampleLabel?: LocalizedText;
+}
+
 export interface CustomQuestionConfig {
   title: string;
   optionKind: CustomOptionKind;
@@ -45,207 +58,224 @@ export interface CustomQuestionConfig {
   sampleLabel?: string;
 }
 
-export const CUSTOM_QUESTION_CONFIG: Record<GameId, CustomQuestionConfig> = {
+export const CUSTOM_QUESTION_CONFIG: Record<GameId, CustomQuestionConfigBase> = {
   "color-compare": {
-    title: "Сравни цвета",
+    title: { ru: "Сравни цвета", en: "Compare colors" },
     optionKind: "color",
     previewKind: "none",
     defaultOptions: 4,
-    optionLabel: "Цвет",
+    optionLabel: { ru: "Цвет", en: "Color" },
   },
   "font-size": {
-    title: "Размер шрифта",
+    title: { ru: "Размер шрифта", en: "Font size" },
     optionKind: "size",
     previewKind: "none",
     defaultOptions: 4,
-    optionLabel: "Размер",
+    optionLabel: { ru: "Размер", en: "Size" },
   },
   "guess-font": {
-    title: "Угадай шрифт",
+    title: { ru: "Угадай шрифт", en: "Guess the font" },
     optionKind: "text",
     previewKind: "sample",
     defaultOptions: 4,
-    optionLabel: "Шрифт",
-    sampleLabel: "Текст образца",
+    optionLabel: { ru: "Шрифт", en: "Font" },
+    sampleLabel: { ru: "Текст образца", en: "Sample text" },
   },
   "color-params": {
-    title: "Параметры цвета",
+    title: { ru: "Параметры цвета", en: "Color parameters" },
     optionKind: "text",
     previewKind: "dual-color",
     defaultOptions: 4,
-    optionLabel: "Ответ",
-    previewLabels: ["Цвет A", "Цвет B"],
+    optionLabel: { ru: "Ответ", en: "Answer" },
+    previewLabels: [
+      { ru: "Цвет A", en: "Color A" },
+      { ru: "Цвет B", en: "Color B" },
+    ],
   },
   "color-temperature": {
-    title: "Температура цвета",
+    title: { ru: "Температура цвета", en: "Color temperature" },
     optionKind: "color",
     previewKind: "none",
     defaultOptions: 4,
-    optionLabel: "Цвет",
+    optionLabel: { ru: "Цвет", en: "Color" },
   },
   accessibility: {
-    title: "Доступность",
+    title: { ru: "Доступность", en: "Accessibility" },
     optionKind: "text",
     previewKind: "contrast",
     defaultOptions: 4,
-    optionLabel: "Уровень",
-    previewLabels: ["Текст", "Фон"],
+    optionLabel: { ru: "Уровень", en: "Level" },
+    previewLabels: [
+      { ru: "Текст", en: "Text" },
+      { ru: "Фон", en: "Background" },
+    ],
   },
   "palette-error": {
-    title: "Ошибка в палитре",
+    title: { ru: "Ошибка в палитре", en: "Palette error" },
     optionKind: "color",
     previewKind: "none",
     defaultOptions: 6,
-    optionLabel: "Цвет",
+    optionLabel: { ru: "Цвет", en: "Color" },
   },
   "size-sequence": {
-    title: "Типографская шкала",
+    title: { ru: "Типографская шкала", en: "Type scale" },
     optionKind: "size",
     previewKind: "none",
     defaultOptions: 5,
-    optionLabel: "Размер",
+    optionLabel: { ru: "Размер", en: "Size" },
   },
   complementary: {
-    title: "Дополнительный цвет",
+    title: { ru: "Дополнительный цвет", en: "Complementary color" },
     optionKind: "color",
     previewKind: "none",
     defaultOptions: 4,
-    optionLabel: "Цвет",
+    optionLabel: { ru: "Цвет", en: "Color" },
   },
   "guess-hex": {
-    title: "Угадай HEX",
+    title: { ru: "Угадай HEX", en: "Guess HEX" },
     optionKind: "text",
     previewKind: "single-color",
     defaultOptions: 4,
-    optionLabel: "HEX",
-    previewLabels: ["Цвет"],
+    optionLabel: { ru: "HEX", en: "HEX" },
+    previewLabels: [{ ru: "Цвет", en: "Color" }],
   },
   "guess-params": {
-    title: "Угадай HSL",
+    title: { ru: "Угадай HSL", en: "Guess HSL" },
     optionKind: "text",
     previewKind: "single-color",
     defaultOptions: 4,
-    optionLabel: "HSL",
-    previewLabels: ["Цвет"],
+    optionLabel: { ru: "HSL", en: "HSL" },
+    previewLabels: [{ ru: "Цвет", en: "Color" }],
   },
   quiz: {
-    title: "Квиз",
+    title: { ru: "Квиз", en: "Quiz" },
     optionKind: "text",
     previewKind: "none",
     defaultOptions: 4,
-    optionLabel: "Ответ",
+    optionLabel: { ru: "Ответ", en: "Answer" },
   },
   "theme-analog": {
-    title: "Тёмная/Светлая тема",
+    title: { ru: "Тёмная/Светлая тема", en: "Light/Dark theme" },
     optionKind: "color",
     previewKind: "single-color",
     defaultOptions: 4,
-    optionLabel: "Цвет",
-    previewLabels: ["Исходный"],
+    optionLabel: { ru: "Цвет", en: "Color" },
+    previewLabels: [{ ru: "Исходный", en: "Original" }],
   },
   "font-weight": {
-    title: "Толщина шрифта",
+    title: { ru: "Толщина шрифта", en: "Font weight" },
     optionKind: "weight",
     previewKind: "none",
     defaultOptions: 4,
-    optionLabel: "Вес",
+    optionLabel: { ru: "Вес", en: "Weight" },
   },
   "artist-guess": {
-    title: "Угадай художника",
+    title: { ru: "Угадай художника", en: "Guess the artist" },
     optionKind: "text",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: "Художник",
+    optionLabel: { ru: "Художник", en: "Artist" },
   },
   "style-guess": {
-    title: "Угадай стиль",
+    title: { ru: "Угадай стиль", en: "Guess the style" },
     optionKind: "text",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: "Стиль",
+    optionLabel: { ru: "Стиль", en: "Style" },
   },
   "image-size": {
-    title: "Размер изображения",
+    title: { ru: "Размер изображения", en: "Image size" },
     optionKind: "text",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: "Размер",
+    optionLabel: { ru: "Размер", en: "Size" },
   },
   "image-format": {
-    title: "Формат кадра",
+    title: { ru: "Формат кадра", en: "Aspect ratio" },
     optionKind: "text",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: "Формат",
+    optionLabel: { ru: "Формат", en: "Format" },
   },
   "color-eye": {
-    title: "Цвет на глаз",
+    title: { ru: "Цвет на глаз", en: "Color by eye" },
     optionKind: "color",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: "Цвет",
+    optionLabel: { ru: "Цвет", en: "Color" },
   },
   "color-wheel": {
-    title: "Цветовой круг",
+    title: { ru: "Цветовой круг", en: "Color wheel" },
     optionKind: "color",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: "Цвет",
+    optionLabel: { ru: "Цвет", en: "Color" },
   },
   "film-type": {
-    title: "Тип плёнки",
+    title: { ru: "Тип плёнки", en: "Film type" },
     optionKind: "text",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: "Плёнка",
+    optionLabel: { ru: "Плёнка", en: "Film" },
   },
   "composition-technique": {
-    title: "Композиция",
+    title: { ru: "Композиция", en: "Composition" },
     optionKind: "text",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: "Приём",
+    optionLabel: { ru: "Приём", en: "Technique" },
   },
   "focal-length": {
-    title: "Фокусное расстояние",
+    title: { ru: "Фокусное расстояние", en: "Focal length" },
     optionKind: "text",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: "Фокусное",
+    optionLabel: { ru: "Фокусное", en: "Focal length" },
   },
   "wcag-issue": {
-    title: "Проблема WCAG",
+    title: { ru: "Проблема WCAG", en: "WCAG issue" },
     optionKind: "text",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: "Проблема",
+    optionLabel: { ru: "Проблема", en: "Issue" },
   },
   "button-color": {
-    title: "Цвет кнопки",
+    title: { ru: "Цвет кнопки", en: "Button color" },
     optionKind: "color",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: "Цвет",
+    optionLabel: { ru: "Цвет", en: "Color" },
   },
   "font-size-choice": {
-    title: "Размер шрифта в UI",
+    title: { ru: "Размер шрифта в UI", en: "UI font size" },
     optionKind: "size",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: "Размер",
+    optionLabel: { ru: "Размер", en: "Size" },
   },
   "layout-error": {
-    title: "Ошибка в вёрстке",
+    title: { ru: "Ошибка в вёрстке", en: "Layout error" },
     optionKind: "text",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: "Ошибка",
+    optionLabel: { ru: "Ошибка", en: "Error" },
   },
   "palette-from-photo": {
-    title: "Палитра из фото",
+    title: { ru: "Палитра из фото", en: "Palette from photo" },
     optionKind: "palette",
     previewKind: "image",
     defaultOptions: 3,
-    optionLabel: "Палитра",
+    optionLabel: { ru: "Палитра", en: "Palette" },
   },
+};
+
+export const getCustomQuestionConfig = (gameId: GameId, language: Language): CustomQuestionConfig => {
+  const config = CUSTOM_QUESTION_CONFIG[gameId];
+  return {
+    ...config,
+    title: config.title[language],
+    optionLabel: config.optionLabel[language],
+    previewLabels: config.previewLabels?.map((label) => label[language]),
+    sampleLabel: config.sampleLabel?.[language],
+  };
 };

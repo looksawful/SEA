@@ -11,13 +11,14 @@ import { GameId } from "@/types";
 import { GAME_ORDER, GAMES } from "@/utils/gameConfig";
 import { getFontSizeClass } from "@/utils/fonts";
 import { generateId, shuffle } from "@/utils/helpers";
+import { Language, getGameLabel, t } from "@/utils/i18n";
 import {
-  CUSTOM_QUESTION_CONFIG,
   CustomOptionKind,
   CustomQuestion,
   CustomQuestionConfig,
   CustomQuestionOption,
   CustomQuestionPreview,
+  getCustomQuestionConfig,
 } from "@/utils/customQuestions";
 
 const WEIGHT_CLASS: Record<number, string> = {
@@ -36,6 +37,10 @@ const textAreaClass =
   "w-full px-3 py-2 rounded-lg bg-surface-2 border border-subtle text-sm text-strong min-h-[96px] resize-y focus-visible:outline focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]";
 
 const maxOptions = 6;
+const previewDefaults: Record<Language, { sample: string; contrast: string; imageAlt: string }> = {
+  ru: { sample: "Типографика", contrast: "Доступность", imageAlt: "Пример фото" },
+  en: { sample: "Typography", contrast: "Accessibility", imageAlt: "Sample photo" },
+};
 
 const createDefaultOptions = (config: CustomQuestionConfig): CustomQuestionOption[] => {
   const count = config.defaultOptions;
@@ -80,7 +85,7 @@ const createDefaultOptions = (config: CustomQuestionConfig): CustomQuestionOptio
       ["#9334e6", "#1a73e8", "#00acc1"],
     ];
     return Array.from({ length: count }, (_, index) => ({
-      label: `Палитра ${index + 1}`,
+      label: `${config.optionLabel} ${index + 1}`,
       palette: palettes[index % palettes.length],
     }));
   }
@@ -90,13 +95,16 @@ const createDefaultOptions = (config: CustomQuestionConfig): CustomQuestionOptio
   }));
 };
 
-const createDefaultPreview = (config: CustomQuestionConfig): CustomQuestionPreview | undefined => {
+const createDefaultPreview = (
+  config: CustomQuestionConfig,
+  language: Language,
+): CustomQuestionPreview | undefined => {
   if (config.previewKind === "none") return undefined;
 
   if (config.previewKind === "sample") {
     return {
       kind: "sample",
-      text: "Типографика",
+      text: previewDefaults[language].sample,
       font: "Manrope",
     };
   }
@@ -106,7 +114,7 @@ const createDefaultPreview = (config: CustomQuestionConfig): CustomQuestionPrevi
       kind: "contrast",
       colors: ["#1f1f1f", "#ffffff"],
       labels: config.previewLabels,
-      text: "Доступность",
+      text: previewDefaults[language].contrast,
     };
   }
 
@@ -122,7 +130,7 @@ const createDefaultPreview = (config: CustomQuestionConfig): CustomQuestionPrevi
     return {
       kind: "image",
       imageSrc: "https://commons.wikimedia.org/wiki/Special:FilePath/Example.jpg?width=1200",
-      imageAlt: "Пример фото",
+      imageAlt: previewDefaults[language].imageAlt,
       source: "Wikimedia Commons",
     };
   }
@@ -134,12 +142,21 @@ const createDefaultPreview = (config: CustomQuestionConfig): CustomQuestionPrevi
   };
 };
 
-const formatOptionLabel = (option: CustomQuestionOption, kind: CustomOptionKind): string => {
+const fallbackOptionLabels: Record<Language, { color: string; palette: string; font: string; option: string }> = {
+  ru: { color: "Цвет", palette: "Палитра", font: "Шрифт", option: "Вариант" },
+  en: { color: "Color", palette: "Palette", font: "Font", option: "Option" },
+};
+
+const formatOptionLabel = (
+  option: CustomQuestionOption,
+  kind: CustomOptionKind,
+  language: Language,
+): string => {
   if (kind === "color") {
-    return option.label || option.color || "Color";
+    return option.label || option.color || fallbackOptionLabels[language].color;
   }
   if (kind === "palette") {
-    return option.label || (option.palette ? option.palette.join(", ") : "Palette");
+    return option.label || (option.palette ? option.palette.join(", ") : fallbackOptionLabels[language].palette);
   }
   if (kind === "size") {
     return `${option.label || "Aa"} ${option.size ?? ""}`.trim();
@@ -148,12 +165,12 @@ const formatOptionLabel = (option: CustomQuestionOption, kind: CustomOptionKind)
     return `${option.label || "Aa"} ${option.weight ?? ""}`.trim();
   }
   if (kind === "font") {
-    return option.label || option.font || "Font";
+    return option.label || option.font || fallbackOptionLabels[language].font;
   }
-  return option.label || "Option";
+  return option.label || fallbackOptionLabels[language].option;
 };
 
-const renderPreview = (preview?: CustomQuestionPreview) => {
+const renderPreview = (preview: CustomQuestionPreview | undefined, language: Language) => {
   if (!preview) return null;
 
   if (preview.kind === "single-color" || preview.kind === "dual-color") {
@@ -179,7 +196,7 @@ const renderPreview = (preview?: CustomQuestionPreview) => {
           ink={textColor}
           className="w-full min-h-[120px] flex items-center justify-center rounded-xl border border-subtle"
         >
-          <span className="text-xl font-medium text-swatch">{preview.text || "Контраст"}</span>
+          <span className="text-xl font-medium text-swatch">{preview.text || previewDefaults[language].contrast}</span>
         </Swatch>
       </div>
     );
@@ -212,7 +229,9 @@ const renderPreview = (preview?: CustomQuestionPreview) => {
           />
         </div>
         {preview.source && (
-          <div className="text-xs text-soft">Источник: {preview.source}</div>
+          <div className="text-xs text-soft">
+            {t(language, "source")}: {preview.source}
+          </div>
         )}
       </div>
     );
@@ -292,13 +311,14 @@ interface CustomQuestionGameProps {
 }
 
 export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps) => {
-  const { customQuestions, addScore, incrementStreak, resetStreak, updateStats, addMistake } = useGameStore();
+  const { customQuestions, addScore, incrementStreak, resetStreak, updateStats, addMistake, language } =
+    useGameStore();
   const { playCorrect, playWrong } = useSound();
   const [round, setRound] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const questions = customQuestions[gameId] || [];
-  const config = CUSTOM_QUESTION_CONFIG[gameId];
+  const config = getCustomQuestionConfig(gameId, language);
 
   const order = useMemo(() => shuffle(questions.map((_, index) => index)), [questions.length]);
   const currentIndex = order.length > 0 ? order[round % order.length] : -1;
@@ -324,8 +344,8 @@ export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps
         const correctOption = question.options[question.correctIndex];
         addMistake({
           question: question.prompt,
-          userAnswer: formatOptionLabel(userOption, question.optionKind),
-          correctAnswer: formatOptionLabel(correctOption, question.optionKind),
+          userAnswer: formatOptionLabel(userOption, question.optionKind, language),
+          correctAnswer: formatOptionLabel(correctOption, question.optionKind, language),
           explanation: question.explanation,
           visual:
             question.optionKind === "palette"
@@ -403,8 +423,8 @@ export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps
   if (!question) {
     return (
       <div className="text-center space-y-3">
-        <div className="text-xl font-medium">Свои вопросы не найдены</div>
-        <div className="text-sm text-muted">Добавь вопросы в редакторе, чтобы играть в своём режиме.</div>
+        <div className="text-xl font-medium">{t(language, "customQuestionsEmptyTitle")}</div>
+        <div className="text-sm text-muted">{t(language, "customQuestionsEmptyHint")}</div>
       </div>
     );
   }
@@ -421,7 +441,7 @@ export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps
         {question.helper && <div className="text-xs text-soft mt-1">{question.helper}</div>}
       </div>
 
-      {renderPreview(question.preview)}
+      {renderPreview(question.preview, language)}
 
       <div className={`grid gap-3 ${gridClass}`}>
         {question.options.map((option, index) => (
@@ -466,7 +486,6 @@ export const CustomQuestionManager = ({
   variant = "modal",
   showClose = true,
 }: CustomQuestionManagerProps) => {
-  const config = CUSTOM_QUESTION_CONFIG[gameId];
   const {
     customQuestions,
     customMode,
@@ -474,30 +493,35 @@ export const CustomQuestionManager = ({
     updateCustomQuestion,
     removeCustomQuestion,
     setCustomMode,
+    language,
   } = useGameStore();
+  const config = useMemo(() => getCustomQuestionConfig(gameId, language), [gameId, language]);
   const existing = customQuestions[gameId] || [];
   const isCustomEnabled = Boolean(customMode[gameId]);
+  const { name: gameName } = getGameLabel(gameId, language);
 
   const [prompt, setPrompt] = useState("");
   const [helper, setHelper] = useState("");
   const [explanation, setExplanation] = useState("");
   const [options, setOptions] = useState<CustomQuestionOption[]>(() => createDefaultOptions(config));
   const [correctIndex, setCorrectIndex] = useState(0);
-  const [preview, setPreview] = useState<CustomQuestionPreview | undefined>(() => createDefaultPreview(config));
+  const [preview, setPreview] = useState<CustomQuestionPreview | undefined>(() =>
+    createDefaultPreview(config, language),
+  );
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const resetForm = useCallback(() => {
+  const resetForm = useCallback((nextConfig: CustomQuestionConfig, nextLanguage: Language) => {
     setPrompt("");
     setHelper("");
     setExplanation("");
-    setOptions(createDefaultOptions(config));
+    setOptions(createDefaultOptions(nextConfig));
     setCorrectIndex(0);
-    setPreview(createDefaultPreview(config));
+    setPreview(createDefaultPreview(nextConfig, nextLanguage));
     setEditingId(null);
-  }, [config]);
+  }, []);
 
   useEffect(() => {
-    resetForm();
+    resetForm(getCustomQuestionConfig(gameId, language), language);
   }, [gameId, resetForm]);
 
   const canEnableCustom = existing.length > 0;
@@ -547,7 +571,7 @@ export const CustomQuestionManager = ({
     setExplanation(question.explanation);
     setOptions(cloneOptions(question.options));
     setCorrectIndex(question.correctIndex);
-    setPreview(clonePreview(question.preview) ?? createDefaultPreview(config));
+    setPreview(clonePreview(question.preview) ?? createDefaultPreview(config, language));
   };
 
   const handleSubmit = () => {
@@ -573,23 +597,23 @@ export const CustomQuestionManager = ({
       addCustomQuestion(gameId, payload);
     }
 
-    resetForm();
+    resetForm(config, language);
   };
 
   const previewFields = preview?.kind !== "none" && (
     <div className="space-y-3">
-      <div className="text-xs text-muted font-medium">Превью</div>
+      <div className="text-xs text-muted font-medium">{t(language, "preview")}</div>
       {preview?.kind === "sample" && (
         <div className="grid gap-2">
           <input
             className={inputClass}
-            placeholder={config.sampleLabel || "Текст образца"}
+            placeholder={config.sampleLabel || t(language, "sampleText")}
             value={preview.text || ""}
             onChange={(event) => setPreview({ ...preview, text: event.target.value })}
           />
           <input
             className={inputClass}
-            placeholder="Шрифт (например, Manrope)"
+            placeholder={t(language, "fontExample")}
             value={preview.font || ""}
             onChange={(event) => setPreview({ ...preview, font: event.target.value })}
           />
@@ -611,7 +635,7 @@ export const CustomQuestionManager = ({
           />
           <input
             className={`${inputClass} sm:col-span-2`}
-            placeholder="Текст превью"
+            placeholder={t(language, "previewText")}
             value={preview.text || ""}
             onChange={(event) => setPreview({ ...preview, text: event.target.value })}
           />
@@ -647,19 +671,19 @@ export const CustomQuestionManager = ({
         <div className="grid gap-2">
           <input
             className={inputClass}
-            placeholder="URL изображения"
+            placeholder={t(language, "imageUrl")}
             value={preview.imageSrc || ""}
             onChange={(event) => setPreview({ ...preview, imageSrc: event.target.value })}
           />
           <input
             className={inputClass}
-            placeholder="Alt-текст"
+            placeholder={t(language, "altText")}
             value={preview.imageAlt || ""}
             onChange={(event) => setPreview({ ...preview, imageAlt: event.target.value })}
           />
           <input
             className={inputClass}
-            placeholder="Источник (опционально)"
+            placeholder={t(language, "sourceOptional")}
             value={preview.source || ""}
             onChange={(event) => setPreview({ ...preview, source: event.target.value })}
           />
@@ -671,28 +695,28 @@ export const CustomQuestionManager = ({
   const optionsFields = (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <div className="text-xs text-muted font-medium">Варианты</div>
+        <div className="text-xs text-muted font-medium">{t(language, "optionsTitle")}</div>
         <Button size="sm" variant="ghost" onClick={handleAddOption} disabled={options.length >= maxOptions}>
-          + Добавить
+          + {t(language, "addOption")}
         </Button>
       </div>
       <div className="space-y-2">
         {options.map((option, index) => (
           <div key={`${index}-${option.label}`} className="flex flex-col gap-2 rounded-xl border border-subtle bg-surface-2 p-3">
             <div className="flex items-center justify-between text-xs text-soft">
-              <span>Вариант {index + 1}</span>
+              <span>{t(language, "optionLabel", { index: index + 1 })}</span>
               <button
                 className="text-xs text-muted hover:text-strong"
                 onClick={() => handleRemoveOption(index)}
                 disabled={options.length <= 2}
               >
-                Удалить
+                {t(language, "delete")}
               </button>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               <input
                 className={inputClass}
-                placeholder="Текст варианта"
+                placeholder={t(language, "optionText")}
                 value={option.label}
                 onChange={(event) => updateOption(index, { label: event.target.value })}
               />
@@ -710,7 +734,7 @@ export const CustomQuestionManager = ({
                   type="number"
                   min={8}
                   max={96}
-                  placeholder="Размер"
+                  placeholder={t(language, "sizeLabel")}
                   value={option.size ?? ""}
                   onChange={(event) => updateOption(index, { size: Number(event.target.value) })}
                 />
@@ -722,7 +746,7 @@ export const CustomQuestionManager = ({
                   min={100}
                   max={900}
                   step={100}
-                  placeholder="Вес"
+                  placeholder={t(language, "weightLabel")}
                   value={option.weight ?? ""}
                   onChange={(event) => updateOption(index, { weight: Number(event.target.value) })}
                 />
@@ -730,7 +754,7 @@ export const CustomQuestionManager = ({
               {config.optionKind === "font" && (
                 <input
                   className={inputClass}
-                  placeholder="Название шрифта"
+                  placeholder={t(language, "fontName")}
                   value={option.font || ""}
                   onChange={(event) => updateOption(index, { font: event.target.value })}
                 />
@@ -781,13 +805,13 @@ export const CustomQuestionManager = ({
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-2xl font-display font-semibold tracking-tight">
-            Свои вопросы: {GAMES[gameId].name}
+            {t(language, "customQuestionsTitle", { name: gameName })}
           </h2>
-          <p className="text-sm text-muted">Создай вопросы, подсказки и объяснения для режима игры.</p>
+          <p className="text-sm text-muted">{t(language, "customQuestionsDescription")}</p>
         </div>
         {showClose && (
           <Button variant="ghost" onClick={onClose}>
-            Закрыть
+            {t(language, "close")}
           </Button>
         )}
       </div>
@@ -798,31 +822,31 @@ export const CustomQuestionManager = ({
           onClick={() => setCustomMode(gameId, !isCustomEnabled)}
           disabled={!canEnableCustom}
         >
-          {isCustomEnabled ? "Свои вопросы включены" : "Включить свои вопросы"}
+          {isCustomEnabled ? t(language, "customEnabled") : t(language, "enableCustom")}
         </Button>
-        {!canEnableCustom && <span className="text-xs text-soft">Добавь хотя бы один вопрос</span>}
+        {!canEnableCustom && <span className="text-xs text-soft">{t(language, "addAtLeastOne")}</span>}
       </div>
 
       <div className="space-y-3">
-        <div className="text-sm font-medium text-strong">Список вопросов ({existing.length})</div>
-        {existing.length === 0 && <div className="text-sm text-soft">Пока пусто.</div>}
+        <div className="text-sm font-medium text-strong">{t(language, "questionsList", { count: existing.length })}</div>
+        {existing.length === 0 && <div className="text-sm text-soft">{t(language, "emptyList")}</div>}
         {existing.length > 0 && (
           <div className="space-y-2">
             {existing.map((item) => (
               <Card key={item.id} className="flex items-center justify-between gap-3" padding="sm">
                 <div>
                   <div className="text-sm font-medium text-strong">{item.prompt}</div>
-                  <div className="text-xs text-soft">Вариантов: {item.options.length}</div>
+                  <div className="text-xs text-soft">{t(language, "optionsCount", { count: item.options.length })}</div>
                   {editingId === item.id && (
-                    <div className="text-xs text-accent mt-1">Редактируется</div>
+                    <div className="text-xs text-accent mt-1">{t(language, "editing")}</div>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="sm" onClick={() => startEdit(item)}>
-                    Редактировать
+                    {t(language, "edit")}
                   </Button>
                   <Button variant="ghost" size="sm" onClick={() => removeCustomQuestion(gameId, item.id)}>
-                    Удалить
+                    {t(language, "delete")}
                   </Button>
                 </div>
               </Card>
@@ -832,23 +856,23 @@ export const CustomQuestionManager = ({
       </div>
 
       <div className="border-t border-subtle pt-6 space-y-4">
-        <div className="text-sm font-medium text-strong">Новый вопрос</div>
+        <div className="text-sm font-medium text-strong">{t(language, "newQuestion")}</div>
         <div className="grid gap-3">
           <input
             className={inputClass}
-            placeholder="Текст вопроса"
+            placeholder={t(language, "questionText")}
             value={prompt}
             onChange={(event) => setPrompt(event.target.value)}
           />
           <input
             className={inputClass}
-            placeholder="Подсказка (опционально)"
+            placeholder={t(language, "helperOptional")}
             value={helper}
             onChange={(event) => setHelper(event.target.value)}
           />
           <textarea
             className={textAreaClass}
-            placeholder="Объяснение ошибки (показывается после ответа)"
+            placeholder={t(language, "explanation")}
             value={explanation}
             onChange={(event) => setExplanation(event.target.value)}
           />
@@ -860,7 +884,7 @@ export const CustomQuestionManager = ({
 
         <div className="grid gap-2 sm:grid-cols-2 items-end">
           <div>
-            <label className="text-xs text-muted block mb-1">Правильный ответ</label>
+            <label className="text-xs text-muted block mb-1">{t(language, "correctAnswerLabel")}</label>
             <select
               className={inputClass}
               value={correctIndex}
@@ -868,19 +892,19 @@ export const CustomQuestionManager = ({
             >
               {options.map((_, index) => (
                 <option key={index} value={index}>
-                  Вариант {index + 1}
+                  {t(language, "optionLabel", { index: index + 1 })}
                 </option>
               ))}
             </select>
           </div>
           <div className="flex gap-2 sm:justify-self-end">
             {editingId && (
-              <Button variant="ghost" onClick={resetForm}>
-                Отменить
+              <Button variant="ghost" onClick={() => resetForm(config, language)}>
+                {t(language, "cancelEdit")}
               </Button>
             )}
             <Button onClick={handleSubmit} disabled={!canSave}>
-              {editingId ? "Сохранить изменения" : "Добавить вопрос"}
+              {editingId ? t(language, "saveChanges") : t(language, "addQuestion")}
             </Button>
           </div>
         </div>
@@ -908,6 +932,7 @@ interface CustomQuestionsModalProps {
 
 export const CustomQuestionsModal = ({ onClose, initialGameId }: CustomQuestionsModalProps) => {
   const [activeGame, setActiveGame] = useState<GameId>(initialGameId ?? GAME_ORDER[0]);
+  const { language } = useGameStore();
 
   useEffect(() => {
     if (!GAME_ORDER.includes(activeGame)) {
@@ -921,11 +946,13 @@ export const CustomQuestionsModal = ({ onClose, initialGameId }: CustomQuestions
         <div className="bg-surface border border-subtle rounded-3xl shadow-card p-4 sm:p-6 space-y-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-display font-semibold tracking-tight">Свои вопросы</h2>
-              <p className="text-sm text-muted">Выбери игру и добавь вопросы в одном стиле с базовыми заданиями.</p>
+              <h2 className="text-2xl font-display font-semibold tracking-tight">
+                {t(language, "customQuestionsModalTitle")}
+              </h2>
+              <p className="text-sm text-muted">{t(language, "customQuestionsModalDescription")}</p>
             </div>
             <Button variant="ghost" onClick={onClose}>
-              Закрыть
+              {t(language, "close")}
             </Button>
           </div>
 
@@ -933,6 +960,7 @@ export const CustomQuestionsModal = ({ onClose, initialGameId }: CustomQuestions
             {GAME_ORDER.map((id) => {
               const GameIcon = GAMES[id].icon;
               const isActive = id === activeGame;
+              const { name } = getGameLabel(id, language);
               return (
                 <button
                   key={id}
@@ -944,7 +972,7 @@ export const CustomQuestionsModal = ({ onClose, initialGameId }: CustomQuestions
                   }`}
                 >
                   <GameIcon className="text-base" />
-                  <span className="truncate">{GAMES[id].name}</span>
+                  <span className="truncate">{name}</span>
                 </button>
               );
             })}

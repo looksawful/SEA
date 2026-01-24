@@ -12,6 +12,7 @@ import { difficultyDots, getDifficulty } from "@/utils/difficulty";
 import { getFontSizeClass } from "@/utils/fonts";
 import { shuffle } from "@/utils/helpers";
 import { ImageQuizGameId, ImageQuizOption, IMAGE_QUIZ_DATA } from "@/utils/imageQuizData";
+import { Language, t } from "@/utils/i18n";
 
 const renderOption = (option: ImageQuizOption) => {
   if (option.palette && option.palette.length > 0) {
@@ -49,12 +50,14 @@ const renderOption = (option: ImageQuizOption) => {
   return <span className="text-sm text-strong">{option.label}</span>;
 };
 
-const formatOptionLabel = (option: ImageQuizOption): string => {
+const fallbackOptionLabels: Record<Language, string> = { ru: "Вариант", en: "Option" };
+
+const formatOptionLabel = (option: ImageQuizOption, language: Language): string => {
   if (option.label) return option.label;
   if (option.color) return option.color;
   if (option.palette) return option.palette.join(", ");
   if (typeof option.size === "number") return `${option.size}px`;
-  return "Option";
+  return fallbackOptionLabels[language];
 };
 
 interface Props {
@@ -63,7 +66,7 @@ interface Props {
 }
 
 export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake } = useGameStore();
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, language } = useGameStore();
   const { playCorrect, playWrong } = useSound();
   const [round, setRound] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -94,8 +97,8 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
         const correctOption = question.options[question.correctIndex];
         addMistake({
           question: question.prompt,
-          userAnswer: formatOptionLabel(userOption),
-          correctAnswer: formatOptionLabel(correctOption),
+          userAnswer: formatOptionLabel(userOption, language),
+          correctAnswer: formatOptionLabel(correctOption, language),
           explanation: question.explanation,
           visual:
             userOption.color || correctOption.color
@@ -155,8 +158,10 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
   if (!question) {
     return (
       <div className="text-center space-y-3">
-        <div className="text-xl sm:text-2xl font-display font-semibold tracking-tight">Вопросы скоро появятся</div>
-        <div className="text-sm text-muted">Добавь собственные вопросы в меню сверху.</div>
+        <div className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
+          {t(language, "noQuestionsTitle")}
+        </div>
+        <div className="text-sm text-muted">{t(language, "noQuestionsHint")}</div>
       </div>
     );
   }
@@ -172,7 +177,9 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
       <div className="text-center space-y-1">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">{question.prompt}</h2>
         {question.helper && <div className="text-xs text-soft">{question.helper}</div>}
-        <div className="text-xs text-soft">Сложность: {difficultyDots(difficulty)}</div>
+        <div className="text-xs text-soft">
+          {t(language, "difficultyLabel")}: {difficultyDots(difficulty)}
+        </div>
       </div>
 
       <div className={containerClass}>
@@ -189,7 +196,7 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
 
       {question.imageSource && (
         <div className="text-center text-xs text-soft">
-          Источник:{" "}
+          {t(language, "imageSourceLabel")}:{" "}
           {question.imageSource.url ? (
             <a
               href={question.imageSource.url}

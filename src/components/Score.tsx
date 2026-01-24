@@ -2,6 +2,7 @@
 import { CSSProperties } from "react";
 import { useGameStore } from "@/store/gameStore";
 import { AnimatePresence, motion } from "framer-motion";
+import { t } from "@/utils/i18n";
 
 interface ScoreDisplayProps {
   showStreak?: boolean;
@@ -10,7 +11,7 @@ interface ScoreDisplayProps {
 }
 
 export const ScoreDisplay = ({ showStreak = true, showLives = true, compact = false }: ScoreDisplayProps) => {
-  const { score, streak, lives } = useGameStore();
+  const { score, streak, lives, language } = useGameStore();
 
   if (compact) {
     return (
@@ -24,7 +25,7 @@ export const ScoreDisplay = ({ showStreak = true, showLives = true, compact = fa
   return (
     <div className="flex items-center gap-6">
       <div className="text-center">
-        <div className="text-xs text-muted uppercase tracking-wide">Очки</div>
+        <div className="text-xs text-muted uppercase tracking-wide">{t(language, "scoreLabel")}</div>
         <motion.div
           key={score}
           initial={{ scale: 1.2 }}
@@ -37,7 +38,7 @@ export const ScoreDisplay = ({ showStreak = true, showLives = true, compact = fa
 
       {showStreak && (
         <div className="text-center">
-          <div className="text-xs text-muted uppercase tracking-wide">Серия</div>
+          <div className="text-xs text-muted uppercase tracking-wide">{t(language, "streakLabel")}</div>
           <div className="flex items-center justify-center gap-1">
             <AnimatePresence mode="wait">
               {streak > 0 && (
@@ -59,7 +60,7 @@ export const ScoreDisplay = ({ showStreak = true, showLives = true, compact = fa
 
       {showLives && (
         <div className="text-center">
-          <div className="text-xs text-muted uppercase tracking-wide">Жизни</div>
+          <div className="text-xs text-muted uppercase tracking-wide">{t(language, "livesLabel")}</div>
           <div className="flex gap-1">
             {[...Array(3)].map((_, i) => (
               <motion.span

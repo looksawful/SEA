@@ -10,6 +10,7 @@ import { GameId } from '@/types'
 import { shuffle } from '@/utils/helpers'
 import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS } from '@/utils/imageQuizData'
 import { QUIZ_QUESTIONS } from '@/games/Quiz'
+import { getGameLabel, t } from '@/utils/i18n'
 import {
   FaArrowLeft,
   FaArrowRight,
@@ -38,15 +39,24 @@ export default function Home() {
   const [customModalGame, setCustomModalGame] = useState<GameId | null>(null)
   const [gameSearch, setGameSearch] = useState('')
   const [gamesView, setGamesView] = useState<GamesView>('list')
-  const { stats, bestStreak, soundEnabled, toggleSound, resetAll, results, customQuestions } =
-    useGameStore()
+  const {
+    stats,
+    bestStreak,
+    soundEnabled,
+    toggleSound,
+    resetAll,
+    results,
+    customQuestions,
+    language,
+    setLanguage,
+  } = useGameStore()
   const mainClass = 'flex-1 p-4 pb-24 sm:pb-4 w-full flex items-center justify-center'
   const router = useRouter()
   const isGrid = gamesView === 'grid'
   const normalizedSearch = gameSearch.trim().toLowerCase()
   const filteredGameIds = normalizedSearch
     ? GAME_ORDER.filter((id) => {
-        const game = GAMES[id]
+        const game = getGameLabel(id, language)
         return (
           game.name.toLowerCase().includes(normalizedSearch) ||
           game.description.toLowerCase().includes(normalizedSearch)
@@ -64,19 +74,6 @@ export default function Home() {
     }
 
     return null
-  }
-
-  const formatDifficulty = (counts: DifficultyCounts) => {
-    const parts = [
-      `Л ${counts.easy}`,
-      `С ${counts.medium}`,
-      `Т ${counts.hard}`,
-      `Э ${counts.expert}`,
-    ]
-    if (counts.unknown > 0) {
-      parts.push(`? ${counts.unknown}`)
-    }
-    return parts.join(' • ')
   }
 
   useEffect(() => {
@@ -107,7 +104,7 @@ export default function Home() {
       <header className="sticky top-0 z-10 border-b border-subtle bg-[color:var(--surface-1-80)] backdrop-blur">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <button onClick={() => setView('menu')} className="flex items-center gap-2">
-            <span className="text-lg font-display font-semibold">Awful-Exercises</span>
+            <span className="text-lg font-display font-semibold">{t(language, 'appName')}</span>
           </button>
           <div className="flex items-center gap-2">
             <button
@@ -116,20 +113,46 @@ export default function Home() {
                 setShowCustomModal(true)
               }}
               className="flex items-center gap-2 px-3 py-2 text-sm rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors"
-              title="Свои вопросы"
+              title={t(language, 'customQuestions')}
             >
               <FaPenNib className="text-base" />
-              <span className="hidden sm:inline">Свои вопросы</span>
+              <span className="hidden sm:inline">{t(language, 'customQuestions')}</span>
             </button>
             <button
               onClick={toggleSound}
               className="flex items-center gap-2 px-3 py-2 text-sm rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors"
-              title={soundEnabled ? 'Выключить звук' : 'Включить звук'}
+              title={soundEnabled ? t(language, 'soundOn') : t(language, 'soundOff')}
               aria-pressed={soundEnabled}
             >
               {soundEnabled ? <FaVolumeUp className="text-base" /> : <FaVolumeMute className="text-base" />}
-              <span className="hidden sm:inline">{soundEnabled ? 'Звук включен' : 'Звук выключен'}</span>
+              <span className="hidden sm:inline">
+                {soundEnabled ? t(language, 'soundOn') : t(language, 'soundOff')}
+              </span>
             </button>
+            <div
+              className="flex items-center rounded-xl border border-subtle bg-surface-2 p-1"
+              role="group"
+              aria-label={t(language, 'uiLanguage')}
+            >
+              <button
+                onClick={() => setLanguage('ru')}
+                className={`px-2 py-1 text-xs rounded-lg ${
+                  language === 'ru' ? 'bg-surface-3 text-strong' : 'text-muted hover:text-strong'
+                }`}
+                aria-pressed={language === 'ru'}
+              >
+                RU
+              </button>
+              <button
+                onClick={() => setLanguage('en')}
+                className={`px-2 py-1 text-xs rounded-lg ${
+                  language === 'en' ? 'bg-surface-3 text-strong' : 'text-muted hover:text-strong'
+                }`}
+                aria-pressed={language === 'en'}
+              >
+                EN
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -148,41 +171,41 @@ export default function Home() {
                 <Button onClick={() => setView('games')} fullWidth size="lg">
                   <span className="inline-flex items-center justify-center gap-2">
                     <FaListUl className="text-base" />
-                    Выбрать упражнение
+                    {t(language, 'chooseExercise')}
                   </span>
                 </Button>
                 <Button onClick={() => setView('random')} variant="secondary" fullWidth size="lg">
                   <span className="inline-flex items-center justify-center gap-2">
                     <FaDice className="text-base" />
-                    Случайный режим
+                    {t(language, 'randomMode')}
                   </span>
                 </Button>
                 <Button onClick={() => setView('stats')} variant="ghost" fullWidth>
                   <span className="inline-flex items-center justify-center gap-2">
                     <FaChartBar className="text-base" />
-                    Статистика
+                    {t(language, 'stats')}
                   </span>
                 </Button>
                 <div className="text-center text-xs text-soft pt-2 hidden sm:block">
-                  Горячие клавиши: 1-4 выбор • P пауза • Esc выход
+                  {t(language, 'hotkeys')}
                 </div>
               </div>
 
               {stats.totalGames > 0 && (
                 <Card className="mt-8 shadow-card">
                   <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-mono font-bold">{stats.totalScore.toLocaleString()}</div>
-                      <div className="text-xs text-muted">Всего очков</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-mono font-bold">{stats.totalGames}</div>
-                      <div className="text-xs text-muted">Игр</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-mono font-bold">{bestStreak}</div>
-                      <div className="text-xs text-muted">Лучшая серия</div>
-                    </div>
+                  <div>
+                    <div className="text-2xl font-mono font-bold">{stats.totalScore.toLocaleString()}</div>
+                    <div className="text-xs text-muted">{t(language, 'totalScore')}</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-mono font-bold">{stats.totalGames}</div>
+                    <div className="text-xs text-muted">{t(language, 'games')}</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-mono font-bold">{bestStreak}</div>
+                    <div className="text-xs text-muted">{t(language, 'bestStreak')}</div>
+                  </div>
                   </div>
                 </Card>
               )}
@@ -203,7 +226,7 @@ export default function Home() {
                   <FaArrowLeft />
                 </button>
                 <h2 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight flex-1">
-                  Выбери упражнение
+                  {t(language, 'chooseExerciseTitle')}
                 </h2>
                 <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
                   <button
@@ -214,7 +237,7 @@ export default function Home() {
                         : 'bg-surface-2 text-muted hover:text-strong'
                     }`}
                     aria-pressed={gamesView === 'list'}
-                    title="Список"
+                    title={t(language, 'listView')}
                   >
                     <FaBars />
                   </button>
@@ -226,7 +249,7 @@ export default function Home() {
                         : 'bg-surface-2 text-muted hover:text-strong'
                     }`}
                     aria-pressed={gamesView === 'grid'}
-                    title="Плитка"
+                    title={t(language, 'gridView')}
                   >
                     <FaThLarge />
                   </button>
@@ -239,15 +262,15 @@ export default function Home() {
                   value={gameSearch}
                   onChange={(event) => setGameSearch(event.target.value)}
                   className="flex-1 bg-transparent text-sm text-strong placeholder:text-soft focus:outline-none"
-                  placeholder="Поиск по названию или описанию"
-                  aria-label="Поиск упражнений"
+                  placeholder={t(language, 'searchPlaceholder')}
+                  aria-label={t(language, 'searchLabel')}
                 />
                 {gameSearch.length > 0 && (
                   <button
                     onClick={() => setGameSearch('')}
                     className="text-xs text-muted hover:text-strong"
                   >
-                    Очистить
+                    {t(language, 'clear')}
                   </button>
                 )}
               </div>
@@ -255,6 +278,7 @@ export default function Home() {
               <div className={isGrid ? 'grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3' : 'grid gap-3'}>
                 {filteredGameIds.map((id) => {
                   const game = GAMES[id]
+                  const gameLabel = getGameLabel(id, language)
                   const played = stats.gamesPlayed[id] || 0
                   const accuracy = stats.accuracy[id]
                   const customCount = customQuestions[id]?.length || 0
@@ -284,33 +308,40 @@ export default function Home() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className={isGrid ? 'font-medium text-sm sm:text-base' : 'font-medium'}>
-                            {game.name}
+                            {gameLabel.name}
                           </div>
                           {!isGrid && (
                             <div className="text-sm text-muted">
-                              <span className="truncate block">{game.description}</span>
+                              <span className="truncate block">{gameLabel.description}</span>
                             </div>
                           )}
                           <div className={isGrid ? 'text-[11px] text-soft mt-2 space-y-1' : 'text-xs text-soft mt-2 space-y-1'}>
                             {questionStats ? (
                               <div>
-                                Вопросов: {questionStats.total}
+                                {t(language, 'questions')}: {questionStats.total}
                               </div>
                             ) : (
-                              <div>Вопросы: генеративные</div>
+                              <div>
+                                {t(language, 'questions')}: {t(language, 'generated')}
+                              </div>
                             )}
                             <div>
-                              Сыграно: {played} • {Math.round(accuracy || 0)}%
+                              {t(language, 'played')}: {played} • {t(language, 'accuracy')}:{' '}
+                              {Math.round(accuracy || 0)}%
                             </div>
                             {!isGrid && (
                               <div>
-                                Последний результат:{' '}
+                                {t(language, 'lastResult')}:{' '}
                                 {lastResult
                                   ? `${lastResult.correct}/${lastResult.total} (${lastAccuracy}%)`
                                   : '—'}
                               </div>
                             )}
-                            {!isGrid && customCount > 0 && <div>Свои вопросы: {customCount}</div>}
+                            {!isGrid && customCount > 0 && (
+                              <div>
+                                {t(language, 'customQuestionsCount')}: {customCount}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className={gamesView === 'grid' ? 'flex justify-between gap-2' : 'text-soft'}>
@@ -336,7 +367,7 @@ export default function Home() {
                           }`}
                         >
                           <FaPlus className="text-xs" />
-                          <span className={isGrid ? 'hidden sm:inline' : ''}>Добавить вопросы</span>
+                          <span className={isGrid ? 'hidden sm:inline' : ''}>{t(language, 'addQuestions')}</span>
                         </button>
                         <button
                           onClick={(event) => {
@@ -349,7 +380,7 @@ export default function Home() {
                           }`}
                         >
                           <FaPen className="text-xs" />
-                          <span className={isGrid ? 'hidden sm:inline' : ''}>Редактировать</span>
+                          <span className={isGrid ? 'hidden sm:inline' : ''}>{t(language, 'edit')}</span>
                         </button>
                       </div>
                     </Card>
@@ -359,7 +390,7 @@ export default function Home() {
 
               {filteredGameIds.length === 0 && (
                 <div className="text-center text-sm text-muted py-8">
-                  Ничего не найдено. Попробуй другое слово.
+                  {t(language, 'noResults')}
                 </div>
               )}
             </motion.div>
@@ -383,22 +414,24 @@ export default function Home() {
                 <button onClick={() => setView('menu')} className="p-2 -ml-2 text-muted hover:text-strong">
                   <FaArrowLeft />
                 </button>
-                <h2 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight">Статистика</h2>
+                <h2 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight">
+                  {t(language, 'statsTitle')}
+                </h2>
               </div>
 
               <Card className="shadow-card">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="text-center">
                     <div className="text-3xl font-mono font-bold">{stats.totalScore.toLocaleString()}</div>
-                    <div className="text-sm text-muted">Всего очков</div>
+                    <div className="text-sm text-muted">{t(language, 'totalScore')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-mono font-bold">{stats.totalGames}</div>
-                    <div className="text-sm text-muted">Игр сыграно</div>
+                    <div className="text-sm text-muted">{t(language, 'gamesPlayed')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-mono font-bold">{bestStreak}</div>
-                    <div className="text-sm text-muted">Лучшая серия</div>
+                    <div className="text-sm text-muted">{t(language, 'bestStreak')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-mono font-bold">
@@ -406,18 +439,21 @@ export default function Home() {
                         ? Math.round(Object.values(stats.accuracy).reduce((a, b) => a + b, 0) / Object.values(stats.accuracy).length)
                         : 0}%
                     </div>
-                    <div className="text-sm text-muted">Средняя точность</div>
+                    <div className="text-sm text-muted">{t(language, 'averageAccuracy')}</div>
                   </div>
                 </div>
               </Card>
 
-              <h3 className="text-lg font-display font-semibold tracking-tight mt-6 mb-3 text-strong">По играм</h3>
+              <h3 className="text-lg font-display font-semibold tracking-tight mt-6 mb-3 text-strong">
+                {t(language, 'byGames')}
+              </h3>
               <div className="space-y-2">
                 {GAME_ORDER.map((id) => {
                   const game = GAMES[id]
                   const played = stats.gamesPlayed[id] || 0
                   const accuracy = stats.accuracy[id] || 0
                   const GameIcon = game.icon
+                  const gameLabel = getGameLabel(id, language)
 
                   return (
                     <div key={id} className="flex items-center gap-3 p-3 bg-surface border border-subtle rounded-lg shadow-card">
@@ -425,7 +461,7 @@ export default function Home() {
                         <GameIcon className="text-lg" />
                       </span>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium truncate">{game.name}</div>
+                        <div className="text-sm font-medium truncate">{gameLabel.name}</div>
                       </div>
                       <div className="text-right text-sm">
                         <div className="font-mono">{played}</div>
@@ -439,14 +475,14 @@ export default function Home() {
               <div className="pt-6">
                 <Button 
                   onClick={() => {
-                    if (confirm('Сбросить всю статистику?')) {
+                    if (confirm(t(language, 'resetStatsConfirm'))) {
                       resetAll()
                     }
                   }}
                   variant="danger"
                   fullWidth
                 >
-                  Сбросить статистику
+                  {t(language, 'resetStats')}
                 </Button>
               </div>
             </motion.div>
@@ -463,7 +499,7 @@ export default function Home() {
             }`}
           >
             <FaHome className="text-base" />
-            Главная
+            {t(language, 'home')}
           </button>
           <button
             onClick={() => setView('games')}
@@ -472,7 +508,7 @@ export default function Home() {
             }`}
           >
             <FaListUl className="text-base" />
-            Игры
+            {t(language, 'gamesNav')}
           </button>
           <button
             onClick={() => setView('random')}
@@ -481,7 +517,7 @@ export default function Home() {
             }`}
           >
             <FaDice className="text-base" />
-            Случайно
+            {t(language, 'randomNav')}
           </button>
           <button
             onClick={() => setView('stats')}
@@ -490,7 +526,7 @@ export default function Home() {
             }`}
           >
             <FaChartBar className="text-base" />
-            Статистика
+            {t(language, 'stats')}
           </button>
         </div>
       </nav>
@@ -537,17 +573,19 @@ function RandomMode({ onBack }: { onBack: () => void }) {
   const router = useRouter()
   const [queue, setQueue] = useState<GameId[]>([])
   const currentIndex = 0
+  const { language } = useGameStore()
 
   useEffect(() => {
     setQueue(shuffle([...GAME_ORDER]))
   }, [])
 
   if (queue.length === 0) {
-    return <div className="text-muted">Загрузка...</div>
+    return <div className="text-muted">{t(language, 'loading')}</div>
   }
 
   const currentGame = queue[currentIndex]
   const CurrentIcon = GAMES[currentGame].icon
+  const currentLabel = getGameLabel(currentGame, language)
   const nextQueue = queue.slice(currentIndex + 1)
   const handleStart = () => {
     const nextParam = nextQueue.length > 0 ? `?next=${encodeURIComponent(JSON.stringify(nextQueue))}` : ''
@@ -566,29 +604,29 @@ function RandomMode({ onBack }: { onBack: () => void }) {
           <FaArrowLeft />
         </button>
         <h2 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight text-center">
-          Случайный режим
+          {t(language, 'randomModeTitle')}
         </h2>
         <div className="w-8" />
       </div>
 
       <div className="text-center bg-surface border border-subtle rounded-3xl p-6 space-y-3 shadow-card">
         <div className="text-xs text-muted uppercase tracking-[0.2em]">
-          Игра {currentIndex + 1} из {queue.length}
+          {t(language, 'gameOf', { current: currentIndex + 1, total: queue.length })}
         </div>
         <div className="text-5xl text-accent">
           <CurrentIcon />
         </div>
-        <div className="text-xl font-medium">{GAMES[currentGame].name}</div>
+        <div className="text-xl font-medium">{currentLabel.name}</div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 max-w-md mx-auto w-full">
         <Button onClick={onBack} variant="ghost" fullWidth>
-          Отмена
+          {t(language, 'cancel')}
         </Button>
         <Button onClick={handleStart} fullWidth>
           <span className="inline-flex items-center justify-center gap-2">
             <FaPlay className="text-base" />
-            Начать
+            {t(language, 'start')}
           </span>
         </Button>
       </div>
