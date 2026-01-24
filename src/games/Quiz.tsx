@@ -544,9 +544,9 @@ export const QuizGame = ({ onAnswer }: Props) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <div className="flex justify-center gap-2">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="text-center space-y-1 sm:space-y-2">
+        <div className="hidden sm:flex justify-center gap-2">
           <span className={`text-xs px-2 py-1 rounded-full ${catColors[challenge.question.category]}`}>
             {challenge.question.category}
           </span>
@@ -557,7 +557,7 @@ export const QuizGame = ({ onAnswer }: Props) => {
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">{challenge.question.question}</h2>
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2 sm:gap-3">
         {challenge.shuffledOptions.map((option, index) => (
           <Card
             key={index}

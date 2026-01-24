@@ -347,7 +347,6 @@ export const GameWrapper = ({
             </Button>
           </div>
           <div className="mt-6 text-xs text-soft hidden sm:block">1-4 — выбор ответа • P — пауза • Esc — выход</div>
-          <div className="mt-4 text-xs text-soft sm:hidden">Выбирай касанием, пауза доступна в меню</div>
         </motion.div>
       </div>
     );
