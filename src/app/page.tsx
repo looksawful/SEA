@@ -573,7 +573,7 @@ function RandomMode({ onBack }: { onBack: () => void }) {
   const router = useRouter()
   const [queue, setQueue] = useState<GameId[]>([])
   const currentIndex = 0
-  const { language } = useGameStore()
+  const { language, longTestLength } = useGameStore()
 
   useEffect(() => {
     setQueue(shuffle([...GAME_ORDER]))
@@ -617,6 +617,20 @@ function RandomMode({ onBack }: { onBack: () => void }) {
           <CurrentIcon />
         </div>
         <div className="text-xl font-medium">{currentLabel.name}</div>
+      </div>
+
+      <div className="text-center bg-surface border border-subtle rounded-3xl p-6 space-y-4 shadow-card">
+        <div className="text-xs text-muted uppercase tracking-[0.2em]">{t(language, 'longTest')}</div>
+        <div className="text-lg font-medium">{t(language, 'longTestDescription')}</div>
+        <div className="text-xs text-soft">
+          {t(language, 'questionCount')}: {longTestLength}
+        </div>
+        <Button onClick={() => router.push('/game/long-test')} fullWidth>
+          <span className="inline-flex items-center justify-center gap-2">
+            <FaPlay className="text-base" />
+            {t(language, 'start')}
+          </span>
+        </Button>
       </div>
 
       <div className="grid grid-cols-2 gap-3 max-w-md mx-auto w-full">

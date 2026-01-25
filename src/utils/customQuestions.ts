@@ -267,6 +267,13 @@ export const CUSTOM_QUESTION_CONFIG: Record<GameId, CustomQuestionConfigBase> = 
     defaultOptions: 3,
     optionLabel: { ru: "Палитра", en: "Palette" },
   },
+  "long-test": {
+    title: { ru: "Длинный тест", en: "Long test" },
+    optionKind: "text",
+    previewKind: "none",
+    defaultOptions: 4,
+    optionLabel: { ru: "Вариант", en: "Option" },
+  },
 };
 
 export const getCustomQuestionConfig = (gameId: GameId, language: Language): CustomQuestionConfig => {

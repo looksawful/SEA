@@ -105,8 +105,11 @@ export const GameWrapper = ({
     language,
     avoidRepeats,
     setAvoidRepeats,
+    longTestLength,
+    setLongTestLength,
   } = useGameStore();
   const gameLabel = getGameLabel(gameId, language);
+  const longTestOptions = [10, 20, 30, 40, 50];
 
   const { start, stop, reset } = useTimer({
     initialTime: sessionTimeLimit,
@@ -368,6 +371,27 @@ export const GameWrapper = ({
                 {avoidRepeats ? t(language, "noRepeats") : t(language, "allowRepeats")}
               </button>
             </div>
+            {gameId === "long-test" && (
+              <div className="flex justify-between px-4 py-2 bg-surface-2 border border-subtle rounded-lg">
+                <span>{t(language, "questionCount")}</span>
+                <div className="flex flex-wrap justify-end gap-2">
+                  {longTestOptions.map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => setLongTestLength(option)}
+                      className={`text-xs font-medium rounded-full px-3 py-1 border ${
+                        longTestLength === option
+                          ? "bg-surface-3 text-strong border-subtle"
+                          : "bg-surface text-muted border-subtle hover:text-strong"
+                      }`}
+                      aria-pressed={longTestLength === option}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button onClick={handleExit} variant="ghost" fullWidth>

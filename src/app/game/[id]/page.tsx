@@ -1,10 +1,10 @@
-import { GAME_ORDER, GAMES } from '@/utils/gameConfig'
+import { GAMES } from '@/utils/gameConfig'
 import { GameId } from '@/types'
 import { notFound } from 'next/navigation'
 import { GamePageClient } from './GamePageClient'
 
 export function generateStaticParams() {
-  return GAME_ORDER.map((id) => ({
+  return Object.keys(GAMES).map((id) => ({
     id: id,
   }))
 }

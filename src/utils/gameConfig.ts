@@ -5,6 +5,7 @@ import {
   FaCamera,
   FaCircleNotch,
   FaCrop,
+  FaDice,
   FaExpand,
   FaExclamationTriangle,
   FaEye,
@@ -253,6 +254,14 @@ export const GAMES: Record<GameId, GameConfig> = {
     icon: FaImage,
     timeLimit: 60,
     pointsPerCorrect: 140,
+  },
+  "long-test": {
+    id: "long-test",
+    name: "Длинный тест",
+    description: "Смешанный раунд с вопросами из разных игр",
+    icon: FaDice,
+    timeLimit: 300,
+    pointsPerCorrect: 120,
   },
 };
 

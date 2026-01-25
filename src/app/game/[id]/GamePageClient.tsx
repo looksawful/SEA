@@ -14,6 +14,7 @@ import {
   GuessHexGame,
   GuessParamsGame,
   ImageQuizGame,
+  LongTestGame,
   PaletteErrorGame,
   QuizGame,
   SizeSequenceGame,
@@ -26,6 +27,10 @@ import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS } from "@/utils/imageQuizData";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { QUIZ_QUESTIONS } from "@/games/Quiz";
+
+const LONG_TEST_POOL_SIZE =
+  QUIZ_QUESTIONS.length +
+  Object.values(IMAGE_QUIZ_DATA).reduce((total, items) => total + items.length, 0);
 
 interface Props {
   gameId: string;
@@ -76,6 +81,38 @@ function GameWithWrapper({
       ) : (
         <GameComponent onAnswer={handleAnswer} />
       )}
+    </GameWrapper>
+  );
+}
+
+function LongTestWithWrapper({ nextGame }: { nextGame?: { id: GameId; queue: GameId[] } | null }) {
+  const [currentChallenge, setCurrentChallenge] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
+  const { avoidRepeats, longTestLength } = useGameStore();
+  const availableCount = LONG_TEST_POOL_SIZE;
+  const totalChallenges =
+    avoidRepeats && availableCount > 0 ? Math.min(longTestLength, availableCount) : longTestLength;
+
+  const handleAnswer = useCallback((correct: boolean) => {
+    setCurrentChallenge((prev) => prev + 1);
+    if (correct) {
+      setCorrectCount((prev) => prev + 1);
+    }
+  }, []);
+
+  return (
+    <GameWrapper
+      gameId="long-test"
+      totalChallenges={totalChallenges}
+      currentChallenge={currentChallenge}
+      correctCount={correctCount}
+      onRestart={() => {
+        setCurrentChallenge(0);
+        setCorrectCount(0);
+      }}
+      nextGame={nextGame}
+    >
+      <LongTestGame totalQuestions={totalChallenges} onAnswer={handleAnswer} />
     </GameWrapper>
   );
 }
@@ -150,6 +187,8 @@ export function GamePageClient({ gameId }: Props) {
       return <GameWithWrapper gameId={id} GameComponent={ThemeAnalogGame} nextGame={nextGame} />;
     case "font-weight":
       return <GameWithWrapper gameId={id} GameComponent={FontWeightGame} nextGame={nextGame} />;
+    case "long-test":
+      return <LongTestWithWrapper nextGame={nextGame} />;
     default:
       if (IMAGE_QUIZ_IDS.includes(id as (typeof IMAGE_QUIZ_IDS)[number])) {
         const ImageQuizWrapper = (props: { onAnswer: (correct: boolean) => void }) => (

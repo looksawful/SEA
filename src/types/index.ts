@@ -29,6 +29,7 @@ export type GameId =
   | 'font-size-choice'
   | 'layout-error'
   | 'palette-from-photo'
+  | 'long-test'
 
 export interface GameConfig {
   id: GameId

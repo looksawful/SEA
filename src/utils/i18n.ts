@@ -18,6 +18,8 @@ const UI: Record<Language, Record<string, UiValue>> = {
     chooseExerciseTitle: "Выбери упражнение",
     randomMode: "Случайный режим",
     randomModeTitle: "Случайный режим",
+    longTest: "Длинный тест",
+    longTestDescription: "Случайные вопросы из разных игр",
     stats: "Статистика",
     statsTitle: "Статистика",
     hotkeys: "Горячие клавиши: 1-4 выбор • P пауза • Esc выход",
@@ -65,6 +67,7 @@ const UI: Record<Language, Record<string, UiValue>> = {
     resume: "Продолжить",
     time: "Время",
     pointsPerCorrect: "За правильный ответ",
+    questionCount: "Вопросов в тесте",
     seconds: "с",
     noQuestionsTitle: "Вопросы скоро появятся",
     noQuestionsHint: "Добавь собственные вопросы в меню сверху.",
@@ -150,6 +153,8 @@ const UI: Record<Language, Record<string, UiValue>> = {
     chooseExerciseTitle: "Choose exercise",
     randomMode: "Random mode",
     randomModeTitle: "Random mode",
+    longTest: "Long test",
+    longTestDescription: "Random questions from multiple games",
     stats: "Stats",
     statsTitle: "Statistics",
     hotkeys: "Hotkeys: 1-4 select • P pause • Esc exit",
@@ -193,6 +198,7 @@ const UI: Record<Language, Record<string, UiValue>> = {
     resume: "Resume",
     time: "Time",
     pointsPerCorrect: "Per correct answer",
+    questionCount: "Questions in test",
     seconds: "s",
     noQuestionsTitle: "More questions coming soon",
     noQuestionsHint: "Add your own questions in the top menu.",
@@ -383,6 +389,10 @@ const GAME_LABELS_EN: Record<GameId, { name: string; description: string }> = {
   "palette-from-photo": {
     name: "Palette from Photo",
     description: "Pick a matching palette",
+  },
+  "long-test": {
+    name: "Long test",
+    description: "Mixed round with questions from different games",
   },
 };
 
