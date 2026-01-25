@@ -11,6 +11,7 @@ import { useSound } from '@/hooks/useSound'
 import { randomHsl, hslToRgb, rgbToHex, hexToRgb } from '@/utils/colors'
 import { shuffle, randomInt } from '@/utils/helpers'
 import { Difficulty, difficultyDots, getDifficulty } from '@/utils/difficulty'
+import { t } from '@/utils/i18n'
 
 interface Challenge {
   color: string
@@ -71,12 +72,12 @@ export const GuessHexGame = ({ onAnswer }: Props) => {
   const [selected, setSelected] = useState<number | null>(null)
   const [showResult, setShowResult] = useState(false)
   const [round, setRound] = useState(0)
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore()
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause, language } = useGameStore()
   const { playCorrect, playWrong } = useSound()
 
   useEffect(() => {
     setChallenge(generateChallenge(round))
-  }, [])
+  }, [language])
 
   const handleSelect = useCallback((index: number) => {
     if (showResult || !challenge) return
@@ -97,17 +98,22 @@ export const GuessHexGame = ({ onAnswer }: Props) => {
       const userHex = challenge.options[index]
       const userRgb = hexToRgb(userHex)
       const correctRgb = hexToRgb(challenge.color)
-      
+      const correctLabel = language === "ru" ? "Правильный" : "Correct"
+      const choiceLabel = language === "ru" ? "Твой выбор" : "Your choice"
+      const explanation =
+        language === "ru"
+          ? `HEX-код состоит из трёх пар цифр (RR GG BB). Правильный: R=${correctRgb.r} G=${correctRgb.g} B=${correctRgb.b}. Твой выбор: R=${userRgb.r} G=${userRgb.g} B=${userRgb.b}. Разница в каналах помогает различать близкие цвета.`
+          : `HEX code consists of three pairs (RR GG BB). Correct: R=${correctRgb.r} G=${correctRgb.g} B=${correctRgb.b}. Your choice: R=${userRgb.r} G=${userRgb.g} B=${userRgb.b}. Channel differences help distinguish close colors.`
       addMistake({
-        question: `Угадай HEX-код цвета`,
+        question: language === "ru" ? "Угадай HEX-код цвета" : "Guess the HEX color code",
         userAnswer: userHex.toUpperCase(),
         correctAnswer: challenge.color.toUpperCase(),
-        explanation: `HEX-код состоит из трёх пар цифр (RR GG BB). Правильный: R=${correctRgb.r} G=${correctRgb.g} B=${correctRgb.b}. Твой выбор: R=${userRgb.r} G=${userRgb.g} B=${userRgb.b}. Разница в каналах помогает различать близкие цвета.`,
+        explanation,
         visual: {
-          type: 'colors',
+          type: "colors",
           data: {
-            'Правильный': challenge.color,
-            'Твой выбор': userHex,
+            [correctLabel]: challenge.color,
+            [choiceLabel]: userHex,
           }
         }
       })
@@ -125,7 +131,7 @@ export const GuessHexGame = ({ onAnswer }: Props) => {
       setSelected(null)
       setShowResult(false)
     }, reviewDelay)
-  }, [challenge, showResult, round, setReviewPause])
+  }, [challenge, showResult, round, setReviewPause, language])
 
   const handleSkip = useCallback(() => {
     if (!challenge || showResult) return
@@ -134,7 +140,7 @@ export const GuessHexGame = ({ onAnswer }: Props) => {
     setChallenge(generateChallenge(round + 1))
     setSelected(null)
     setShowResult(false)
-  }, [challenge, showResult, round, onAnswer])
+  }, [challenge, showResult, round, onAnswer, language])
 
   useSkipSignal(handleSkip, !showResult)
 
@@ -149,11 +155,21 @@ export const GuessHexGame = ({ onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">Угадай HEX-код</h2>
-        <HintToggle hint="HEX состоит из трёх пар (RR GG BB). Сравни тон и яркость со свотчем." />
-        <div className="text-xs text-soft">Сложность: {difficultyDots(challenge.difficulty)}</div>
+        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
+          {language === "ru" ? "Угадай HEX-код" : "Guess the HEX code"}
+        </h2>
+        <HintToggle
+          hint={
+            language === "ru"
+              ? "HEX состоит из трёх пар (RR GG BB). Сравни тон и яркость со свотчем."
+              : "HEX uses three pairs (RR GG BB). Compare hue and brightness with the swatch."
+          }
+        />
+      <div className="text-xs text-soft">
+          {t(language, "difficultyLabel")}: {difficultyDots(challenge.difficulty)}
+        </div>
       </div>
-      
+
       <div className="flex justify-center">
         <motion.div
           className="w-40 h-40"
