@@ -8,6 +8,7 @@ import { Button, Card, Skeleton, SettingsModal } from '@/components'
 import { CustomQuestionsModal } from '@/components/CustomQuestions'
 import { GameId } from '@/types'
 import { shuffle } from '@/utils/helpers'
+import { useKeyboard } from '@/hooks/useKeyboard'
 import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS } from '@/utils/imageQuizData'
 import { QUIZ_QUESTIONS } from '@/games/Quiz'
 import { getGameLabel, t } from '@/utils/i18n'
@@ -25,6 +26,7 @@ import {
   FaThLarge,
   FaSearch,
   FaBars,
+  FaSyncAlt,
   FaVolumeMute,
   FaVolumeUp,
   FaHome,
@@ -592,9 +594,20 @@ function RandomMode({ onBack }: { onBack: () => void }) {
   const currentIndex = 0
   const { language, longTestLength } = useGameStore()
 
-  useEffect(() => {
+  const reroll = () => {
     setQueue(shuffle([...GAME_ORDER]))
+  }
+
+  useEffect(() => {
+    reroll()
   }, [])
+
+  useKeyboard(
+    {
+      r: reroll,
+    },
+    true,
+  )
 
   if (queue.length === 0) {
     return <div className="text-muted">{t(language, 'loading')}</div>
@@ -661,6 +674,13 @@ function RandomMode({ onBack }: { onBack: () => void }) {
           </span>
         </Button>
       </div>
+
+      <Button onClick={reroll} variant="secondary" fullWidth hotkey="R">
+        <span className="inline-flex items-center justify-center gap-2">
+          <FaSyncAlt className="text-base" />
+          {t(language, 'reroll')}
+        </span>
+      </Button>
 
       <div className="flex gap-1 justify-center">
         {queue.map((_, i) => (
