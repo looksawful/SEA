@@ -11,6 +11,7 @@ import { useSound } from "@/hooks/useSound";
 import { hslToRgb, rgbToHex } from "@/utils/colors";
 import { pickRandom, randomInt, shuffle } from "@/utils/helpers";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
+import { LocalizedText, localize, t } from "@/utils/i18n";
 
 type TemperatureTarget = "warm" | "cool";
 
@@ -25,6 +26,30 @@ interface Challenge {
   target: TemperatureTarget;
   difficulty: Difficulty;
 }
+
+const text = (ru: string, en: string): LocalizedText => ({ ru, en });
+
+const TARGET_COPY: Record<TemperatureTarget, { title: LocalizedText; hint: LocalizedText }> = {
+  warm: {
+    title: text("Найди самый тёплый цвет", "Find the warmest color"),
+    hint: text(
+      "Тёплые оттенки ближе к красному и жёлтому сектору.",
+      "Warm hues sit closer to the red and yellow sector.",
+    ),
+  },
+  cool: {
+    title: text("Найди самый холодный цвет", "Find the coolest color"),
+    hint: text(
+      "Холодные оттенки ближе к синему и голубому сектору.",
+      "Cool hues sit closer to the blue and cyan sector.",
+    ),
+  },
+};
+
+const EXPLANATION = text(
+  "Тёплые тона лежат ближе к красно-жёлтой зоне, холодные — к синей. Сравни положение оттенка на круге.",
+  "Warm tones are closer to the red-yellow zone, cool ones to blue. Compare the hue position on the wheel.",
+);
 
 const POINTS: Record<Difficulty, number> = {
   easy: 100,
@@ -119,7 +144,7 @@ export const ColorTemperatureGame = ({ onAnswer }: Props) => {
   const [selected, setSelected] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [round, setRound] = useState(0);
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore();
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause, language } = useGameStore();
   const { playCorrect, playWrong } = useSound();
 
   useEffect(() => {
@@ -144,17 +169,18 @@ export const ColorTemperatureGame = ({ onAnswer }: Props) => {
         playWrong();
         const userChoice = challenge.options[index];
         const correctChoice = challenge.options[challenge.correctIndex];
+        const choiceLabel = language === "ru" ? "Твой выбор" : "Your choice";
+        const correctLabel = language === "ru" ? "Правильный" : "Correct";
         addMistake({
-          question: challenge.target === "warm" ? "Найди самый тёплый цвет" : "Найди самый холодный цвет",
+          question: localize(TARGET_COPY[challenge.target].title, language),
           userAnswer: `Hue ${userChoice.hue}°`,
           correctAnswer: `Hue ${correctChoice.hue}°`,
-          explanation:
-            "Тёплые тона лежат ближе к красно-жёлтой зоне, холодные — к синей. Сравни положение оттенка на круге.",
+          explanation: localize(EXPLANATION, language),
           visual: {
             type: "colors",
             data: {
-              "Твой выбор": userChoice.color,
-              "Правильный": correctChoice.color,
+              [choiceLabel]: userChoice.color,
+              [correctLabel]: correctChoice.color,
             },
           },
         });
@@ -199,16 +225,12 @@ export const ColorTemperatureGame = ({ onAnswer }: Props) => {
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
-          {challenge.target === "warm" ? "Найди самый тёплый цвет" : "Найди самый холодный цвет"}
+          {localize(TARGET_COPY[challenge.target].title, language)}
         </h2>
-        <HintToggle
-          hint={
-            challenge.target === "warm"
-              ? "Тёплые оттенки ближе к красному и жёлтому сектору."
-              : "Холодные оттенки ближе к синему и голубому сектору."
-          }
-        />
-        <div className="text-xs text-soft">Сложность: {difficultyDots(challenge.difficulty)}</div>
+        <HintToggle hint={localize(TARGET_COPY[challenge.target].hint, language)} />
+        <div className="text-xs text-soft">
+          {t(language, "difficultyLabel")}: {difficultyDots(challenge.difficulty)}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -234,7 +256,7 @@ export const ColorTemperatureGame = ({ onAnswer }: Props) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-muted"
         >
-          Правильный оттенок: Hue {challenge.options[challenge.correctIndex].hue}°
+          {language === "ru" ? "Правильный оттенок" : "Correct hue"}: Hue {challenge.options[challenge.correctIndex].hue}°
         </motion.div>
       )}
     </div>
