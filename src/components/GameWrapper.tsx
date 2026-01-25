@@ -13,7 +13,7 @@ import { Button } from "./Button";
 import { ProgressBar, TimerDisplay } from "./Progress";
 import { ScoreDisplay } from "./Score";
 import { Swatch } from "./Swatch";
-import { FaForward } from "react-icons/fa";
+import { FaFlag, FaForward } from "react-icons/fa";
 
 interface GameWrapperProps {
   gameId: GameId;
@@ -88,6 +88,8 @@ export const GameWrapper = ({
   const GameIcon = game.icon;
   const [showComplete, setShowComplete] = useState(false);
   const [showMistakes, setShowMistakes] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const [reportText, setReportText] = useState("");
   const [sessionTimeLimit, setSessionTimeLimit] = useState(game.timeLimit);
   const { playComplete } = useSound();
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -116,6 +118,12 @@ export const GameWrapper = ({
   } = useGameStore();
   const gameLabel = getGameLabel(gameId, language);
   const longTestOptions = [10, 20, 30, 40, 50];
+  const reportSubject = `${t(language, "reportIssueTitle")} — ${gameLabel.name}`;
+  const reportMeta = `Game: ${gameLabel.name} (${gameId})\nQuestion: ${Math.min(
+    currentChallenge + 1,
+    totalChallenges,
+  )}/${totalChallenges}\nURL: ${typeof window !== "undefined" ? window.location.href : ""}`;
+  const reportBody = reportText.trim() ? `${reportText.trim()}\n\n${reportMeta}` : reportMeta;
 
   const { start, stop, reset } = useTimer({
     initialTime: sessionTimeLimit,
@@ -179,6 +187,25 @@ export const GameWrapper = ({
     triggerSkip();
   };
 
+  const closeReport = () => {
+    setShowReport(false);
+    setReportText("");
+  };
+
+  const handleReportEmail = () => {
+    const url = `mailto:i@lookawful.ru?subject=${encodeURIComponent(reportSubject)}&body=${encodeURIComponent(reportBody)}`;
+    window.location.href = url;
+    closeReport();
+  };
+
+  const handleReportGithub = () => {
+    const url = `https://github.com/looksawful/Awful-Exercises/issues/new?title=${encodeURIComponent(
+      reportSubject,
+    )}&body=${encodeURIComponent(reportBody)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+    closeReport();
+  };
+
   const handleExit = () => {
     stop();
     resetGame();
@@ -195,7 +222,13 @@ export const GameWrapper = ({
 
   useKeyboard(
     {
-      escape: handleExit,
+      escape: () => {
+        if (showReport) {
+          closeReport();
+        } else {
+          handleExit();
+        }
+      },
       p: handlePause,
       s: handleSkip,
       " ": () => !isPlaying && !showComplete && handleStart(),
@@ -459,14 +492,24 @@ export const GameWrapper = ({
               <ProgressBar value={currentChallenge} max={totalChallenges} size="sm" />
             </div>
             <TimerDisplay seconds={timeLeft} disabled={!timedMode} />
-            <button
-              onClick={handleSkip}
-              className="p-2 rounded-xl border border-subtle bg-surface-2 text-muted hover:text-strong hover:bg-surface-3"
-              aria-label={t(language, "skip")}
-              title={`${t(language, "skip")} (S)`}
-            >
-              <FaForward />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowReport(true)}
+                className="p-2 rounded-xl border border-subtle bg-surface-2 text-muted hover:text-strong hover:bg-surface-3"
+                aria-label={t(language, "reportQuestion")}
+                title={t(language, "reportQuestion")}
+              >
+                <FaFlag />
+              </button>
+              <button
+                onClick={handleSkip}
+                className="p-2 rounded-xl border border-subtle bg-surface-2 text-muted hover:text-strong hover:bg-surface-3"
+                aria-label={t(language, "skip")}
+                title={`${t(language, "skip")} (S)`}
+              >
+                <FaForward />
+              </button>
+            </div>
           </div>
           <div className="flex justify-center mt-2">
             <ScoreDisplay compact />
@@ -493,6 +536,44 @@ export const GameWrapper = ({
                 </Button>
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showReport && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-30 bg-[color:var(--surface-1-95)] backdrop-blur flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              className="w-full max-w-lg bg-surface border border-subtle rounded-3xl shadow-card p-5 space-y-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <h2 className="text-xl font-display font-semibold tracking-tight">{t(language, "reportIssueTitle")}</h2>
+                <button onClick={closeReport} className="text-soft hover:text-strong">
+                  {t(language, "close")}
+                </button>
+              </div>
+              <textarea
+                value={reportText}
+                onChange={(event) => setReportText(event.target.value)}
+                placeholder={t(language, "reportPlaceholder")}
+                className="w-full min-h-[120px] rounded-2xl border border-subtle bg-surface-2 p-3 text-sm text-strong placeholder:text-soft focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]"
+              />
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button onClick={handleReportEmail} fullWidth>
+                  {t(language, "sendEmail")}
+                </Button>
+                <Button onClick={handleReportGithub} variant="secondary" fullWidth>
+                  {t(language, "github")}
+                </Button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
