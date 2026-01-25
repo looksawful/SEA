@@ -11,6 +11,7 @@ import { useSound } from "@/hooks/useSound";
 import { randomHsl, hslToRgb, rgbToHex } from "@/utils/colors";
 import { shuffle, pickRandom } from "@/utils/helpers";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
+import { LocalizedText, localize, t } from "@/utils/i18n";
 
 type ParamType = "hue" | "saturation" | "lightness";
 type ParamMode = "value" | "shift";
@@ -38,16 +39,27 @@ interface ShiftChallenge {
 
 type Challenge = ValueChallenge | ShiftChallenge;
 
-const PARAM_NAMES: Record<ParamType, string> = {
-  hue: "Hue (H)",
-  saturation: "Saturation (S)",
-  lightness: "Lightness (L)",
+const text = (ru: string, en: string): LocalizedText => ({ ru, en });
+
+const PARAM_NAMES: Record<ParamType, LocalizedText> = {
+  hue: text("Оттенок (H)", "Hue (H)"),
+  saturation: text("Насыщенность (S)", "Saturation (S)"),
+  lightness: text("Светлота (L)", "Lightness (L)"),
 };
 
-const PARAM_EXPLANATIONS: Record<ParamType, string> = {
-  hue: "Hue is the position on the color wheel: 0° — red, 60° — yellow, 120° — green, 180° — cyan, 240° — blue, 300° — magenta",
-  saturation: "Saturation shows color intensity: 0% — gray, 100% — pure color",
-  lightness: "Lightness is the amount of white/black: 0% — black, 50% — pure color, 100% — white",
+const PARAM_EXPLANATIONS: Record<ParamType, LocalizedText> = {
+  hue: text(
+    "Оттенок — положение на цветовом круге: 0° — красный, 60° — жёлтый, 120° — зелёный, 180° — циан, 240° — синий, 300° — маджента",
+    "Hue is the position on the color wheel: 0° — red, 60° — yellow, 120° — green, 180° — cyan, 240° — blue, 300° — magenta",
+  ),
+  saturation: text(
+    "Насыщенность показывает интенсивность цвета: 0% — серый, 100% — чистый цвет",
+    "Saturation shows color intensity: 0% — gray, 100% — pure color",
+  ),
+  lightness: text(
+    "Светлота — количество белого/чёрного: 0% — чёрный, 50% — чистый цвет, 100% — белый",
+    "Lightness is the amount of white/black: 0% — black, 50% — pure color, 100% — white",
+  ),
 };
 
 const generateOptions = (
@@ -179,8 +191,10 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
   const [selected, setSelected] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [round, setRound] = useState(0);
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore();
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause, language } = useGameStore();
   const { playCorrect, playWrong } = useSound();
+  const paramName = (paramType: ParamType) => localize(PARAM_NAMES[paramType], language);
+  const paramExplanation = (paramType: ParamType) => localize(PARAM_EXPLANATIONS[paramType], language);
 
   useEffect(() => {
     setChallenge(generateChallenge(round));
@@ -216,26 +230,38 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
         if (challenge.mode === "value") {
           const unit = challenge.paramType === "hue" ? "°" : "%";
           const userAnswer = challenge.options[index];
+          const label = paramName(challenge.paramType);
+          const explanation =
+            language === "ru"
+              ? `${paramExplanation(challenge.paramType)}. Полные HSL значения для этого цвета: H=${challenge.hsl.h}°, S=${challenge.hsl.s}%, L=${challenge.hsl.l}%`
+              : `${paramExplanation(challenge.paramType)}. Full HSL values for this color: H=${challenge.hsl.h}°, S=${challenge.hsl.s}%, L=${challenge.hsl.l}%`;
           addMistake({
-            question: `Determine the ${PARAM_NAMES[challenge.paramType]} of the color`,
+            question:
+              language === "ru" ? `Определи ${label} цвета` : `Determine the ${label} of the color`,
             userAnswer: `${userAnswer}${unit}`,
             correctAnswer: `${challenge.correctValue}${unit}`,
-            explanation: `${PARAM_EXPLANATIONS[challenge.paramType]}. Full HSL values for this color: H=${challenge.hsl.h}°, S=${challenge.hsl.s}%, L=${challenge.hsl.l}%`,
+            explanation,
             visual: {
               type: "colors",
-              data: { Color: challenge.color },
+              data: { [language === "ru" ? "Цвет" : "Color"]: challenge.color },
             },
           });
         } else {
           const userAnswer = challenge.options[index];
+          const explanation =
+            language === "ru"
+              ? `${paramExplanation(challenge.paramType)}. Исходный цвет: H=${challenge.baseHsl.h}°, S=${challenge.baseHsl.s}%, L=${challenge.baseHsl.l}%.`
+              : `${paramExplanation(challenge.paramType)}. Base color: H=${challenge.baseHsl.h}°, S=${challenge.baseHsl.s}%, L=${challenge.baseHsl.l}%.`;
+          const colorALabel = language === "ru" ? "Цвет A" : "Color A";
+          const colorBLabel = language === "ru" ? "Цвет B" : "Color B";
           addMistake({
-            question: "Что изменилось между двумя цветами?",
-            userAnswer: PARAM_NAMES[userAnswer],
-            correctAnswer: PARAM_NAMES[challenge.paramType],
-            explanation: `${PARAM_EXPLANATIONS[challenge.paramType]}. Исходный цвет: H=${challenge.baseHsl.h}°, S=${challenge.baseHsl.s}%, L=${challenge.baseHsl.l}%.`,
+            question: language === "ru" ? "Что изменилось между двумя цветами?" : "What changed between the two colors?",
+            userAnswer: paramName(userAnswer),
+            correctAnswer: paramName(challenge.paramType),
+            explanation,
             visual: {
               type: "colors",
-              data: { "Цвет A": challenge.baseColor, "Цвет B": challenge.targetColor },
+              data: { [colorALabel]: challenge.baseColor, [colorBLabel]: challenge.targetColor },
             },
           });
         }
@@ -281,17 +307,25 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
       <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
           {challenge.mode === "value"
-            ? `Determine ${PARAM_NAMES[challenge.paramType]}`
-            : "Что изменилось между цветами?"}
+            ? language === "ru"
+              ? `Определи ${paramName(challenge.paramType)}`
+              : `Determine ${paramName(challenge.paramType)}`
+            : language === "ru"
+              ? "Что изменилось между цветами?"
+              : "What changed between the colors?"}
         </h2>
         <HintToggle
           hint={
             challenge.mode === "value"
-              ? PARAM_EXPLANATIONS[challenge.paramType]
-              : "Compare both swatches and decide which parameter shifted."
+              ? paramExplanation(challenge.paramType)
+              : language === "ru"
+                ? "Сравни оба свотча и реши, какой параметр изменился."
+                : "Compare both swatches and decide which parameter shifted."
           }
         />
-        <div className="text-xs text-soft">Difficulty: {difficultyDots(challenge.difficulty)}</div>
+        <div className="text-xs text-soft">
+          {t(language, "difficultyLabel")}: {difficultyDots(challenge.difficulty)}
+        </div>
       </div>
 
       <div className="flex justify-center">
@@ -333,7 +367,7 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
               </div>
             ) : (
               <div className="text-center font-medium">
-                {PARAM_NAMES[value as ParamType]}
+                {paramName(value as ParamType)}
                 <span className="hidden sm:inline text-xs text-soft ml-2">[{index + 1}]</span>
               </div>
             )}
@@ -356,7 +390,8 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
             </>
           ) : (
             <div className="text-xs text-soft">
-              Изменение: {PARAM_NAMES[challenge.paramType]} • Цвет A → Цвет B
+              {language === "ru" ? "Изменение" : "Change"}: {paramName(challenge.paramType)} •{" "}
+              {language === "ru" ? "Цвет A" : "Color A"} → {language === "ru" ? "Цвет B" : "Color B"}
             </div>
           )}
         </motion.div>
