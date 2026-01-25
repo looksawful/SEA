@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
+import { HintToggle } from "@/components/HintToggle";
 import { Swatch } from "@/components/Swatch";
 import { useNumberKeys } from "@/hooks/useKeyboard";
 import { useSkipSignal } from "@/hooks/useSkipSignal";
@@ -208,11 +209,10 @@ export const ColorCompareGame = ({ onAnswer }: Props) => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">{prompt.title}</h2>
-        <div className="text-xs text-soft mt-1">
-          Сложность: {difficultyDots(challenge.difficulty)}
-        </div>
+        <HintToggle hint={prompt.helper} />
+        <div className="text-xs text-soft">Сложность: {difficultyDots(challenge.difficulty)}</div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -232,13 +232,6 @@ export const ColorCompareGame = ({ onAnswer }: Props) => {
         ))}
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center text-sm text-muted"
-      >
-        {prompt.helper}
-      </motion.div>
     </div>
   );
 };

@@ -2,6 +2,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
+import { HintToggle } from "@/components/HintToggle";
 import { Swatch } from "@/components/Swatch";
 import { useKeyboard } from "@/hooks/useKeyboard";
 import { useSkipSignal } from "@/hooks/useSkipSignal";
@@ -274,9 +275,9 @@ export const LongTestGame = ({ onAnswer, totalQuestions }: Props) => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center space-y-1">
+      <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">{challenge.prompt}</h2>
-        {challenge.helper && <div className="text-xs text-soft">{challenge.helper}</div>}
+        <HintToggle hint={challenge.helper} />
         <div className="text-xs text-soft">
           {t(language, "difficultyLabel")}: {difficultyDots(difficulty)}
         </div>
