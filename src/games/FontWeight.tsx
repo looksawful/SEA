@@ -9,6 +9,7 @@ import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
 import { getDisplayText, pickRandom, shuffle } from "@/utils/helpers";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
+import { Language, t } from "@/utils/i18n";
 
 type WeightMode = "heavier" | "lighter";
 
@@ -54,11 +55,11 @@ const getWeightSet = (difficulty: Difficulty): number[] => {
   return WEIGHTS.slice(start, start + 4);
 };
 
-const generateChallenge = (round: number): Challenge => {
+const generateChallenge = (round: number, language: Language): Challenge => {
   const difficulty = getDifficulty(round);
   const mode = pickRandom(["heavier", "lighter"] as WeightMode[]);
   const weights = getWeightSet(difficulty);
-  const text = getDisplayText();
+  const text = getDisplayText(language);
 
   const targetWeight = mode === "heavier" ? Math.max(...weights) : Math.min(...weights);
   const correctIndex = weights.indexOf(targetWeight);
@@ -75,12 +76,12 @@ export const FontWeightGame = ({ onAnswer }: Props) => {
   const [selected, setSelected] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [round, setRound] = useState(0);
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore();
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause, language } = useGameStore();
   const { playCorrect, playWrong } = useSound();
 
   useEffect(() => {
-    setChallenge(generateChallenge(round));
-  }, []);
+    setChallenge(generateChallenge(round, language));
+  }, [language]);
 
   const handleSelect = useCallback(
     (index: number) => {
@@ -100,11 +101,22 @@ export const FontWeightGame = ({ onAnswer }: Props) => {
         playWrong();
         const correctWeight = challenge.weights[challenge.correctIndex];
         const userWeight = challenge.weights[index];
+        const question =
+          language === "ru"
+            ? challenge.mode === "heavier"
+              ? "Найди самый жирный текст"
+              : "Найди самый лёгкий текст"
+            : challenge.mode === "heavier"
+              ? "Find the heaviest text"
+              : "Find the lightest text";
         addMistake({
-          question: challenge.mode === "heavier" ? "Найди самый жирный текст" : "Найди самый лёгкий текст",
-          userAnswer: `Вес ${userWeight}`,
-          correctAnswer: `Вес ${correctWeight}`,
-          explanation: "Сравни визуальную толщину штрихов: больший вес делает буквы заметно массивнее.",
+          question,
+          userAnswer: language === "ru" ? `Вес ${userWeight}` : `Weight ${userWeight}`,
+          correctAnswer: language === "ru" ? `Вес ${correctWeight}` : `Weight ${correctWeight}`,
+          explanation:
+            language === "ru"
+              ? "Сравни визуальную толщину штрихов: больший вес делает буквы заметно массивнее."
+              : "Compare stroke thickness: heavier weights make letters noticeably bolder.",
         });
       }
 
@@ -116,22 +128,22 @@ export const FontWeightGame = ({ onAnswer }: Props) => {
       setTimeout(() => {
         onAnswer(correct);
         setRound((r) => r + 1);
-        setChallenge(generateChallenge(round + 1));
+        setChallenge(generateChallenge(round + 1, language));
         setSelected(null);
         setShowResult(false);
       }, reviewDelay);
     },
-    [challenge, showResult, round, setReviewPause],
+    [challenge, showResult, round, setReviewPause, language],
   );
 
   const handleSkip = useCallback(() => {
     if (!challenge || showResult) return;
     onAnswer(false);
     setRound((r) => r + 1);
-    setChallenge(generateChallenge(round + 1));
+    setChallenge(generateChallenge(round + 1, language));
     setSelected(null);
     setShowResult(false);
-  }, [challenge, showResult, round, onAnswer]);
+  }, [challenge, showResult, round, onAnswer, language]);
 
   useSkipSignal(handleSkip, !showResult);
 
@@ -147,10 +159,24 @@ export const FontWeightGame = ({ onAnswer }: Props) => {
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
-          {challenge.mode === "heavier" ? "Найди самый жирный текст" : "Найди самый лёгкий текст"}
+          {language === "ru"
+            ? challenge.mode === "heavier"
+              ? "Найди самый жирный текст"
+              : "Найди самый лёгкий текст"
+            : challenge.mode === "heavier"
+              ? "Find the heaviest text"
+              : "Find the lightest text"}
         </h2>
-        <HintToggle hint="Сравни толщину штриха: более жирный выглядит темнее и массивнее." />
-        <div className="text-xs text-soft">Сложность: {difficultyDots(challenge.difficulty)}</div>
+        <HintToggle
+          hint={
+            language === "ru"
+              ? "Сравни толщину штриха: более жирный выглядит темнее и массивнее."
+              : "Compare stroke thickness: heavier weights look darker and more massive."
+          }
+        />
+        <div className="text-xs text-soft">
+          {t(language, "difficultyLabel")}: {difficultyDots(challenge.difficulty)}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -181,7 +207,7 @@ export const FontWeightGame = ({ onAnswer }: Props) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-muted"
         >
-          Вес правильного варианта: {challenge.weights[challenge.correctIndex]}
+          {language === "ru" ? "Вес правильного варианта" : "Correct weight"}: {challenge.weights[challenge.correctIndex]}
         </motion.div>
       )}
     </div>
