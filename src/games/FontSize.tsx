@@ -10,6 +10,7 @@ import { useSound } from '@/hooks/useSound'
 import { shuffle, pickRandom } from '@/utils/helpers'
 import { getFontSizeClass } from '@/utils/fonts'
 import { Difficulty, difficultyDots, getDifficulty } from '@/utils/difficulty'
+import { Language, LocalizedText, localize, t } from '@/utils/i18n'
 
 const TYPE_SCALES = {
   modular: [12, 14, 16, 18, 20, 24, 30, 36, 48, 60, 72],
@@ -21,37 +22,82 @@ const TYPE_SCALES = {
   compact: [10, 11, 12, 13, 14, 15, 16, 17, 18],
 }
 
-const FALLBACK_TEXTS = [
-  'Типографика',
-  'Design System',
-  'Визуальный баланс',
-  'Негативное пространство',
-  'Композиция',
-  'Гармония цвета',
-  'Иерархия',
-  'Консистентность',
-  'Читаемость',
-  'Контраст',
-  'Ритм и паттерн',
-  'Модульная сетка',
-  'Выравнивание',
-  'Доступность',
-  'Интерфейс',
-  'Пропорции',
-  'Баланс',
-  'Контекст',
-  'Гарнитура',
-  'Распознавание',
-  'Навигация',
-  'Привычка',
-  'Сетка',
-  'Ритм',
-  'Градация',
-  'Группа',
-  'Отклик',
-  'Тон',
-  'Динамика',
-]
+const text = (ru: string, en: string): LocalizedText => ({ ru, en })
+
+const FALLBACK_TEXTS: Record<Language, string[]> = {
+  ru: [
+    'Типографика',
+    'Дизайн-система',
+    'Визуальный баланс',
+    'Негативное пространство',
+    'Композиция',
+    'Гармония цвета',
+    'Иерархия',
+    'Консистентность',
+    'Читаемость',
+    'Контраст',
+    'Ритм и паттерн',
+    'Модульная сетка',
+    'Выравнивание',
+    'Доступность',
+    'Интерфейс',
+    'Пропорции',
+    'Баланс',
+    'Контекст',
+    'Гарнитура',
+    'Распознавание',
+    'Навигация',
+    'Привычка',
+    'Сетка',
+    'Ритм',
+    'Градация',
+    'Группа',
+    'Отклик',
+    'Тон',
+    'Динамика',
+  ],
+  en: [
+    'Typography',
+    'Design system',
+    'Visual balance',
+    'Negative space',
+    'Composition',
+    'Color harmony',
+    'Hierarchy',
+    'Consistency',
+    'Readability',
+    'Contrast',
+    'Rhythm and pattern',
+    'Modular grid',
+    'Alignment',
+    'Accessibility',
+    'Interface',
+    'Proportions',
+    'Balance',
+    'Context',
+    'Typeface',
+    'Recognition',
+    'Navigation',
+    'Habit',
+    'Grid',
+    'Rhythm',
+    'Gradation',
+    'Group',
+    'Response',
+    'Tone',
+    'Dynamics',
+  ],
+}
+
+const SCALE_LABELS: Record<keyof typeof TYPE_SCALES, LocalizedText> = {
+  modular: text('Модульная', 'Modular'),
+  linear: text('Линейная', 'Linear'),
+  ios: text('iOS', 'iOS'),
+  material: text('Material', 'Material'),
+  bootstrap: text('Bootstrap', 'Bootstrap'),
+  editorial: text('Редакционная', 'Editorial'),
+  compact: text('Компактная', 'Compact'),
+}
 
 interface Challenge {
   size: number
@@ -100,8 +146,8 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
   const [showResult, setShowResult] = useState(false)
   const [round, setRound] = useState(0)
   const textIndexRef = useRef(0)
-  const textPool = useMemo(() => shuffle([...FALLBACK_TEXTS]), [])
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore()
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause, language } = useGameStore()
+  const textPool = useMemo(() => shuffle([...(FALLBACK_TEXTS[language] ?? FALLBACK_TEXTS.ru)]), [language])
   const { playCorrect, playWrong } = useSound()
 
   const generateChallenge = useCallback((roundNum: number): Challenge => {
@@ -116,7 +162,10 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
     
     const size = pickRandom(availableSizes)
     
-    const text = textPool.length > 0 ? textPool[textIndexRef.current % textPool.length] : pickRandom(FALLBACK_TEXTS)
+    const text =
+      textPool.length > 0
+        ? textPool[textIndexRef.current % textPool.length]
+        : pickRandom(FALLBACK_TEXTS[language] ?? FALLBACK_TEXTS.ru)
     textIndexRef.current += 1
     
     const options = getDifficultyOptions(size, scale, difficulty)
@@ -132,11 +181,12 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
       difficulty,
       scale: scaleName,
     }
-  }, [textPool])
+  }, [textPool, language])
 
   useEffect(() => {
+    textIndexRef.current = 0
     setChallenge(generateChallenge(round))
-  }, [])
+  }, [generateChallenge])
 
   const handleSelect = useCallback((index: number) => {
     if (showResult || !challenge) return
@@ -156,10 +206,16 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
       resetStreak()
       playWrong()
       addMistake({
-        question: `Какой размер шрифта? (текст: "${challenge.text}")`,
+        question:
+          language === 'ru'
+            ? `Какой размер шрифта? (текст: "${challenge.text}")`
+            : `What is the font size? (text: "${challenge.text}")`,
         userAnswer: `${userAnswer}px`,
         correctAnswer: `${challenge.size}px`,
-        explanation: `Разница между ${userAnswer}px и ${challenge.size}px составляет ${Math.abs(userAnswer - challenge.size)}px. Тренируйте глаз на модульных шкалах: ${TYPE_SCALES.modular.slice(0, 6).join(', ')}...`,
+        explanation:
+          language === 'ru'
+            ? `Разница между ${userAnswer}px и ${challenge.size}px составляет ${Math.abs(userAnswer - challenge.size)}px. Тренируйте глаз на модульных шкалах: ${TYPE_SCALES.modular.slice(0, 6).join(', ')}...`
+            : `The difference between ${userAnswer}px and ${challenge.size}px is ${Math.abs(userAnswer - challenge.size)}px. Train your eye with modular scales: ${TYPE_SCALES.modular.slice(0, 6).join(', ')}...`,
       })
     }
     
@@ -176,7 +232,7 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
       setSelected(null)
       setShowResult(false)
     }, reviewDelay)
-  }, [challenge, showResult, round, generateChallenge, setReviewPause])
+  }, [challenge, showResult, round, generateChallenge, setReviewPause, language])
 
   const handleSkip = useCallback(() => {
     if (!challenge || showResult) return
@@ -186,7 +242,7 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
     setChallenge(generateChallenge(newRound))
     setSelected(null)
     setShowResult(false)
-  }, [challenge, showResult, round, generateChallenge, onAnswer])
+  }, [challenge, showResult, round, generateChallenge, onAnswer, language])
 
   useSkipSignal(handleSkip, !showResult)
 
@@ -198,16 +254,26 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
 
   if (!challenge) return (
     <div className="flex items-center justify-center p-8">
-      <div className="text-soft">Загрузка...</div>
+      <div className="text-soft">{t(language, 'loading')}</div>
     </div>
   )
 
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">Какой это размер шрифта?</h2>
-        <HintToggle hint="Ориентируйся на базовый размер интерфейса 16px и сравни высоту букв." />
-        <div className="text-xs text-soft">Сложность: {difficultyDots(challenge.difficulty)}</div>
+        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
+          {language === 'ru' ? 'Какой это размер шрифта?' : 'What font size is this?'}
+        </h2>
+        <HintToggle
+          hint={
+            language === 'ru'
+              ? 'Ориентируйся на базовый размер интерфейса 16px и сравни высоту букв.'
+              : 'Use the 16px base UI size and compare letter height.'
+          }
+        />
+        <div className="text-xs text-soft">
+          {t(language, 'difficultyLabel')}: {difficultyDots(challenge.difficulty)}
+        </div>
       </div>
       
       <div className="bg-surface-2 rounded-2xl p-8 flex items-center justify-center min-h-40 border border-subtle shadow-card">
@@ -243,8 +309,11 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-muted"
         >
-          Правильный размер: <span className="font-mono font-medium">{challenge.size}px</span>
-          <span className="text-xs block mt-1 text-soft">Шкала: {challenge.scale}</span>
+          {language === 'ru' ? 'Правильный размер' : 'Correct size'}:{' '}
+          <span className="font-mono font-medium">{challenge.size}px</span>
+          <span className="text-xs block mt-1 text-soft">
+            {language === 'ru' ? 'Шкала' : 'Scale'}: {localize(SCALE_LABELS[challenge.scale], language)}
+          </span>
         </motion.div>
       )}
     </div>
