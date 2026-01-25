@@ -11,6 +11,7 @@ import { useSound } from '@/hooks/useSound'
 import { randomHsl, hslToRgb, rgbToHex } from '@/utils/colors'
 import { shuffle, randomInt } from '@/utils/helpers'
 import { Difficulty, difficultyDots, getDifficulty } from '@/utils/difficulty'
+import { t } from '@/utils/i18n'
 
 interface HslValue {
   h: number
@@ -100,12 +101,12 @@ export const GuessParamsGame = ({ onAnswer }: Props) => {
   const [selected, setSelected] = useState<number | null>(null)
   const [showResult, setShowResult] = useState(false)
   const [round, setRound] = useState(0)
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore()
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause, language } = useGameStore()
   const { playCorrect, playWrong } = useSound()
 
   useEffect(() => {
     setChallenge(generateChallenge(round))
-  }, [])
+  }, [language])
 
   const handleSelect = useCallback((index: number) => {
     if (showResult || !challenge) return
@@ -124,15 +125,19 @@ export const GuessParamsGame = ({ onAnswer }: Props) => {
       resetStreak()
       playWrong()
       const userHsl = challenge.options[index]
-      
+      const colorLabel = language === "ru" ? "Цвет" : "Color"
+      const explanation =
+        language === "ru"
+          ? `H (Hue) — тон на цветовом круге (0–360°). S (Saturation) — насыщенность (0–100%). L (Lightness) — светлота (0–100%). Разница: H на ${Math.abs(userHsl.h - challenge.hsl.h)}°, S на ${Math.abs(userHsl.s - challenge.hsl.s)}%, L на ${Math.abs(userHsl.l - challenge.hsl.l)}%`
+          : `H (Hue) is the hue angle (0–360°). S (Saturation) is saturation (0–100%). L (Lightness) is lightness (0–100%). Difference: H by ${Math.abs(userHsl.h - challenge.hsl.h)}°, S by ${Math.abs(userHsl.s - challenge.hsl.s)}%, L by ${Math.abs(userHsl.l - challenge.hsl.l)}%`
       addMistake({
-        question: `Определи HSL-параметры цвета`,
+        question: language === "ru" ? "Определи HSL-параметры цвета" : "Determine the HSL parameters of the color",
         userAnswer: `H=${userHsl.h}° S=${userHsl.s}% L=${userHsl.l}%`,
         correctAnswer: `H=${challenge.hsl.h}° S=${challenge.hsl.s}% L=${challenge.hsl.l}%`,
-        explanation: `H (Hue) — тон на цветовом круге (0-360°). S (Saturation) — насыщенность (0-100%). L (Lightness) — светлость (0-100%). Разница: H на ${Math.abs(userHsl.h - challenge.hsl.h)}°, S на ${Math.abs(userHsl.s - challenge.hsl.s)}%, L на ${Math.abs(userHsl.l - challenge.hsl.l)}%`,
+        explanation,
         visual: {
-          type: 'colors',
-          data: { 'Цвет': challenge.color }
+          type: "colors",
+          data: { [colorLabel]: challenge.color }
         }
       })
     }
@@ -149,7 +154,7 @@ export const GuessParamsGame = ({ onAnswer }: Props) => {
       setSelected(null)
       setShowResult(false)
     }, reviewDelay)
-  }, [challenge, showResult, round, setReviewPause])
+  }, [challenge, showResult, round, setReviewPause, language])
 
   const handleSkip = useCallback(() => {
     if (!challenge || showResult) return
@@ -158,7 +163,7 @@ export const GuessParamsGame = ({ onAnswer }: Props) => {
     setChallenge(generateChallenge(round + 1))
     setSelected(null)
     setShowResult(false)
-  }, [challenge, showResult, round, onAnswer])
+  }, [challenge, showResult, round, onAnswer, language])
 
   useSkipSignal(handleSkip, !showResult)
 
@@ -173,11 +178,21 @@ export const GuessParamsGame = ({ onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">Угадай HSL-параметры</h2>
-        <HintToggle hint="H — тон на круге, S — насыщенность, L — светлота." />
-        <div className="text-xs text-soft">Сложность: {difficultyDots(challenge.difficulty)}</div>
+        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
+          {language === "ru" ? "Угадай HSL-параметры" : "Guess the HSL parameters"}
+        </h2>
+        <HintToggle
+          hint={
+            language === "ru"
+              ? "H — тон на круге, S — насыщенность, L — светлота."
+              : "H is hue, S is saturation, L is lightness."
+          }
+        />
+        <div className="text-xs text-soft">
+          {t(language, "difficultyLabel")}: {difficultyDots(challenge.difficulty)}
+        </div>
       </div>
-      
+
       <div className="flex justify-center">
         <motion.div
           className="w-40 h-40"
