@@ -1,11 +1,14 @@
 import { Skeleton } from "@/components/Skeleton";
+import { FaCircleNotch } from "react-icons/fa";
 
 export default function Loading() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-4xl space-y-6">
         <div className="flex items-center gap-3">
-          <Skeleton className="h-10 w-10 rounded-2xl" />
+          <div className="h-10 w-10 rounded-2xl border border-subtle bg-surface-2 flex items-center justify-center text-accent">
+            <FaCircleNotch className="animate-spin" />
+          </div>
           <Skeleton className="h-6 w-32" />
         </div>
         <Skeleton className="h-40 w-full rounded-3xl" />
