@@ -122,7 +122,7 @@ export const ColorCompareGame = ({ onAnswer }: Props) => {
   const [selected, setSelected] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [round, setRound] = useState(0);
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake } = useGameStore();
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore();
   const { playCorrect, playWrong } = useSound();
 
   useEffect(() => {
@@ -168,6 +168,9 @@ export const ColorCompareGame = ({ onAnswer }: Props) => {
 
       updateStats("color-compare", correct);
 
+      const reviewDelay = correct ? 1200 : 2400;
+      setReviewPause(reviewDelay);
+
       setTimeout(() => {
         onAnswer(correct);
         const nextRound = round + 1;
@@ -175,9 +178,9 @@ export const ColorCompareGame = ({ onAnswer }: Props) => {
         setChallenge(generateChallenge(nextRound));
         setSelected(null);
         setShowResult(false);
-      }, 1000);
+      }, reviewDelay);
     },
-    [challenge, showResult, round],
+    [challenge, showResult, round, setReviewPause],
   );
 
   useNumberKeys((num) => {

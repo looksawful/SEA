@@ -21,6 +21,7 @@ interface GameStore {
   longTestLength: number
   backgroundAnimation: boolean
   timedMode: boolean
+  reviewPauseUntil: number | null
   currentMistakes: MistakeRecord[]
   customQuestions: Record<GameId, CustomQuestion[]>
   customMode: Record<GameId, boolean>
@@ -44,6 +45,8 @@ interface GameStore {
   setLongTestLength: (length: number) => void
   setBackgroundAnimation: (enabled: boolean) => void
   setTimedMode: (enabled: boolean) => void
+  setReviewPause: (durationMs: number) => void
+  clearReviewPause: () => void
   resetGame: () => void
   resetAll: () => void
   addMistake: (mistake: MistakeRecord) => void
@@ -81,6 +84,7 @@ export const useGameStore = create<GameStore>()(
       longTestLength: 30,
       backgroundAnimation: true,
       timedMode: true,
+      reviewPauseUntil: null,
       currentMistakes: [],
       customQuestions: {} as Record<GameId, CustomQuestion[]>,
       customMode: {} as Record<GameId, boolean>,
@@ -148,6 +152,10 @@ export const useGameStore = create<GameStore>()(
       setBackgroundAnimation: (enabled) => set({ backgroundAnimation: enabled }),
 
       setTimedMode: (enabled) => set({ timedMode: enabled }),
+
+      setReviewPause: (durationMs) => set({ reviewPauseUntil: Date.now() + durationMs }),
+
+      clearReviewPause: () => set({ reviewPauseUntil: null }),
       
       addMistake: (mistake) => set((state) => ({
         currentMistakes: [...state.currentMistakes, mistake]
@@ -194,7 +202,8 @@ export const useGameStore = create<GameStore>()(
         timeLeft: 60, 
         isPlaying: false, 
         isPaused: false,
-        currentMistakes: []
+        currentMistakes: [],
+        reviewPauseUntil: null
       }),
       
       resetAll: () => set((state) => ({ 

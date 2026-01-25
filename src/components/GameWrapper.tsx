@@ -108,6 +108,8 @@ export const GameWrapper = ({
     longTestLength,
     setLongTestLength,
     timedMode,
+    reviewPauseUntil,
+    clearReviewPause,
   } = useGameStore();
   const gameLabel = getGameLabel(gameId, language);
   const longTestOptions = [10, 20, 30, 40, 50];
@@ -215,6 +217,23 @@ export const GameWrapper = ({
       setTimeLeft(sessionTimeLimit);
     }
   }, [sessionTimeLimit, isPlaying, timedMode, reset, setTimeLeft]);
+
+  useEffect(() => {
+    if (!reviewPauseUntil || !isPlaying || isPaused || !timedMode) return;
+    const remaining = reviewPauseUntil - Date.now();
+    if (remaining <= 0) {
+      clearReviewPause();
+      return;
+    }
+    stop();
+    const timeout = window.setTimeout(() => {
+      clearReviewPause();
+      if (!isPaused && isPlaying && timedMode) {
+        start();
+      }
+    }, remaining);
+    return () => window.clearTimeout(timeout);
+  }, [reviewPauseUntil, isPlaying, isPaused, timedMode, start, stop, clearReviewPause]);
 
   if (showComplete) {
     const accuracy = totalChallenges > 0 ? Math.round((resolvedCorrect / totalChallenges) * 100) : 0;

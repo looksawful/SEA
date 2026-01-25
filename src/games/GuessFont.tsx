@@ -74,7 +74,7 @@ export const GuessFontGame = ({ onAnswer }: Props) => {
   const [selected, setSelected] = useState<number | null>(null)
   const [showResult, setShowResult] = useState(false)
   const [round, setRound] = useState(0)
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake } = useGameStore()
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore()
   const { playCorrect, playWrong } = useSound()
 
   useEffect(() => {
@@ -108,14 +108,17 @@ export const GuessFontGame = ({ onAnswer }: Props) => {
     
     updateStats('guess-font', correct)
     
+    const reviewDelay = correct ? 1200 : 2400
+    setReviewPause(reviewDelay)
+
     setTimeout(() => {
       onAnswer(correct)
       setRound(r => r + 1)
       setChallenge(generateChallenge(round + 1))
       setSelected(null)
       setShowResult(false)
-    }, 1200)
-  }, [challenge, showResult, round])
+    }, reviewDelay)
+  }, [challenge, showResult, round, setReviewPause])
 
   useNumberKeys((num) => {
     if (num < (challenge?.options.length || 0)) {

@@ -840,7 +840,8 @@ export const QuizGame = ({ onAnswer }: Props) => {
   const [showResult, setShowResult] = useState(false);
   const [round, setRound] = useState(0);
   const [usedQuestions] = useState(() => new Set<number>());
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, language, avoidRepeats } = useGameStore();
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, language, avoidRepeats, setReviewPause } =
+    useGameStore();
   const { playCorrect, playWrong } = useSound();
 
   useEffect(() => {
@@ -881,15 +882,18 @@ export const QuizGame = ({ onAnswer }: Props) => {
 
       updateStats("quiz", correct);
 
+      const reviewDelay = correct ? 1400 : 2600;
+      setReviewPause(reviewDelay);
+
       setTimeout(() => {
         onAnswer(correct);
         setRound((r) => r + 1);
         setChallenge(generateChallenge(usedQuestions, round + 1, language, avoidRepeats));
         setSelected(null);
         setShowResult(false);
-      }, 1500);
+      }, reviewDelay);
     },
-    [challenge, showResult, round, usedQuestions, language, avoidRepeats],
+    [challenge, showResult, round, usedQuestions, language, avoidRepeats, setReviewPause],
   );
 
   useNumberKeys((num) => {

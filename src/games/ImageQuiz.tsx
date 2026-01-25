@@ -66,7 +66,8 @@ interface Props {
 }
 
 export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, language, avoidRepeats } = useGameStore();
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, language, avoidRepeats, setReviewPause } =
+    useGameStore();
   const { playCorrect, playWrong } = useSound();
   const [round, setRound] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -134,14 +135,17 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
 
       updateStats(gameId, correct);
 
+      const reviewDelay = correct ? 1200 : 2400;
+      setReviewPause(reviewDelay);
+
       setTimeout(() => {
         onAnswer(correct);
         setRound((value) => value + 1);
         setSelected(null);
         setShowResult(false);
-      }, 1000);
+      }, reviewDelay);
     },
-    [challenge, showResult, gameId, language],
+    [challenge, showResult, gameId, language, setReviewPause],
   );
 
   useKeyboard(

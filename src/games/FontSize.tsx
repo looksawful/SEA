@@ -112,7 +112,7 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
   const [round, setRound] = useState(0)
   const [randomTexts, setRandomTexts] = useState<string[]>([])
   const textIndexRef = useRef(0)
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake } = useGameStore()
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore()
   const { playCorrect, playWrong } = useSound()
 
   useEffect(() => {
@@ -221,6 +221,9 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
     
     updateStats('font-size', correct)
     
+    const reviewDelay = correct ? 1200 : 2400
+    setReviewPause(reviewDelay)
+
     setTimeout(() => {
       onAnswer(correct)
       const newRound = round + 1
@@ -228,8 +231,8 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
       setChallenge(generateChallenge(newRound))
       setSelected(null)
       setShowResult(false)
-    }, 1000)
-  }, [challenge, showResult, round, generateChallenge])
+    }, reviewDelay)
+  }, [challenge, showResult, round, generateChallenge, setReviewPause])
 
   useNumberKeys((num) => {
     if (num < (challenge?.options.length || 0)) {
