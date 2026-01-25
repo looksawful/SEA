@@ -10,6 +10,7 @@ import { useSound } from '@/hooks/useSound'
 import { randomInt, pickRandom } from '@/utils/helpers'
 import { getFontSizeClass, TYPE_SCALE } from '@/utils/fonts'
 import { Difficulty, difficultyDots, getDifficulty } from '@/utils/difficulty'
+import { LocalizedText, localize, t } from '@/utils/i18n'
 
 type ScaleType = 'modular' | 'linear' | 'fibonacci' | 'golden' | 'major-third' | 'perfect-fourth'
 
@@ -21,22 +22,39 @@ interface Challenge {
   difficulty: Difficulty
 }
 
-const SCALE_NAMES: Record<ScaleType, string> = {
-  modular: 'модульная',
-  linear: 'линейная',
-  fibonacci: 'Фибоначчи',
-  golden: 'золотое сечение',
-  'major-third': 'major third',
-  'perfect-fourth': 'perfect fourth',
+const text = (ru: string, en: string): LocalizedText => ({ ru, en })
+
+const SCALE_NAMES: Record<ScaleType, LocalizedText> = {
+  modular: text('модульная', 'modular'),
+  linear: text('линейная', 'linear'),
+  fibonacci: text('Фибоначчи', 'Fibonacci'),
+  golden: text('золотое сечение', 'golden ratio'),
+  'major-third': text('major third', 'major third'),
+  'perfect-fourth': text('perfect fourth', 'perfect fourth'),
 }
 
-const SCALE_EXPLANATIONS: Record<ScaleType, string> = {
-  modular: 'Модульная шкала умножает базовый размер на постоянный коэффициент (обычно 1.2-1.5)',
-  linear: 'Линейная шкала добавляет фиксированное значение к каждому следующему размеру',
-  fibonacci: 'Шкала Фибоначчи: каждое число — сумма двух предыдущих',
-  golden: 'Золотое сечение использует коэффициент 1.618 для каждого следующего размера',
-  'major-third': 'Major Third масштабирует размеры по коэффициенту 1.25',
-  'perfect-fourth': 'Perfect Fourth масштабирует размеры по коэффициенту 1.333',
+const SCALE_EXPLANATIONS: Record<ScaleType, LocalizedText> = {
+  modular: text(
+    'Модульная шкала умножает базовый размер на постоянный коэффициент (обычно 1.2-1.5)',
+    'A modular scale multiplies the base size by a constant ratio (typically 1.2–1.5).',
+  ),
+  linear: text(
+    'Линейная шкала добавляет фиксированное значение к каждому следующему размеру',
+    'A linear scale adds a fixed step to each next size.',
+  ),
+  fibonacci: text(
+    'Шкала Фибоначчи: каждое число — сумма двух предыдущих',
+    'A Fibonacci scale: each number is the sum of the two previous ones.',
+  ),
+  golden: text(
+    'Золотое сечение использует коэффициент 1.618 для каждого следующего размера',
+    'The golden ratio uses 1.618 as the multiplier for each next size.',
+  ),
+  'major-third': text('Major Third масштабирует размеры по коэффициенту 1.25', 'Major Third scales sizes by 1.25.'),
+  'perfect-fourth': text(
+    'Perfect Fourth масштабирует размеры по коэффициенту 1.333',
+    'Perfect Fourth scales sizes by 1.333.',
+  ),
 }
 
 const snapToScale = (value: number): number => {
@@ -165,7 +183,7 @@ export const SizeSequenceGame = ({ onAnswer }: Props) => {
   const [selected, setSelected] = useState<number | null>(null)
   const [showResult, setShowResult] = useState(false)
   const [round, setRound] = useState(0)
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore()
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause, language } = useGameStore()
   const { playCorrect, playWrong } = useSound()
 
   useEffect(() => {
@@ -180,6 +198,8 @@ export const SizeSequenceGame = ({ onAnswer }: Props) => {
     
     const correct = index === challenge.errorIndex
     const correctScale = generateScale(challenge.scaleType, challenge.sizes.length)
+    const scaleName = localize(SCALE_NAMES[challenge.scaleType], language)
+    const scaleExplanation = localize(SCALE_EXPLANATIONS[challenge.scaleType], language)
     
     if (correct) {
       const points = challenge.difficulty === 'expert' ? 180 : challenge.difficulty === 'hard' ? 150 : challenge.difficulty === 'medium' ? 120 : 100
@@ -190,10 +210,22 @@ export const SizeSequenceGame = ({ onAnswer }: Props) => {
       resetStreak()
       playWrong()
       addMistake({
-        question: `Найди ошибку в ${SCALE_NAMES[challenge.scaleType]} шкале`,
-        userAnswer: `Позиция ${index + 1} (${challenge.sizes[index]}px)`,
-        correctAnswer: `Позиция ${challenge.errorIndex + 1} (должно быть ${correctScale[challenge.errorIndex]}px, показано ${challenge.sizes[challenge.errorIndex]}px)`,
-        explanation: `${SCALE_EXPLANATIONS[challenge.scaleType]}. Правильная последовательность: ${correctScale.join(', ')}px`,
+        question:
+          language === 'ru'
+            ? `Найди ошибку в ${scaleName} шкале`
+            : `Find the error in the ${scaleName} scale`,
+        userAnswer:
+          language === 'ru'
+            ? `Позиция ${index + 1} (${challenge.sizes[index]}px)`
+            : `Position ${index + 1} (${challenge.sizes[index]}px)`,
+        correctAnswer:
+          language === 'ru'
+            ? `Позиция ${challenge.errorIndex + 1} (должно быть ${correctScale[challenge.errorIndex]}px, показано ${challenge.sizes[challenge.errorIndex]}px)`
+            : `Position ${challenge.errorIndex + 1} (should be ${correctScale[challenge.errorIndex]}px, shown ${challenge.sizes[challenge.errorIndex]}px)`,
+        explanation:
+          language === 'ru'
+            ? `${scaleExplanation}. Правильная последовательность: ${correctScale.join(', ')}px`
+            : `${scaleExplanation}. Correct sequence: ${correctScale.join(', ')}px`,
       })
     }
     
@@ -209,7 +241,7 @@ export const SizeSequenceGame = ({ onAnswer }: Props) => {
       setSelected(null)
       setShowResult(false)
     }, reviewDelay)
-  }, [challenge, showResult, round, setReviewPause])
+  }, [challenge, showResult, round, setReviewPause, language])
 
   const handleSkip = useCallback(() => {
     if (!challenge || showResult) return
@@ -218,7 +250,7 @@ export const SizeSequenceGame = ({ onAnswer }: Props) => {
     setChallenge(generateChallenge(round + 1))
     setSelected(null)
     setShowResult(false)
-  }, [challenge, showResult, round, onAnswer])
+  }, [challenge, showResult, round, onAnswer, language])
 
   useSkipSignal(handleSkip, !showResult)
 
@@ -233,11 +265,13 @@ export const SizeSequenceGame = ({ onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">Найди ошибку в шкале</h2>
-        <HintToggle hint={SCALE_EXPLANATIONS[challenge.scaleType]} />
+        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
+          {language === 'ru' ? 'Найди ошибку в шкале' : 'Find the error in the scale'}
+        </h2>
+        <HintToggle hint={localize(SCALE_EXPLANATIONS[challenge.scaleType], language)} />
         <div className="text-xs text-soft mt-1">
-          Тип: {SCALE_NAMES[challenge.scaleType]} •
-          Сложность: {difficultyDots(challenge.difficulty)}
+          {language === 'ru' ? 'Тип' : 'Type'}: {localize(SCALE_NAMES[challenge.scaleType], language)} •{' '}
+          {t(language, 'difficultyLabel')}: {difficultyDots(challenge.difficulty)}
         </div>
       </div>
       
@@ -276,8 +310,10 @@ export const SizeSequenceGame = ({ onAnswer }: Props) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-muted"
         >
-          <div>Ошибка на позиции {challenge.errorIndex + 1}</div>
-          <div className="text-xs mt-1 text-soft">{SCALE_EXPLANATIONS[challenge.scaleType]}</div>
+          <div>
+            {language === 'ru' ? 'Ошибка на позиции' : 'Error at position'} {challenge.errorIndex + 1}
+          </div>
+          <div className="text-xs mt-1 text-soft">{localize(SCALE_EXPLANATIONS[challenge.scaleType], language)}</div>
         </motion.div>
       )}
     </div>
