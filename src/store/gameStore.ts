@@ -19,6 +19,8 @@ interface GameStore {
   language: Language
   avoidRepeats: boolean
   longTestLength: number
+  backgroundAnimation: boolean
+  timedMode: boolean
   currentMistakes: MistakeRecord[]
   customQuestions: Record<GameId, CustomQuestion[]>
   customMode: Record<GameId, boolean>
@@ -40,6 +42,8 @@ interface GameStore {
   setLanguage: (language: Language) => void
   setAvoidRepeats: (avoidRepeats: boolean) => void
   setLongTestLength: (length: number) => void
+  setBackgroundAnimation: (enabled: boolean) => void
+  setTimedMode: (enabled: boolean) => void
   resetGame: () => void
   resetAll: () => void
   addMistake: (mistake: MistakeRecord) => void
@@ -75,6 +79,8 @@ export const useGameStore = create<GameStore>()(
       language: 'ru',
       avoidRepeats: true,
       longTestLength: 30,
+      backgroundAnimation: true,
+      timedMode: true,
       currentMistakes: [],
       customQuestions: {} as Record<GameId, CustomQuestion[]>,
       customMode: {} as Record<GameId, boolean>,
@@ -138,6 +144,10 @@ export const useGameStore = create<GameStore>()(
       setAvoidRepeats: (avoidRepeats) => set({ avoidRepeats }),
 
       setLongTestLength: (length) => set({ longTestLength: length }),
+
+      setBackgroundAnimation: (enabled) => set({ backgroundAnimation: enabled }),
+
+      setTimedMode: (enabled) => set({ timedMode: enabled }),
       
       addMistake: (mistake) => set((state) => ({
         currentMistakes: [...state.currentMistakes, mistake]
@@ -213,6 +223,8 @@ export const useGameStore = create<GameStore>()(
         language: state.language,
         avoidRepeats: state.avoidRepeats,
         longTestLength: state.longTestLength,
+        backgroundAnimation: state.backgroundAnimation,
+        timedMode: state.timedMode,
         customQuestions: state.customQuestions,
         customMode: state.customMode
       }),

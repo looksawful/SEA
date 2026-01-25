@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { useGameStore } from '@/store/gameStore'
 import { GAMES, GAME_ORDER } from '@/utils/gameConfig'
-import { Button, Card, Skeleton } from '@/components'
+import { Button, Card, Skeleton, SettingsModal } from '@/components'
 import { CustomQuestionsModal } from '@/components/CustomQuestions'
 import { GameId } from '@/types'
 import { shuffle } from '@/utils/helpers'
@@ -15,6 +15,7 @@ import {
   FaArrowLeft,
   FaArrowRight,
   FaChartBar,
+  FaCog,
   FaDice,
   FaListUl,
   FaPen,
@@ -37,6 +38,7 @@ export default function Home() {
   const [mounted, setMounted] = useState(false)
   const [showCustomModal, setShowCustomModal] = useState(false)
   const [customModalGame, setCustomModalGame] = useState<GameId | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
   const [gameSearch, setGameSearch] = useState('')
   const [gamesView, setGamesView] = useState<GamesView>('list')
   const {
@@ -129,6 +131,14 @@ export default function Home() {
                 {soundEnabled ? t(language, 'soundOn') : t(language, 'soundOff')}
               </span>
             </button>
+            <button
+              onClick={() => setShowSettings(true)}
+              className="flex items-center gap-2 px-3 py-2 text-sm rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors"
+              title={t(language, 'settings')}
+            >
+              <FaCog className="text-base" />
+              <span className="hidden sm:inline">{t(language, 'settings')}</span>
+            </button>
             <div
               className="flex items-center rounded-xl border border-subtle bg-surface-2 p-1"
               role="group"
@@ -184,6 +194,12 @@ export default function Home() {
                   <span className="inline-flex items-center justify-center gap-2">
                     <FaChartBar className="text-base" />
                     {t(language, 'stats')}
+                  </span>
+                </Button>
+                <Button onClick={() => setShowSettings(true)} variant="ghost" fullWidth>
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <FaCog className="text-base" />
+                    {t(language, 'settings')}
                   </span>
                 </Button>
                 <div className="text-center text-xs text-soft pt-2 hidden sm:block">
@@ -540,6 +556,7 @@ export default function Home() {
           initialGameId={customModalGame ?? undefined}
         />
       )}
+      {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
     </div>
   )
 }
