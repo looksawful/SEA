@@ -311,7 +311,7 @@ interface CustomQuestionGameProps {
 }
 
 export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps) => {
-  const { customQuestions, addScore, incrementStreak, resetStreak, updateStats, addMistake, language } =
+  const { customQuestions, addScore, incrementStreak, resetStreak, updateStats, addMistake, language, avoidRepeats } =
     useGameStore();
   const { playCorrect, playWrong } = useSound();
   const [round, setRound] = useState(0);
@@ -321,17 +321,24 @@ export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps
   const config = getCustomQuestionConfig(gameId, language);
 
   const order = useMemo(() => shuffle(questions.map((_, index) => index)), [questions.length]);
-  const currentIndex = order.length > 0 ? order[round % order.length] : -1;
-  const question = currentIndex >= 0 ? questions[currentIndex] : null;
+  const currentIndex = order.length > 0 ? (avoidRepeats ? order[round] : order[round % order.length]) : -1;
+  const question = typeof currentIndex === "number" ? questions[currentIndex] : null;
+  const challenge = useMemo(() => {
+    if (!question) return null;
+    const optionOrder = shuffle(question.options.map((_, index) => index));
+    const options = optionOrder.map((optionIndex) => question.options[optionIndex]);
+    const correctIndex = optionOrder.indexOf(question.correctIndex);
+    return { question, options, correctIndex };
+  }, [question]);
 
   const handleSelect = useCallback(
     (index: number) => {
-      if (!question || showResult) return;
+      if (!challenge || showResult) return;
 
       setSelected(index);
       setShowResult(true);
 
-      const correct = index === question.correctIndex;
+      const correct = index === challenge.correctIndex;
 
       if (correct) {
         addScore(GAMES[gameId].pointsPerCorrect);
@@ -340,15 +347,15 @@ export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps
       } else {
         resetStreak();
         playWrong();
-        const userOption = question.options[index];
-        const correctOption = question.options[question.correctIndex];
+        const userOption = challenge.options[index];
+        const correctOption = challenge.options[challenge.correctIndex];
         addMistake({
-          question: question.prompt,
-          userAnswer: formatOptionLabel(userOption, question.optionKind, language),
-          correctAnswer: formatOptionLabel(correctOption, question.optionKind, language),
-          explanation: question.explanation,
+          question: challenge.question.prompt,
+          userAnswer: formatOptionLabel(userOption, challenge.question.optionKind, language),
+          correctAnswer: formatOptionLabel(correctOption, challenge.question.optionKind, language),
+          explanation: challenge.question.explanation,
           visual:
-            question.optionKind === "palette"
+            challenge.question.optionKind === "palette"
               ? {
                   type: "colors",
                   data: {
@@ -360,7 +367,7 @@ export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps
                     "Selected 3": userOption.palette?.[2] || "",
                   },
                 }
-              : question.optionKind === "color"
+              : challenge.question.optionKind === "color"
               ? {
                   type: "colors",
                   data: {
@@ -368,20 +375,20 @@ export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps
                     Selected: userOption.color || "",
                   },
                 }
-              : question.preview?.kind === "contrast"
+              : challenge.question.preview?.kind === "contrast"
                 ? {
                     type: "contrast",
                     data: {
-                      Text: question.preview.colors?.[0] || "",
-                      Background: question.preview.colors?.[1] || "",
+                      Text: challenge.question.preview.colors?.[0] || "",
+                      Background: challenge.question.preview.colors?.[1] || "",
                     },
                   }
-                : question.preview?.kind === "single-color" || question.preview?.kind === "dual-color"
+                : challenge.question.preview?.kind === "single-color" || challenge.question.preview?.kind === "dual-color"
                   ? {
                       type: "colors",
                       data: Object.fromEntries(
-                        (question.preview.colors || []).map((color, idx) => [
-                          question.preview?.labels?.[idx] || `Color ${idx + 1}`,
+                        (challenge.question.preview.colors || []).map((color, idx) => [
+                          challenge.question.preview?.labels?.[idx] || `Color ${idx + 1}`,
                           color,
                         ]),
                       ),
@@ -399,28 +406,28 @@ export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps
         setShowResult(false);
       }, 1000);
     },
-    [question, showResult, gameId],
+    [challenge, showResult, gameId, language],
   );
 
   useKeyboard(
     {
-      "1": () => question && question.options.length > 0 && handleSelect(0),
-      "2": () => question && question.options.length > 1 && handleSelect(1),
-      "3": () => question && question.options.length > 2 && handleSelect(2),
-      "4": () => question && question.options.length > 3 && handleSelect(3),
-      "5": () => question && question.options.length > 4 && handleSelect(4),
-      "6": () => question && question.options.length > 5 && handleSelect(5),
-      Digit1: () => question && question.options.length > 0 && handleSelect(0),
-      Digit2: () => question && question.options.length > 1 && handleSelect(1),
-      Digit3: () => question && question.options.length > 2 && handleSelect(2),
-      Digit4: () => question && question.options.length > 3 && handleSelect(3),
-      Digit5: () => question && question.options.length > 4 && handleSelect(4),
-      Digit6: () => question && question.options.length > 5 && handleSelect(5),
+      "1": () => challenge && challenge.options.length > 0 && handleSelect(0),
+      "2": () => challenge && challenge.options.length > 1 && handleSelect(1),
+      "3": () => challenge && challenge.options.length > 2 && handleSelect(2),
+      "4": () => challenge && challenge.options.length > 3 && handleSelect(3),
+      "5": () => challenge && challenge.options.length > 4 && handleSelect(4),
+      "6": () => challenge && challenge.options.length > 5 && handleSelect(5),
+      Digit1: () => challenge && challenge.options.length > 0 && handleSelect(0),
+      Digit2: () => challenge && challenge.options.length > 1 && handleSelect(1),
+      Digit3: () => challenge && challenge.options.length > 2 && handleSelect(2),
+      Digit4: () => challenge && challenge.options.length > 3 && handleSelect(3),
+      Digit5: () => challenge && challenge.options.length > 4 && handleSelect(4),
+      Digit6: () => challenge && challenge.options.length > 5 && handleSelect(5),
     },
     !showResult,
   );
 
-  if (!question) {
+  if (!challenge) {
     return (
       <div className="text-center space-y-3">
         <div className="text-xl font-medium">{t(language, "customQuestionsEmptyTitle")}</div>
@@ -430,30 +437,30 @@ export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps
   }
 
   const gridClass =
-    question.options.length <= 4 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3";
+    challenge.options.length <= 4 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3";
 
   return (
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
-          {question.prompt || config.title}
+          {challenge.question.prompt || config.title}
         </h2>
-        {question.helper && <div className="text-xs text-soft mt-1">{question.helper}</div>}
+        {challenge.question.helper && <div className="text-xs text-soft mt-1">{challenge.question.helper}</div>}
       </div>
 
-      {renderPreview(question.preview, language)}
+      {renderPreview(challenge.question.preview, language)}
 
       <div className={`grid gap-3 ${gridClass}`}>
-        {question.options.map((option, index) => (
+        {challenge.options.map((option, index) => (
           <Card
             key={`${option.label}-${index}`}
             onClick={() => handleSelect(index)}
             selected={selected === index}
-            correct={showResult ? index === question.correctIndex : null}
+            correct={showResult ? index === challenge.correctIndex : null}
             padding="lg"
           >
             <div className="flex flex-col items-center gap-2">
-              {renderOption(option, question.optionKind)}
+              {renderOption(option, challenge.question.optionKind)}
               <span className="text-xs text-soft">[{index + 1}]</span>
             </div>
           </Card>
@@ -466,7 +473,7 @@ export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-muted"
         >
-          {question.explanation}
+          {challenge.question.explanation}
         </motion.div>
       )}
     </div>

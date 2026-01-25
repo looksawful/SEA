@@ -17,6 +17,7 @@ interface GameStore {
   stats: Stats
   soundEnabled: boolean
   language: Language
+  avoidRepeats: boolean
   currentMistakes: MistakeRecord[]
   customQuestions: Record<GameId, CustomQuestion[]>
   customMode: Record<GameId, boolean>
@@ -36,6 +37,7 @@ interface GameStore {
   updateStats: (gameId: GameId, correct: boolean) => void
   toggleSound: () => void
   setLanguage: (language: Language) => void
+  setAvoidRepeats: (avoidRepeats: boolean) => void
   resetGame: () => void
   resetAll: () => void
   addMistake: (mistake: MistakeRecord) => void
@@ -69,6 +71,7 @@ export const useGameStore = create<GameStore>()(
       stats: initialStats,
       soundEnabled: true,
       language: 'ru',
+      avoidRepeats: true,
       currentMistakes: [],
       customQuestions: {} as Record<GameId, CustomQuestion[]>,
       customMode: {} as Record<GameId, boolean>,
@@ -128,6 +131,8 @@ export const useGameStore = create<GameStore>()(
       toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
 
       setLanguage: (language) => set({ language }),
+
+      setAvoidRepeats: (avoidRepeats) => set({ avoidRepeats }),
       
       addMistake: (mistake) => set((state) => ({
         currentMistakes: [...state.currentMistakes, mistake]
@@ -201,6 +206,7 @@ export const useGameStore = create<GameStore>()(
         bestStreak: state.bestStreak,
         soundEnabled: state.soundEnabled,
         language: state.language,
+        avoidRepeats: state.avoidRepeats,
         customQuestions: state.customQuestions,
         customMode: state.customMode
       }),

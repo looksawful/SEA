@@ -2,6 +2,9 @@ import { GameId } from "@/types";
 import { GAMES } from "@/utils/gameConfig";
 
 export type Language = "ru" | "en";
+export type LocalizedText = { ru: string; en: string };
+
+export const localize = (value: LocalizedText, language: Language) => value[language];
 
 type UiValue = string | ((params: Record<string, number | string>) => string);
 
@@ -134,6 +137,9 @@ const UI: Record<Language, Record<string, UiValue>> = {
     livesLabel: "Жизни",
     timeRoundLabel: "Время на раунд, секунд",
     noQuestionsLeft: "Вопросы закончились!",
+    repeatMode: "Повторы",
+    noRepeats: "Без повторов",
+    allowRepeats: "Повторы разрешены",
   },
   en: {
     appName: "Awful-Exercises",
@@ -259,6 +265,9 @@ const UI: Record<Language, Record<string, UiValue>> = {
     livesLabel: "Lives",
     timeRoundLabel: "Round time, seconds",
     noQuestionsLeft: "No questions left!",
+    repeatMode: "Repeats",
+    noRepeats: "No repeats",
+    allowRepeats: "Repeats allowed",
   },
 };
 

@@ -66,7 +66,7 @@ interface Props {
 }
 
 export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, language } = useGameStore();
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, language, avoidRepeats } = useGameStore();
   const { playCorrect, playWrong } = useSound();
   const [round, setRound] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -74,17 +74,24 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
 
   const questions = IMAGE_QUIZ_DATA[gameId as ImageQuizGameId] || [];
   const order = useMemo(() => shuffle(questions.map((_, index) => index)), [questions.length]);
-  const currentIndex = order.length > 0 ? order[round % order.length] : -1;
-  const question = currentIndex >= 0 ? questions[currentIndex] : null;
+  const currentIndex = order.length > 0 ? (avoidRepeats ? order[round] : order[round % order.length]) : -1;
+  const question = typeof currentIndex === "number" ? questions[currentIndex] : null;
+  const challenge = useMemo(() => {
+    if (!question) return null;
+    const optionOrder = shuffle(question.options.map((_, index) => index));
+    const shuffledOptions = optionOrder.map((optionIndex) => question.options[optionIndex]);
+    const correctIndex = optionOrder.indexOf(question.correctIndex);
+    return { question, options: shuffledOptions, correctIndex };
+  }, [question]);
 
   const handleSelect = useCallback(
     (index: number) => {
-      if (!question || showResult) return;
+      if (!challenge || showResult) return;
 
       setSelected(index);
       setShowResult(true);
 
-      const correct = index === question.correctIndex;
+      const correct = index === challenge.correctIndex;
 
       if (correct) {
         addScore(GAMES[gameId].pointsPerCorrect);
@@ -93,13 +100,13 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
       } else {
         resetStreak();
         playWrong();
-        const userOption = question.options[index];
-        const correctOption = question.options[question.correctIndex];
+        const userOption = challenge.options[index];
+        const correctOption = challenge.options[challenge.correctIndex];
         addMistake({
-          question: question.prompt,
+          question: challenge.question.prompt,
           userAnswer: formatOptionLabel(userOption, language),
           correctAnswer: formatOptionLabel(correctOption, language),
-          explanation: question.explanation,
+          explanation: challenge.question.explanation,
           visual:
             userOption.color || correctOption.color
               ? {
@@ -134,28 +141,28 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
         setShowResult(false);
       }, 1000);
     },
-    [question, showResult, gameId],
+    [challenge, showResult, gameId, language],
   );
 
   useKeyboard(
     {
-      "1": () => question && question.options.length > 0 && handleSelect(0),
-      "2": () => question && question.options.length > 1 && handleSelect(1),
-      "3": () => question && question.options.length > 2 && handleSelect(2),
-      "4": () => question && question.options.length > 3 && handleSelect(3),
-      "5": () => question && question.options.length > 4 && handleSelect(4),
-      "6": () => question && question.options.length > 5 && handleSelect(5),
-      Digit1: () => question && question.options.length > 0 && handleSelect(0),
-      Digit2: () => question && question.options.length > 1 && handleSelect(1),
-      Digit3: () => question && question.options.length > 2 && handleSelect(2),
-      Digit4: () => question && question.options.length > 3 && handleSelect(3),
-      Digit5: () => question && question.options.length > 4 && handleSelect(4),
-      Digit6: () => question && question.options.length > 5 && handleSelect(5),
+      "1": () => challenge && challenge.options.length > 0 && handleSelect(0),
+      "2": () => challenge && challenge.options.length > 1 && handleSelect(1),
+      "3": () => challenge && challenge.options.length > 2 && handleSelect(2),
+      "4": () => challenge && challenge.options.length > 3 && handleSelect(3),
+      "5": () => challenge && challenge.options.length > 4 && handleSelect(4),
+      "6": () => challenge && challenge.options.length > 5 && handleSelect(5),
+      Digit1: () => challenge && challenge.options.length > 0 && handleSelect(0),
+      Digit2: () => challenge && challenge.options.length > 1 && handleSelect(1),
+      Digit3: () => challenge && challenge.options.length > 2 && handleSelect(2),
+      Digit4: () => challenge && challenge.options.length > 3 && handleSelect(3),
+      Digit5: () => challenge && challenge.options.length > 4 && handleSelect(4),
+      Digit6: () => challenge && challenge.options.length > 5 && handleSelect(5),
     },
     !showResult,
   );
 
-  if (!question) {
+  if (!challenge) {
     return (
       <div className="text-center space-y-3">
         <div className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
@@ -166,17 +173,17 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
     );
   }
 
-  const difficulty = question.difficulty ?? getDifficulty(round);
-  const gridClass = question.options.length <= 4 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3";
-  const containerClass = question.imageContainerClass ?? "flex justify-center";
-  const frameClass = question.imageFrameClass ?? "w-full max-w-2xl aspect-[4/3]";
-  const imageClass = question.imageClass ?? "object-cover";
+  const difficulty = challenge.question.difficulty ?? getDifficulty(round);
+  const gridClass = challenge.options.length <= 4 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3";
+  const containerClass = challenge.question.imageContainerClass ?? "flex justify-center";
+  const frameClass = challenge.question.imageFrameClass ?? "w-full max-w-2xl aspect-[4/3]";
+  const imageClass = challenge.question.imageClass ?? "object-cover";
 
   return (
     <div className="space-y-6">
       <div className="text-center space-y-1">
-        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">{question.prompt}</h2>
-        {question.helper && <div className="text-xs text-soft">{question.helper}</div>}
+        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">{challenge.question.prompt}</h2>
+        {challenge.question.helper && <div className="text-xs text-soft">{challenge.question.helper}</div>}
         <div className="text-xs text-soft">
           {t(language, "difficultyLabel")}: {difficultyDots(difficulty)}
         </div>
@@ -185,8 +192,8 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
       <div className={containerClass}>
         <div className={`overflow-hidden rounded-2xl border border-subtle shadow-card ${frameClass}`}>
           <img
-            src={question.imageSrc}
-            alt={question.imageAlt}
+            src={challenge.question.imageSrc}
+            alt={challenge.question.imageAlt}
             className={`w-full h-full ${imageClass}`}
             loading="lazy"
             decoding="async"
@@ -194,31 +201,31 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
         </div>
       </div>
 
-      {question.imageSource && (
+      {challenge.question.imageSource && (
         <div className="text-center text-xs text-soft">
           {t(language, "imageSourceLabel")}:{" "}
-          {question.imageSource.url ? (
+          {challenge.question.imageSource.url ? (
             <a
-              href={question.imageSource.url}
+              href={challenge.question.imageSource.url}
               target="_blank"
               rel="noreferrer"
               className="underline hover:no-underline"
             >
-              {question.imageSource.label}
+              {challenge.question.imageSource.label}
             </a>
           ) : (
-            question.imageSource.label
+            challenge.question.imageSource.label
           )}
         </div>
       )}
 
       <div className={`grid gap-3 ${gridClass}`}>
-        {question.options.map((option, index) => (
+        {challenge.options.map((option, index) => (
           <Card
             key={`${option.label}-${index}`}
             onClick={() => handleSelect(index)}
             selected={selected === index}
-            correct={showResult ? index === question.correctIndex : null}
+            correct={showResult ? index === challenge.correctIndex : null}
             padding="lg"
           >
             <div className="flex flex-col items-center gap-2">
@@ -235,7 +242,7 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-muted"
         >
-          {question.explanation}
+          {challenge.question.explanation}
         </motion.div>
       )}
     </div>

@@ -103,6 +103,8 @@ export const GameWrapper = ({
     currentMistakes,
     clearMistakes,
     language,
+    avoidRepeats,
+    setAvoidRepeats,
   } = useGameStore();
   const gameLabel = getGameLabel(gameId, language);
 
@@ -355,6 +357,16 @@ export const GameWrapper = ({
             <div className="flex justify-between px-4 py-2 bg-surface-2 border border-subtle rounded-lg">
               <span>{t(language, "pointsPerCorrect")}</span>
               <span className="font-mono">+{game.pointsPerCorrect}</span>
+            </div>
+            <div className="flex justify-between px-4 py-2 bg-surface-2 border border-subtle rounded-lg">
+              <span>{t(language, "repeatMode")}</span>
+              <button
+                onClick={() => setAvoidRepeats(!avoidRepeats)}
+                className="text-xs font-medium text-strong bg-surface-3 border border-subtle rounded-full px-3 py-1"
+                aria-pressed={avoidRepeats}
+              >
+                {avoidRepeats ? t(language, "noRepeats") : t(language, "allowRepeats")}
+              </button>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

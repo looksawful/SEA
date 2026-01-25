@@ -22,9 +22,10 @@ import {
 import { GameId } from "@/types";
 import { useGameStore } from "@/store/gameStore";
 import { GAMES } from "@/utils/gameConfig";
-import { IMAGE_QUIZ_IDS } from "@/utils/imageQuizData";
+import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS } from "@/utils/imageQuizData";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { QUIZ_QUESTIONS } from "@/games/Quiz";
 
 interface Props {
   gameId: string;
@@ -41,9 +42,15 @@ function GameWithWrapper({
 }) {
   const [currentChallenge, setCurrentChallenge] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
-  const totalChallenges = 10;
-  const { customMode, customQuestions } = useGameStore();
-  const useCustom = Boolean(customMode[gameId]) && (customQuestions[gameId]?.length || 0) > 0;
+  const baseTotal = 10;
+  const { customMode, customQuestions, avoidRepeats } = useGameStore();
+  const customCount = customQuestions[gameId]?.length || 0;
+  const useCustom = Boolean(customMode[gameId]) && customCount > 0;
+  const imageCount = IMAGE_QUIZ_IDS.includes(gameId as (typeof IMAGE_QUIZ_IDS)[number])
+    ? IMAGE_QUIZ_DATA[gameId as keyof typeof IMAGE_QUIZ_DATA]?.length || 0
+    : 0;
+  const availableCount = useCustom ? customCount : gameId === "quiz" ? QUIZ_QUESTIONS.length : imageCount;
+  const totalChallenges = avoidRepeats && availableCount > 0 ? Math.min(baseTotal, availableCount) : baseTotal;
 
   const handleAnswer = useCallback((correct: boolean) => {
     setCurrentChallenge((prev) => prev + 1);
@@ -72,6 +79,7 @@ function GameWithWrapper({
     </GameWrapper>
   );
 }
+
 
 export function GamePageClient({ gameId }: Props) {
   const searchParams = useSearchParams();

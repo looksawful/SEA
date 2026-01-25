@@ -795,20 +795,27 @@ const categoryLabels: Record<Language, Record<QuizQuestion["category"], string>>
   },
 };
 
-const generateChallenge = (usedQuestions: Set<number>, round: number, language: Language): Challenge | null => {
+const generateChallenge = (
+  usedQuestions: Set<number>,
+  round: number,
+  language: Language,
+  avoidRepeats: boolean,
+): Challenge | null => {
   const difficulty = getDifficulty(round);
 
   let available = QUIZ_QUESTIONS.map((q, i) => ({ q, i })).filter(
-    ({ q, i }) => !usedQuestions.has(i) && q.difficulty === difficulty,
+    ({ q, i }) => (!avoidRepeats || !usedQuestions.has(i)) && q.difficulty === difficulty,
   );
 
   if (available.length === 0) {
-    available = QUIZ_QUESTIONS.map((q, i) => ({ q, i })).filter(({ i }) => !usedQuestions.has(i));
+    available = QUIZ_QUESTIONS.map((q, i) => ({ q, i })).filter(({ i }) => !avoidRepeats || !usedQuestions.has(i));
     if (available.length === 0) return null;
   }
 
   const { q: question, i: idx } = pickRandom(available);
-  usedQuestions.add(idx);
+  if (avoidRepeats) {
+    usedQuestions.add(idx);
+  }
   const optionOrder = shuffle(question.options.map((_, optionIndex) => optionIndex));
   const shuffledOptions = optionOrder.map((optionIndex) => localize(question.options[optionIndex], language));
   const correctIndex = optionOrder.indexOf(question.correctIndex);
@@ -833,11 +840,11 @@ export const QuizGame = ({ onAnswer }: Props) => {
   const [showResult, setShowResult] = useState(false);
   const [round, setRound] = useState(0);
   const [usedQuestions] = useState(() => new Set<number>());
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, language } = useGameStore();
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, language, avoidRepeats } = useGameStore();
   const { playCorrect, playWrong } = useSound();
 
   useEffect(() => {
-    setChallenge(generateChallenge(usedQuestions, round, language));
+    setChallenge(generateChallenge(usedQuestions, round, language, avoidRepeats));
   }, []);
 
   const handleSelect = useCallback(
@@ -877,12 +884,12 @@ export const QuizGame = ({ onAnswer }: Props) => {
       setTimeout(() => {
         onAnswer(correct);
         setRound((r) => r + 1);
-        setChallenge(generateChallenge(usedQuestions, round + 1, language));
+        setChallenge(generateChallenge(usedQuestions, round + 1, language, avoidRepeats));
         setSelected(null);
         setShowResult(false);
       }, 1500);
     },
-    [challenge, showResult, round, usedQuestions, language],
+    [challenge, showResult, round, usedQuestions, language, avoidRepeats],
   );
 
   useNumberKeys((num) => {
