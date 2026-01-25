@@ -107,6 +107,7 @@ export const GameWrapper = ({
     setAvoidRepeats,
     longTestLength,
     setLongTestLength,
+    timedMode,
   } = useGameStore();
   const gameLabel = getGameLabel(gameId, language);
   const longTestOptions = [10, 20, 30, 40, 50];
@@ -149,15 +150,21 @@ export const GameWrapper = ({
     reset(sessionTimeLimit);
     setTimeLeft(sessionTimeLimit);
     setIsPlaying(true);
-    start();
+    if (timedMode) {
+      start();
+    }
   };
 
   const handlePause = () => {
     if (isPaused) {
-      start();
+      if (timedMode) {
+        start();
+      }
       setIsPaused(false);
     } else {
-      stop();
+      if (timedMode) {
+        stop();
+      }
       setIsPaused(true);
     }
   };
@@ -207,7 +214,7 @@ export const GameWrapper = ({
       reset(sessionTimeLimit);
       setTimeLeft(sessionTimeLimit);
     }
-  }, [sessionTimeLimit, isPlaying, reset, setTimeLeft]);
+  }, [sessionTimeLimit, isPlaying, timedMode, reset, setTimeLeft]);
 
   if (showComplete) {
     const accuracy = totalChallenges > 0 ? Math.round((resolvedCorrect / totalChallenges) * 100) : 0;
@@ -353,6 +360,7 @@ export const GameWrapper = ({
                   }}
                   className="w-20 px-2 py-1 rounded-md bg-surface border border-subtle text-right font-mono text-strong"
                   aria-label={t(language, "timeRoundLabel")}
+                  disabled={!timedMode}
                 />
                 <span className="font-mono">{t(language, "seconds")}</span>
               </div>
@@ -422,7 +430,7 @@ export const GameWrapper = ({
             <div className="flex-1">
               <ProgressBar value={currentChallenge} max={totalChallenges} size="sm" />
             </div>
-            <TimerDisplay seconds={timeLeft} />
+            <TimerDisplay seconds={timeLeft} disabled={!timedMode} />
           </div>
           <div className="flex justify-center mt-2">
             <ScoreDisplay compact />

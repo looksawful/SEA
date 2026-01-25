@@ -53,9 +53,10 @@ interface TimerDisplayProps {
   seconds: number
   warning?: number
   danger?: number
+  disabled?: boolean
 }
 
-export const TimerDisplay = ({ seconds, warning = 15, danger = 5 }: TimerDisplayProps) => {
+export const TimerDisplay = ({ seconds, warning = 15, danger = 5, disabled = false }: TimerDisplayProps) => {
   const getColor = () => {
     if (seconds <= danger) return 'text-[color:var(--danger)]'
     if (seconds <= warning) return 'text-[color:var(--warning)]'
@@ -70,12 +71,12 @@ export const TimerDisplay = ({ seconds, warning = 15, danger = 5 }: TimerDisplay
 
   return (
     <motion.div
-      key={seconds}
+      key={disabled ? 'off' : seconds}
       initial={seconds <= danger ? { scale: 1.1 } : {}}
       animate={{ scale: 1 }}
       className={`text-2xl font-mono font-bold tabular-nums ${getColor()}`}
     >
-      {formatTime(seconds)}
+      {disabled ? '∞' : formatTime(seconds)}
     </motion.div>
   )
 }
