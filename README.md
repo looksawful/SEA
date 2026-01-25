@@ -1,3 +1,1 @@
-# Awful-Exercises
-
-Hardskill trainer for designers.
+# Awful-Exercises Alpha
