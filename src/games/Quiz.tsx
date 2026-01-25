@@ -945,11 +945,11 @@ export const QuizGame = ({ onAnswer }: Props) => {
             correct={showResult ? index === challenge.correctIndex : null}
             className="min-h-[56px]"
           >
-            <div className="flex items-center gap-3">
-              <span className="w-6 h-6 bg-surface-2 rounded-full flex items-center justify-center text-sm font-mono text-muted">
+            <div className="flex items-start gap-3">
+              <span className="w-6 h-6 bg-surface-2 rounded-full flex items-center justify-center text-sm font-mono text-muted flex-shrink-0">
                 {index + 1}
               </span>
-              <span>{option}</span>
+              <span className="flex-1 min-w-0 break-words">{option}</span>
             </div>
           </Card>
         ))}
