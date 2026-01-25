@@ -339,10 +339,31 @@ export default function Home() {
               className="space-y-6 w-full max-w-md mx-auto"
             >
               <div className="bg-surface border border-subtle rounded-3xl p-6 shadow-card space-y-3">
-                <Button onClick={() => setView('games')} fullWidth size="lg">
+                <Button
+                  onClick={() => {
+                    setFavoritesOnly(false)
+                    setView('games')
+                  }}
+                  fullWidth
+                  size="lg"
+                >
                   <span className="inline-flex items-center justify-center gap-2">
                     <FaListUl className="text-base" />
                     {t(language, 'chooseExercise')}
+                  </span>
+                </Button>
+                <Button
+                  onClick={() => {
+                    setFavoritesOnly(true)
+                    setView('games')
+                  }}
+                  variant="secondary"
+                  fullWidth
+                  size="lg"
+                >
+                  <span className="inline-flex items-center justify-center gap-2">
+                    <FaStar className="text-base" />
+                    {t(language, 'favorites')}
                   </span>
                 </Button>
                 <Button onClick={() => setView('random')} variant="secondary" fullWidth size="lg">
