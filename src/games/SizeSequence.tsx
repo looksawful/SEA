@@ -7,7 +7,7 @@ import { useNumberKeys } from '@/hooks/useKeyboard'
 import { useSkipSignal } from '@/hooks/useSkipSignal'
 import { useSound } from '@/hooks/useSound'
 import { randomInt, pickRandom } from '@/utils/helpers'
-import { getFontSizeClass } from '@/utils/fonts'
+import { getFontSizeClass, TYPE_SCALE } from '@/utils/fonts'
 import { Difficulty, difficultyDots, getDifficulty } from '@/utils/difficulty'
 
 type ScaleType = 'modular' | 'linear' | 'fibonacci' | 'golden' | 'major-third' | 'perfect-fourth'
@@ -36,6 +36,26 @@ const SCALE_EXPLANATIONS: Record<ScaleType, string> = {
   golden: 'Золотое сечение использует коэффициент 1.618 для каждого следующего размера',
   'major-third': 'Major Third масштабирует размеры по коэффициенту 1.25',
   'perfect-fourth': 'Perfect Fourth масштабирует размеры по коэффициенту 1.333',
+}
+
+const snapToScale = (value: number): number => {
+  return TYPE_SCALE.reduce((closest, size) => {
+    return Math.abs(size - value) < Math.abs(closest - value) ? size : closest
+  }, TYPE_SCALE[0])
+}
+
+const normalizeScale = (sizes: number[]): number[] => {
+  const normalized: number[] = []
+  let last = 0
+
+  for (const value of sizes) {
+    const snapped = snapToScale(value)
+    const next = snapped > last ? snapped : TYPE_SCALE.find((size) => size > last) || snapped
+    normalized.push(next)
+    last = next
+  }
+
+  return normalized
 }
 
 const generateScale = (type: ScaleType, count: number): number[] => {
@@ -89,7 +109,7 @@ const generateScale = (type: ScaleType, count: number): number[] => {
     }
   }
   
-  return sizes
+  return normalizeScale(sizes)
 }
 
 const generateErrorSize = (sizes: number[], errorIndex: number, difficulty: Difficulty): number => {
@@ -221,7 +241,6 @@ export const SizeSequenceGame = ({ onAnswer }: Props) => {
       
       <div className="flex flex-col gap-3">
         {challenge.sizes.map((size, index) => {
-          const displaySize = Math.min(size, 48)
           return (
           <Card
             key={index}
@@ -235,7 +254,7 @@ export const SizeSequenceGame = ({ onAnswer }: Props) => {
                 {index + 1}
               </span>
               <motion.span
-                className={`font-medium text-strong flex-1 ${getFontSizeClass(displaySize, 'text-[48px]')}`}
+                className={`font-medium text-strong flex-1 ${getFontSizeClass(size, 'text-[48px]')}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >

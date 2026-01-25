@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Card } from '@/components/Card'
 import { useGameStore } from '@/store/gameStore'
@@ -62,44 +62,31 @@ interface Challenge {
 
 const getDifficultyOptions = (correctSize: number, scale: number[], difficulty: Difficulty): number[] => {
   const idx = scale.indexOf(correctSize)
-  let options: number[]
-  
-  switch (difficulty) {
-    case 'easy':
-      options = [
-        correctSize,
-        scale[Math.max(0, idx - 2)] || correctSize - 8,
-        scale[Math.min(scale.length - 1, idx + 2)] || correctSize + 8,
-        scale[Math.max(0, idx - 3)] || correctSize - 12,
-      ]
-      break
-    case 'medium':
-      options = [
-        correctSize,
-        scale[Math.max(0, idx - 1)] || correctSize - 3,
-        scale[Math.min(scale.length - 1, idx + 1)] || correctSize + 3,
-        correctSize + (Math.random() > 0.5 ? 4 : -4),
-      ]
-      break
-    case 'hard':
-      options = [
-        correctSize,
-        correctSize + 1,
-        correctSize - 1,
-        correctSize + 2,
-      ]
-      break
-    case 'expert':
-      options = [
-        correctSize,
-        correctSize + 1,
-        correctSize - 1,
-        correctSize + (Math.random() > 0.5 ? 2 : -2),
-      ]
-      break
+  const offsets: Record<Difficulty, number[]> = {
+    easy: [-3, -2, -1, 1, 2, 3],
+    medium: [-2, -1, 1, 2],
+    hard: [-1, 1, 2],
+    expert: [-1, 1],
   }
-  
-  return shuffle([...new Set(options.map(Math.round).filter(n => n > 0))]).slice(0, 4)
+
+  const values = new Set<number>([correctSize])
+
+  for (const offset of offsets[difficulty]) {
+    const candidate = scale[idx + offset]
+    if (typeof candidate === 'number') {
+      values.add(candidate)
+    }
+    if (values.size >= 4) break
+  }
+
+  const fallback = scale.filter((value) => !values.has(value))
+  while (values.size < 4 && fallback.length > 0) {
+    const pick = pickRandom(fallback)
+    values.add(pick)
+    fallback.splice(fallback.indexOf(pick), 1)
+  }
+
+  return shuffle([...values]).slice(0, 4)
 }
 
 interface Props {
@@ -111,48 +98,10 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
   const [selected, setSelected] = useState<number | null>(null)
   const [showResult, setShowResult] = useState(false)
   const [round, setRound] = useState(0)
-  const [randomTexts, setRandomTexts] = useState<string[]>([])
   const textIndexRef = useRef(0)
+  const textPool = useMemo(() => shuffle([...FALLBACK_TEXTS]), [])
   const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore()
   const { playCorrect, playWrong } = useSound()
-
-  useEffect(() => {
-    const fetchTexts = async () => {
-      try {
-        const response = await fetch('https://fish-text.ru/get?type=sentence&number=20')
-        const data = await response.json()
-        if (data.status === 'success' && data.text) {
-          const sentences = data.text.split(/[.!?]+/).filter((s: string) => s.trim().length > 3 && s.trim().length < 30)
-          if (sentences.length > 0) {
-            setRandomTexts(sentences.map((s: string) => s.trim()))
-            return
-          }
-        }
-      } catch (e) {
-      }
-      
-      try {
-        const response = await fetch('https://baconipsum.com/api/?type=all-meat&sentences=15')
-        const data = await response.json()
-        if (Array.isArray(data) && data[0]) {
-          const words = data[0].split(' ').filter((w: string) => w.length > 2)
-          const phrases = []
-          for (let i = 0; i < words.length - 1; i += 2) {
-            phrases.push(words.slice(i, i + 2).join(' '))
-          }
-          if (phrases.length > 0) {
-            setRandomTexts(phrases)
-            return
-          }
-        }
-      } catch (e) {
-      }
-      
-      setRandomTexts(shuffle([...FALLBACK_TEXTS]))
-    }
-    
-    fetchTexts()
-  }, [])
 
   const generateChallenge = useCallback((roundNum: number): Challenge => {
     const difficulty: Difficulty = getDifficulty(roundNum)
@@ -166,13 +115,8 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
     
     const size = pickRandom(availableSizes)
     
-    let text: string
-    if (randomTexts.length > 0) {
-      text = randomTexts[textIndexRef.current % randomTexts.length]
-      textIndexRef.current++
-    } else {
-      text = pickRandom(FALLBACK_TEXTS)
-    }
+    const text = textPool.length > 0 ? textPool[textIndexRef.current % textPool.length] : pickRandom(FALLBACK_TEXTS)
+    textIndexRef.current += 1
     
     const options = getDifficultyOptions(size, scale, difficulty)
     
@@ -187,13 +131,11 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
       difficulty,
       scale: scaleName,
     }
-  }, [randomTexts])
+  }, [textPool])
 
   useEffect(() => {
-    if (randomTexts.length > 0 || round === 0) {
-      setChallenge(generateChallenge(round))
-    }
-  }, [randomTexts])
+    setChallenge(generateChallenge(round))
+  }, [])
 
   const handleSelect = useCallback((index: number) => {
     if (showResult || !challenge) return
