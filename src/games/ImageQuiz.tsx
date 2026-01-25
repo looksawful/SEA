@@ -14,10 +14,14 @@ import { difficultyDots, getDifficulty } from "@/utils/difficulty";
 import { getFontSizeClass } from "@/utils/fonts";
 import { shuffle } from "@/utils/helpers";
 import { ImageQuizGameId, ImageQuizOption, IMAGE_QUIZ_DATA } from "@/utils/imageQuizData";
-import { Language, t } from "@/utils/i18n";
+import { Language, LocalizedText, localize, t } from "@/utils/i18n";
 
-const renderOption = (option: ImageQuizOption) => {
+const resolveText = (value: string | LocalizedText, language: Language): string =>
+  typeof value === "string" ? value : localize(value, language);
+
+const renderOption = (option: ImageQuizOption, language: Language) => {
   if (option.palette && option.palette.length > 0) {
+    const label = option.label ? resolveText(option.label, language) : "";
     return (
       <div className="flex flex-col items-center gap-2">
         <div className="flex gap-1">
@@ -25,37 +29,39 @@ const renderOption = (option: ImageQuizOption) => {
             <Swatch key={`${color}-${index}`} color={color} className="w-8 h-8 rounded-lg border border-subtle" />
           ))}
         </div>
-        {option.label && <span className="text-xs text-soft">{option.label}</span>}
+        {label && <span className="text-xs text-soft">{label}</span>}
       </div>
     );
   }
 
   if (option.color) {
+    const label = option.label ? resolveText(option.label, language) : option.color;
     return (
       <div className="flex flex-col items-center gap-2">
         <Swatch color={option.color} className="w-full h-20 rounded-xl border border-subtle shadow-card" />
-        <span className="text-xs text-soft">{option.label || option.color}</span>
+        <span className="text-xs text-soft">{label}</span>
       </div>
     );
   }
 
   if (typeof option.size === "number") {
     const displaySize = Math.min(option.size, 32);
+    const label = option.label ? resolveText(option.label, language) : `${option.size}px`;
     return (
       <div className="flex flex-col items-center gap-2">
         <span className={`text-strong ${getFontSizeClass(displaySize, "text-[32px]")}`}>Aa</span>
-        <span className="text-xs text-soft">{option.label || `${option.size}px`}</span>
+        <span className="text-xs text-soft">{label}</span>
       </div>
     );
   }
 
-  return <span className="text-sm text-strong">{option.label}</span>;
+  return <span className="text-sm text-strong">{option.label ? resolveText(option.label, language) : ""}</span>;
 };
 
 const fallbackOptionLabels: Record<Language, string> = { ru: "Вариант", en: "Option" };
 
 const formatOptionLabel = (option: ImageQuizOption, language: Language): string => {
-  if (option.label) return option.label;
+  if (option.label) return resolveText(option.label, language);
   if (option.color) return option.color;
   if (option.palette) return option.palette.join(", ");
   if (typeof option.size === "number") return `${option.size}px`;
@@ -198,8 +204,12 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">{challenge.question.prompt}</h2>
-        <HintToggle hint={challenge.question.helper} />
+        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
+          {resolveText(challenge.question.prompt, language)}
+        </h2>
+        <HintToggle
+          hint={challenge.question.helper ? resolveText(challenge.question.helper, language) : undefined}
+        />
         <div className="text-xs text-soft">
           {t(language, "difficultyLabel")}: {difficultyDots(difficulty)}
         </div>
@@ -209,7 +219,7 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
         <div className={`overflow-hidden rounded-2xl border border-subtle shadow-card ${frameClass}`}>
           <img
             src={challenge.question.imageSrc}
-            alt={challenge.question.imageAlt}
+            alt={resolveText(challenge.question.imageAlt, language)}
             className={`w-full h-full ${imageClass}`}
             loading="lazy"
             decoding="async"
@@ -227,10 +237,10 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
               rel="noreferrer"
               className="underline hover:no-underline"
             >
-              {challenge.question.imageSource.label}
+              {resolveText(challenge.question.imageSource.label, language)}
             </a>
           ) : (
-            challenge.question.imageSource.label
+            resolveText(challenge.question.imageSource.label, language)
           )}
         </div>
       )}
@@ -245,10 +255,10 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
             padding="lg"
           >
             <div className="flex flex-col items-center gap-2">
-              {renderOption(option)}
-              <span className="hidden sm:inline text-xs text-soft">[{index + 1}]</span>
-            </div>
-          </Card>
+                {renderOption(option, language)}
+                <span className="hidden sm:inline text-xs text-soft">[{index + 1}]</span>
+              </div>
+            </Card>
         ))}
       </div>
 

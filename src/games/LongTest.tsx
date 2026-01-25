@@ -14,7 +14,7 @@ import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
 import { getFontSizeClass } from "@/utils/fonts";
 import { shuffle } from "@/utils/helpers";
 import { ImageQuizOption, ImageQuizSource, IMAGE_QUIZ_DATA } from "@/utils/imageQuizData";
-import { Language, localize, t } from "@/utils/i18n";
+import { Language, LocalizedText, localize, t } from "@/utils/i18n";
 import { QUIZ_QUESTIONS } from "@/games/Quiz";
 
 interface LongTestQuestion {
@@ -40,6 +40,9 @@ interface LongTestChallenge extends LongTestQuestion {
 }
 
 const buildLongTestPool = (language: Language): LongTestQuestion[] => {
+  const resolveText = (value: string | LocalizedText): string =>
+    typeof value === "string" ? value : localize(value, language);
+
   const quizQuestions = QUIZ_QUESTIONS.map((question, index) => ({
     id: `quiz-${index}`,
     sourceGameId: "quiz",
@@ -55,15 +58,20 @@ const buildLongTestPool = (language: Language): LongTestQuestion[] => {
     questions.map((question) => ({
       id: `${gameId}-${question.id}`,
       sourceGameId: gameId as GameId,
-      prompt: question.prompt,
-      helper: question.helper,
-      explanation: question.explanation,
-      options: question.options,
+      prompt: resolveText(question.prompt),
+      helper: question.helper ? resolveText(question.helper) : undefined,
+      explanation: resolveText(question.explanation),
+      options: question.options.map((option) => ({
+        ...option,
+        label: option.label ? resolveText(option.label) : option.label,
+      })),
       correctIndex: question.correctIndex,
       difficulty: question.difficulty,
       imageSrc: question.imageSrc,
-      imageAlt: question.imageAlt,
-      imageSource: question.imageSource,
+      imageAlt: resolveText(question.imageAlt),
+      imageSource: question.imageSource
+        ? { ...question.imageSource, label: resolveText(question.imageSource.label) }
+        : undefined,
       imageContainerClass: question.imageContainerClass,
       imageFrameClass: question.imageFrameClass,
       imageClass: question.imageClass,

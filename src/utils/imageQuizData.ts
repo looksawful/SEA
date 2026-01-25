@@ -1,13 +1,14 @@
 import { GameId } from "@/types";
 import { Difficulty } from "@/utils/difficulty";
+import { LocalizedText } from "@/utils/i18n";
 
 export interface ImageQuizSource {
-  label: string;
+  label: string | LocalizedText;
   url?: string;
 }
 
 export interface ImageQuizOption {
-  label: string;
+  label: string | LocalizedText;
   color?: string;
   palette?: string[];
   size?: number;
@@ -15,11 +16,11 @@ export interface ImageQuizOption {
 
 export interface ImageQuizQuestion {
   id: string;
-  prompt: string;
-  helper?: string;
-  explanation: string;
+  prompt: string | LocalizedText;
+  helper?: string | LocalizedText;
+  explanation: string | LocalizedText;
   imageSrc: string;
-  imageAlt: string;
+  imageAlt: string | LocalizedText;
   imageSource?: ImageQuizSource;
   imageContainerClass?: string;
   imageFrameClass?: string;
