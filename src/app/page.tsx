@@ -6,7 +6,7 @@ import { useGameStore } from '@/store/gameStore'
 import { GAMES, GAME_ORDER } from '@/utils/gameConfig'
 import { Button, Card, Skeleton, SettingsModal } from '@/components'
 import { CustomQuestionsModal } from '@/components/CustomQuestions'
-import { GameId } from '@/types'
+import { GameId, GameTag } from '@/types'
 import { shuffle } from '@/utils/helpers'
 import { useKeyboard } from '@/hooks/useKeyboard'
 import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS } from '@/utils/imageQuizData'
@@ -27,6 +27,8 @@ import {
   FaSearch,
   FaBars,
   FaSyncAlt,
+  FaStar,
+  FaRegStar,
   FaVolumeMute,
   FaVolumeUp,
   FaHome,
@@ -43,6 +45,9 @@ export default function Home() {
   const [showSettings, setShowSettings] = useState(false)
   const [gameSearch, setGameSearch] = useState('')
   const [gamesView, setGamesView] = useState<GamesView>('list')
+  const [activeTag, setActiveTag] = useState<GameTag | 'all'>('all')
+  const [sortMode, setSortMode] = useState<'default' | 'name' | 'played'>('default')
+  const [favoritesOnly, setFavoritesOnly] = useState(false)
   const {
     stats,
     bestStreak,
@@ -53,20 +58,55 @@ export default function Home() {
     customQuestions,
     language,
     setLanguage,
+    favorites,
+    toggleFavorite,
   } = useGameStore()
   const mainClass = 'flex-1 p-4 pb-24 sm:pb-4 w-full flex items-center justify-center'
   const router = useRouter()
   const isGrid = gamesView === 'grid'
+  const favoriteIds = GAME_ORDER.filter((id) => favorites[id])
   const normalizedSearch = gameSearch.trim().toLowerCase()
-  const filteredGameIds = normalizedSearch
-    ? GAME_ORDER.filter((id) => {
-        const game = getGameLabel(id, language)
-        return (
-          game.name.toLowerCase().includes(normalizedSearch) ||
-          game.description.toLowerCase().includes(normalizedSearch)
-        )
-      })
-    : GAME_ORDER
+  const filteredGameIds = GAME_ORDER.filter((id) => {
+    if (favoritesOnly && !favorites[id]) return false
+    if (activeTag !== 'all' && !GAMES[id].tags.includes(activeTag)) return false
+    if (!normalizedSearch) return true
+    const game = getGameLabel(id, language)
+    return (
+      game.name.toLowerCase().includes(normalizedSearch) ||
+      game.description.toLowerCase().includes(normalizedSearch)
+    )
+  })
+
+  const sortGames = (ids: GameId[]) =>
+    [...ids].sort((a, b) => {
+      if (sortMode === 'name') {
+        return getGameLabel(a, language).name.localeCompare(getGameLabel(b, language).name)
+      }
+      if (sortMode === 'played') {
+        return (stats.gamesPlayed[b] || 0) - (stats.gamesPlayed[a] || 0)
+      }
+      return GAME_ORDER.indexOf(a) - GAME_ORDER.indexOf(b)
+    })
+
+  const sortedGameIds = sortGames(filteredGameIds)
+  const sortedFavoriteIds = sortGames(favoriteIds)
+  const showFavoritesSection =
+    !favoritesOnly && sortedFavoriteIds.length > 0 && activeTag === 'all' && !normalizedSearch
+  const displayGameIds = showFavoritesSection
+    ? sortedGameIds.filter((id) => !favorites[id])
+    : sortedGameIds
+
+  const tagOptions: { id: GameTag | 'all'; label: string }[] = [
+    { id: 'all', label: t(language, 'tagAll') },
+    { id: 'design', label: t(language, 'tagDesign') },
+    { id: 'interface', label: t(language, 'tagInterface') },
+    { id: 'color', label: t(language, 'tagColor') },
+    { id: 'typography', label: t(language, 'tagTypography') },
+    { id: 'layout', label: t(language, 'tagLayout') },
+    { id: 'photo', label: t(language, 'tagPhoto') },
+    { id: 'accessibility', label: t(language, 'tagAccessibility') },
+    { id: 'theory', label: t(language, 'tagTheory') },
+  ]
 
   const getQuestionStats = (gameId: GameId) => {
     if (gameId === 'quiz') {
@@ -78,6 +118,125 @@ export default function Home() {
     }
 
     return null
+  }
+
+  const renderGameCard = (id: GameId) => {
+    const game = GAMES[id]
+    const gameLabel = getGameLabel(id, language)
+    const played = stats.gamesPlayed[id] || 0
+    const accuracy = stats.accuracy[id]
+    const customCount = customQuestions[id]?.length || 0
+    const GameIcon = game.icon
+    const questionStats = getQuestionStats(id)
+    const lastResult = [...results].reverse().find((result) => result.gameId === id)
+    const lastAccuracy = lastResult
+      ? Math.round((lastResult.correct / Math.max(1, lastResult.total)) * 100)
+      : null
+    const isFavorite = Boolean(favorites[id])
+
+    return (
+      <Card
+        key={id}
+        className="transition-colors shadow-card min-w-0"
+        padding={isGrid ? 'sm' : 'md'}
+        onClick={() => router.push(`/game/${id}`)}
+      >
+        <div className={isGrid ? 'flex flex-col gap-3' : 'flex items-start gap-4'}>
+          <div
+            className={`${
+              isGrid ? 'w-10 h-10' : 'w-12 h-12'
+            } rounded-2xl bg-surface-2 border border-subtle flex items-center justify-center text-accent ${
+              isGrid ? '' : 'flex-shrink-0'
+            }`}
+          >
+            <GameIcon className={isGrid ? 'text-xl' : 'text-2xl'} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className={isGrid ? 'font-medium text-sm sm:text-base' : 'font-medium'}>
+              {gameLabel.name}
+            </div>
+            {!isGrid && (
+              <div className="text-sm text-muted">
+                <span className="truncate block">{gameLabel.description}</span>
+              </div>
+            )}
+            <div className={isGrid ? 'text-[11px] text-soft mt-2 space-y-1' : 'text-xs text-soft mt-2 space-y-1'}>
+              {questionStats ? (
+                <div>
+                  {t(language, 'questions')}: {questionStats.total}
+                </div>
+              ) : (
+                <div>
+                  {t(language, 'questions')}: {t(language, 'generated')}
+                </div>
+              )}
+              <div>
+                {t(language, 'played')}: {played} • {t(language, 'accuracy')}: {Math.round(accuracy || 0)}%
+              </div>
+              {!isGrid && (
+                <div>
+                  {t(language, 'lastResult')}: {lastResult ? `${lastResult.correct}/${lastResult.total} (${lastAccuracy}%)` : '—'}
+                </div>
+              )}
+              {!isGrid && customCount > 0 && (
+                <div>
+                  {t(language, 'customQuestionsCount')}: {customCount}
+                </div>
+              )}
+            </div>
+          </div>
+          <div className={gamesView === 'grid' ? 'flex justify-between gap-2' : 'flex items-start gap-2 text-soft'}>
+            <button
+              onClick={(event) => {
+                event.stopPropagation()
+                toggleFavorite(id)
+              }}
+              className="w-8 h-8 rounded-xl border border-subtle bg-surface-2 text-muted hover:text-strong flex items-center justify-center"
+              aria-pressed={isFavorite}
+              title={t(language, 'favorites')}
+            >
+              {isFavorite ? <FaStar /> : <FaRegStar />}
+            </button>
+            {gamesView === 'grid' ? (
+              <div className="text-soft self-center">
+                <FaArrowRight />
+              </div>
+            ) : (
+              <FaArrowRight />
+            )}
+          </div>
+        </div>
+
+        <div className={isGrid ? 'mt-3 grid grid-cols-2 gap-2' : 'mt-4 flex flex-wrap gap-2'}>
+          <button
+            onClick={(event) => {
+              event.stopPropagation()
+              setCustomModalGame(id)
+              setShowCustomModal(true)
+            }}
+            className={`inline-flex items-center justify-center gap-2 px-3 py-2 text-xs rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors ${
+              isGrid ? 'w-full' : ''
+            }`}
+          >
+            <FaPlus className="text-xs" />
+            <span className={isGrid ? 'hidden sm:inline' : ''}>{t(language, 'addQuestions')}</span>
+          </button>
+          <button
+            onClick={(event) => {
+              event.stopPropagation()
+              setCustomModalGame(id)
+              setShowCustomModal(true)
+            }}
+            className={`inline-flex items-center justify-center gap-2 px-3 py-2 text-xs rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors ${
+              isGrid ? 'w-full' : ''
+            }`}
+          >
+            <FaPen className="text-xs" />
+            <span className={isGrid ? 'hidden sm:inline' : ''}>{t(language, 'edit')}</span>
+          </button>
+        </div>
+      </Card>
+    )
   }
 
   useEffect(() => {
@@ -248,6 +407,18 @@ export default function Home() {
                 </h2>
                 <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
                   <button
+                    onClick={() => setFavoritesOnly(!favoritesOnly)}
+                    className={`w-9 h-9 rounded-xl border border-subtle flex items-center justify-center ${
+                      favoritesOnly
+                        ? 'bg-surface-3 text-strong'
+                        : 'bg-surface-2 text-muted hover:text-strong'
+                    }`}
+                    aria-pressed={favoritesOnly}
+                    title={t(language, 'favorites')}
+                  >
+                    {favoritesOnly ? <FaStar /> : <FaRegStar />}
+                  </button>
+                  <button
                     onClick={() => setGamesView('list')}
                     className={`w-9 h-9 rounded-xl border border-subtle flex items-center justify-center ${
                       gamesView === 'list'
@@ -274,136 +445,71 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-subtle bg-surface-2">
-                <FaSearch className="text-muted" />
-                <input
-                  value={gameSearch}
-                  onChange={(event) => setGameSearch(event.target.value)}
-                  className="flex-1 bg-transparent text-sm text-strong placeholder:text-soft focus:outline-none"
-                  placeholder={t(language, 'searchPlaceholder')}
-                  aria-label={t(language, 'searchLabel')}
-                />
-                {gameSearch.length > 0 && (
-                  <button
-                    onClick={() => setGameSearch('')}
-                    className="text-xs text-muted hover:text-strong"
+              <div className="sticky top-3 z-10 sm:static space-y-3">
+                <div className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-subtle bg-[color:var(--surface-1-90)] backdrop-blur">
+                  <FaSearch className="text-muted" />
+                  <input
+                    value={gameSearch}
+                    onChange={(event) => setGameSearch(event.target.value)}
+                    className="flex-1 bg-transparent text-sm text-strong placeholder:text-soft focus:outline-none"
+                    placeholder={t(language, 'searchPlaceholder')}
+                    aria-label={t(language, 'searchLabel')}
+                  />
+                  {gameSearch.length > 0 && (
+                    <button
+                      onClick={() => setGameSearch('')}
+                      className="text-xs text-muted hover:text-strong"
+                    >
+                      {t(language, 'clear')}
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                  {tagOptions.map((tag) => (
+                    <button
+                      key={tag.id}
+                      onClick={() => setActiveTag(tag.id)}
+                      className={`px-3 py-1 rounded-full border text-xs whitespace-nowrap ${
+                        activeTag === tag.id
+                          ? 'bg-surface-3 text-strong border-subtle'
+                          : 'bg-surface-2 text-muted border-subtle hover:text-strong'
+                      }`}
+                      aria-pressed={activeTag === tag.id}
+                    >
+                      {tag.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-xs text-soft">{t(language, 'sort')}</div>
+                  <select
+                    value={sortMode}
+                    onChange={(event) => setSortMode(event.target.value as typeof sortMode)}
+                    className="text-xs bg-surface-2 border border-subtle rounded-full px-3 py-1 text-strong"
+                    aria-label={t(language, 'sort')}
                   >
-                    {t(language, 'clear')}
-                  </button>
-                )}
+                    <option value="default">{t(language, 'sortDefault')}</option>
+                    <option value="name">{t(language, 'sortName')}</option>
+                    <option value="played">{t(language, 'sortPlayed')}</option>
+                  </select>
+                </div>
               </div>
 
+              {showFavoritesSection && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-display font-semibold tracking-tight text-strong">
+                    {t(language, 'favorites')}
+                  </h3>
+                  <div className={isGrid ? 'grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3' : 'grid gap-3'}>
+                    {sortedFavoriteIds.map(renderGameCard)}
+                  </div>
+                </div>
+              )}
+
               <div className={isGrid ? 'grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3' : 'grid gap-3'}>
-                {filteredGameIds.map((id) => {
-                  const game = GAMES[id]
-                  const gameLabel = getGameLabel(id, language)
-                  const played = stats.gamesPlayed[id] || 0
-                  const accuracy = stats.accuracy[id]
-                  const customCount = customQuestions[id]?.length || 0
-                  const GameIcon = game.icon
-                  const questionStats = getQuestionStats(id)
-                  const lastResult = [...results].reverse().find((result) => result.gameId === id)
-                  const lastAccuracy = lastResult
-                    ? Math.round((lastResult.correct / Math.max(1, lastResult.total)) * 100)
-                    : null
-
-                  return (
-                    <Card
-                      key={id}
-                      className="transition-colors shadow-card min-w-0"
-                      padding={isGrid ? 'sm' : 'md'}
-                      onClick={() => router.push(`/game/${id}`)}
-                    >
-                      <div className={isGrid ? 'flex flex-col gap-3' : 'flex items-start gap-4'}>
-                        <div
-                          className={`${
-                            isGrid ? 'w-10 h-10' : 'w-12 h-12'
-                          } rounded-2xl bg-surface-2 border border-subtle flex items-center justify-center text-accent ${
-                            isGrid ? '' : 'flex-shrink-0'
-                          }`}
-                        >
-                          <GameIcon className={isGrid ? 'text-xl' : 'text-2xl'} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className={isGrid ? 'font-medium text-sm sm:text-base' : 'font-medium'}>
-                            {gameLabel.name}
-                          </div>
-                          {!isGrid && (
-                            <div className="text-sm text-muted">
-                              <span className="truncate block">{gameLabel.description}</span>
-                            </div>
-                          )}
-                          <div className={isGrid ? 'text-[11px] text-soft mt-2 space-y-1' : 'text-xs text-soft mt-2 space-y-1'}>
-                            {questionStats ? (
-                              <div>
-                                {t(language, 'questions')}: {questionStats.total}
-                              </div>
-                            ) : (
-                              <div>
-                                {t(language, 'questions')}: {t(language, 'generated')}
-                              </div>
-                            )}
-                            <div>
-                              {t(language, 'played')}: {played} • {t(language, 'accuracy')}:{' '}
-                              {Math.round(accuracy || 0)}%
-                            </div>
-                            {!isGrid && (
-                              <div>
-                                {t(language, 'lastResult')}:{' '}
-                                {lastResult
-                                  ? `${lastResult.correct}/${lastResult.total} (${lastAccuracy}%)`
-                                  : '—'}
-                              </div>
-                            )}
-                            {!isGrid && customCount > 0 && (
-                              <div>
-                                {t(language, 'customQuestionsCount')}: {customCount}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className={gamesView === 'grid' ? 'flex justify-between gap-2' : 'text-soft'}>
-                          {gamesView === 'grid' ? (
-                            <div className="text-soft self-center">
-                              <FaArrowRight />
-                            </div>
-                          ) : (
-                            <FaArrowRight />
-                          )}
-                        </div>
-                      </div>
-
-                      <div className={isGrid ? 'mt-3 grid grid-cols-2 gap-2' : 'mt-4 flex flex-wrap gap-2'}>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            setCustomModalGame(id)
-                            setShowCustomModal(true)
-                          }}
-                          className={`inline-flex items-center justify-center gap-2 px-3 py-2 text-xs rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors ${
-                            isGrid ? 'w-full' : ''
-                          }`}
-                        >
-                          <FaPlus className="text-xs" />
-                          <span className={isGrid ? 'hidden sm:inline' : ''}>{t(language, 'addQuestions')}</span>
-                        </button>
-                        <button
-                          onClick={(event) => {
-                            event.stopPropagation()
-                            setCustomModalGame(id)
-                            setShowCustomModal(true)
-                          }}
-                          className={`inline-flex items-center justify-center gap-2 px-3 py-2 text-xs rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors ${
-                            isGrid ? 'w-full' : ''
-                          }`}
-                        >
-                          <FaPen className="text-xs" />
-                          <span className={isGrid ? 'hidden sm:inline' : ''}>{t(language, 'edit')}</span>
-                        </button>
-                      </div>
-                    </Card>
-                  )
-                })}
+                {displayGameIds.map(renderGameCard)}
               </div>
 
               {filteredGameIds.length === 0 && (

@@ -31,10 +31,21 @@ export type GameId =
   | 'palette-from-photo'
   | 'long-test'
 
+export type GameTag =
+  | 'design'
+  | 'interface'
+  | 'color'
+  | 'typography'
+  | 'layout'
+  | 'photo'
+  | 'accessibility'
+  | 'theory'
+
 export interface GameConfig {
   id: GameId
   name: string
   description: string
+  tags: GameTag[]
   icon: IconType
   timeLimit: number
   pointsPerCorrect: number
