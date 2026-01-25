@@ -11,6 +11,7 @@ import { useGameStore } from "@/store/gameStore";
 import { hslToRgb, randomHsl, rgbToHex } from "@/utils/colors";
 import { clamp, pickRandom, shuffle } from "@/utils/helpers";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
+import { LocalizedText, localize, t } from "@/utils/i18n";
 
 type CompareType = "brighter" | "darker" | "saturated" | "muted";
 
@@ -28,29 +29,29 @@ interface Challenge {
 
 const PROMPTS: Record<
   CompareType,
-  { title: string; helper: string; axis: "l" | "s"; target: "max" | "min" }
+  { title: LocalizedText; helper: LocalizedText; axis: "l" | "s"; target: "max" | "min" }
 > = {
   brighter: {
-    title: "Какой цвет ярче?",
-    helper: "Сравни светлоту (L): у яркого цвета значение L выше.",
+    title: { ru: "Какой цвет ярче?", en: "Which color is brighter?" },
+    helper: { ru: "Сравни светлоту (L): у яркого цвета значение L выше.", en: "Compare lightness (L): the brighter color has a higher L." },
     axis: "l",
     target: "max",
   },
   darker: {
-    title: "Какой цвет темнее?",
-    helper: "Сравни светлоту (L): у темного цвета значение L ниже.",
+    title: { ru: "Какой цвет темнее?", en: "Which color is darker?" },
+    helper: { ru: "Сравни светлоту (L): у темного цвета значение L ниже.", en: "Compare lightness (L): the darker color has a lower L." },
     axis: "l",
     target: "min",
   },
   saturated: {
-    title: "Какой цвет насыщеннее?",
-    helper: "Сравни насыщенность (S): у насыщенного цвета значение S выше.",
+    title: { ru: "Какой цвет насыщеннее?", en: "Which color is more saturated?" },
+    helper: { ru: "Сравни насыщенность (S): у насыщенного цвета значение S выше.", en: "Compare saturation (S): the more saturated color has a higher S." },
     axis: "s",
     target: "max",
   },
   muted: {
-    title: "Какой цвет более приглушённый?",
-    helper: "Сравни насыщенность (S): у приглушённого цвета значение S ниже.",
+    title: { ru: "Какой цвет более приглушённый?", en: "Which color is more muted?" },
+    helper: { ru: "Сравни насыщенность (S): у приглушённого цвета значение S ниже.", en: "Compare saturation (S): the more muted color has a lower S." },
     axis: "s",
     target: "min",
   },
@@ -124,7 +125,7 @@ export const ColorCompareGame = ({ onAnswer }: Props) => {
   const [selected, setSelected] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [round, setRound] = useState(0);
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore();
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause, language } = useGameStore();
   const { playCorrect, playWrong } = useSound();
 
   useEffect(() => {
@@ -153,16 +154,24 @@ export const ColorCompareGame = ({ onAnswer }: Props) => {
         const axisLabel = prompt.axis === "l" ? "L" : "S";
         const unit = "%";
 
+        const helperText = localize(prompt.helper, language);
+        const explanation =
+          language === "ru"
+            ? `У правильного варианта ${axisLabel}=${correctOption.hsl[prompt.axis]}${unit}, у выбранного ${axisLabel}=${selectedOption.hsl[prompt.axis]}${unit}. ${helperText}`
+            : `The correct option has ${axisLabel}=${correctOption.hsl[prompt.axis]}${unit}, the selected one has ${axisLabel}=${selectedOption.hsl[prompt.axis]}${unit}. ${helperText}`;
+        const correctLabel = language === "ru" ? "Правильный" : "Correct";
+        const selectedLabel = language === "ru" ? "Выбранный" : "Selected";
+
         addMistake({
-          question: prompt.title,
-          userAnswer: `Вариант ${index + 1}`,
-          correctAnswer: `Вариант ${challenge.correctIndex + 1}`,
-          explanation: `У правильного варианта ${axisLabel}=${correctOption.hsl[prompt.axis]}${unit}, у выбранного ${axisLabel}=${selectedOption.hsl[prompt.axis]}${unit}. ${prompt.helper}`,
+          question: localize(prompt.title, language),
+          userAnswer: t(language, "optionLabel", { index: index + 1 }),
+          correctAnswer: t(language, "optionLabel", { index: challenge.correctIndex + 1 }),
+          explanation,
           visual: {
             type: "colors",
             data: {
-              Correct: correctOption.color,
-              Selected: selectedOption.color,
+              [correctLabel]: correctOption.color,
+              [selectedLabel]: selectedOption.color,
             },
           },
         });
@@ -210,9 +219,13 @@ export const ColorCompareGame = ({ onAnswer }: Props) => {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">{prompt.title}</h2>
-        <HintToggle hint={prompt.helper} />
-        <div className="text-xs text-soft">Сложность: {difficultyDots(challenge.difficulty)}</div>
+        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
+          {localize(prompt.title, language)}
+        </h2>
+        <HintToggle hint={localize(prompt.helper, language)} />
+        <div className="text-xs text-soft">
+          {t(language, "difficultyLabel")}: {difficultyDots(challenge.difficulty)}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
