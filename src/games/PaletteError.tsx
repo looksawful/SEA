@@ -2,6 +2,7 @@
 import { CSSProperties, useCallback, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Card } from '@/components/Card'
+import { HintToggle } from '@/components/HintToggle'
 import { useGameStore } from '@/store/gameStore'
 import { useNumberKeys } from '@/hooks/useKeyboard'
 import { useSkipSignal } from '@/hooks/useSkipSignal'
@@ -241,8 +242,9 @@ export const PaletteErrorGame = ({ onAnswer }: Props) => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">Найди лишний цвет</h2>
+        <HintToggle hint={PALETTE_EXPLANATIONS[challenge.paletteType]} />
         <div className="text-xs text-soft mt-1">
           Палитра: {PALETTE_NAMES[challenge.paletteType]} •
           Сложность: {difficultyDots(challenge.difficulty)}

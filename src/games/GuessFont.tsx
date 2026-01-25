@@ -2,6 +2,7 @@
 import { CSSProperties, useCallback, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Card } from '@/components/Card'
+import { HintToggle } from '@/components/HintToggle'
 import { useGameStore } from '@/store/gameStore'
 import { useNumberKeys } from '@/hooks/useKeyboard'
 import { useSkipSignal } from '@/hooks/useSkipSignal'
@@ -142,11 +143,10 @@ export const GuessFontGame = ({ onAnswer }: Props) => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">Какой это шрифт?</h2>
-        <div className="text-xs text-soft mt-1">
-          Сложность: {difficultyDots(challenge.difficulty)}
-        </div>
+        <HintToggle hint='Смотри на формы "a", "g", контраст штрихов и наличие засечек.' />
+        <div className="text-xs text-soft">Сложность: {difficultyDots(challenge.difficulty)}</div>
       </div>
       
       <div className="bg-surface-2 rounded-2xl p-8 flex items-center justify-center min-h-40 border border-subtle shadow-card">

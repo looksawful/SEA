@@ -2,6 +2,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
+import { HintToggle } from "@/components/HintToggle";
 import { Swatch } from "@/components/Swatch";
 import { useGameStore } from "@/store/gameStore";
 import { useNumberKeys } from "@/hooks/useKeyboard";
@@ -277,15 +278,20 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
           {challenge.mode === "value"
             ? `Determine ${PARAM_NAMES[challenge.paramType]}`
             : "Что изменилось между цветами?"}
         </h2>
-        <div className="text-xs text-soft mt-1">
-          Difficulty: {difficultyDots(challenge.difficulty)}
-        </div>
+        <HintToggle
+          hint={
+            challenge.mode === "value"
+              ? PARAM_EXPLANATIONS[challenge.paramType]
+              : "Compare both swatches and decide which parameter shifted."
+          }
+        />
+        <div className="text-xs text-soft">Difficulty: {difficultyDots(challenge.difficulty)}</div>
       </div>
 
       <div className="flex justify-center">

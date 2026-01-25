@@ -2,6 +2,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Card } from '@/components/Card'
+import { HintToggle } from '@/components/HintToggle'
 import { Swatch } from '@/components/Swatch'
 import { useGameStore } from '@/store/gameStore'
 import { useNumberKeys } from '@/hooks/useKeyboard'
@@ -147,11 +148,10 @@ export const GuessHexGame = ({ onAnswer }: Props) => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">Угадай HEX-код</h2>
-        <div className="text-xs text-soft mt-1">
-          Сложность: {difficultyDots(challenge.difficulty)}
-        </div>
+        <HintToggle hint="HEX состоит из трёх пар (RR GG BB). Сравни тон и яркость со свотчем." />
+        <div className="text-xs text-soft">Сложность: {difficultyDots(challenge.difficulty)}</div>
       </div>
       
       <div className="flex justify-center">

@@ -1,5 +1,6 @@
 "use client";
 import { Card } from "@/components/Card";
+import { HintToggle } from "@/components/HintToggle";
 import { useNumberKeys } from "@/hooks/useKeyboard";
 import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
@@ -924,7 +925,7 @@ export const QuizGame = ({ onAnswer }: Props) => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div className="text-center space-y-1 sm:space-y-2">
+      <div className="text-center space-y-2 sm:space-y-3">
         <div className="hidden sm:flex justify-center gap-2">
           <span className={`text-xs px-2 py-1 rounded-full ${catColors[challenge.category]}`}>
             {categoryLabels[language][challenge.category]}
@@ -934,6 +935,7 @@ export const QuizGame = ({ onAnswer }: Props) => {
           </span>
         </div>
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">{challenge.prompt}</h2>
+        <HintToggle hint={challenge.explanation} />
       </div>
 
       <div className="flex flex-col gap-2 sm:gap-3">

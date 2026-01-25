@@ -2,6 +2,7 @@
 import { CSSProperties, useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
+import { HintToggle } from "@/components/HintToggle";
 import { useGameStore } from "@/store/gameStore";
 import { useNumberKeys } from "@/hooks/useKeyboard";
 import { useSkipSignal } from "@/hooks/useSkipSignal";
@@ -225,7 +226,7 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
           {challenge.mode === "level"
             ? "Determine the WCAG level"
@@ -233,9 +234,8 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
               ? "Passes for large text?"
               : "Passes WCAG AA?"}
         </h2>
-        <div className="text-xs text-soft mt-1">
-          Difficulty: {difficultyDots(challenge.difficulty)}
-        </div>
+        <HintToggle hint="AA требует 4.5:1, для крупного текста достаточно 3:1, AAA начинается с 7:1." />
+        <div className="text-xs text-soft">Difficulty: {difficultyDots(challenge.difficulty)}</div>
       </div>
 
       <motion.div

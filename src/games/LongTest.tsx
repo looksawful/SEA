@@ -44,6 +44,7 @@ const buildLongTestPool = (language: Language): LongTestQuestion[] => {
     id: `quiz-${index}`,
     sourceGameId: "quiz",
     prompt: localize(question.question, language),
+    helper: localize(question.explanation, language),
     explanation: localize(question.explanation, language),
     options: question.options.map((option) => ({ label: localize(option, language) })),
     correctIndex: question.correctIndex,

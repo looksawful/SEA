@@ -2,6 +2,7 @@
 import { CSSProperties, useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
+import { HintToggle } from "@/components/HintToggle";
 import { Swatch } from "@/components/Swatch";
 import { useGameStore } from "@/store/gameStore";
 import { useNumberKeys } from "@/hooks/useKeyboard";
@@ -224,13 +225,18 @@ export const ThemeAnalogGame = ({ onAnswer }: Props) => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
           Adapt for the {challenge.themeType === "light-to-dark" ? "dark" : "light"} theme
         </h2>
-        <div className="text-xs text-soft mt-1">
-          Difficulty: {difficultyDots(challenge.difficulty)}
-        </div>
+        <HintToggle
+          hint={
+            challenge.themeType === "light-to-dark"
+              ? "Invert lightness and slightly reduce saturation for dark UI."
+              : "Invert lightness and slightly increase saturation for light UI."
+          }
+        />
+        <div className="text-xs text-soft">Difficulty: {difficultyDots(challenge.difficulty)}</div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

@@ -2,6 +2,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Card } from '@/components/Card'
+import { HintToggle } from '@/components/HintToggle'
 import { useGameStore } from '@/store/gameStore'
 import { useNumberKeys } from '@/hooks/useKeyboard'
 import { useSkipSignal } from '@/hooks/useSkipSignal'
@@ -231,8 +232,9 @@ export const SizeSequenceGame = ({ onAnswer }: Props) => {
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
+      <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">Найди ошибку в шкале</h2>
+        <HintToggle hint={SCALE_EXPLANATIONS[challenge.scaleType]} />
         <div className="text-xs text-soft mt-1">
           Тип: {SCALE_NAMES[challenge.scaleType]} •
           Сложность: {difficultyDots(challenge.difficulty)}
