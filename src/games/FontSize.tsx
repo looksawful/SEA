@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Card } from '@/components/Card'
 import { useGameStore } from '@/store/gameStore'
 import { useNumberKeys } from '@/hooks/useKeyboard'
+import { useSkipSignal } from '@/hooks/useSkipSignal'
 import { useSound } from '@/hooks/useSound'
 import { shuffle, pickRandom } from '@/utils/helpers'
 import { getFontSizeClass } from '@/utils/fonts'
@@ -233,6 +234,18 @@ export const FontSizeGame = ({ onAnswer }: Props) => {
       setShowResult(false)
     }, reviewDelay)
   }, [challenge, showResult, round, generateChallenge, setReviewPause])
+
+  const handleSkip = useCallback(() => {
+    if (!challenge || showResult) return
+    onAnswer(false)
+    const newRound = round + 1
+    setRound(newRound)
+    setChallenge(generateChallenge(newRound))
+    setSelected(null)
+    setShowResult(false)
+  }, [challenge, showResult, round, generateChallenge, onAnswer])
+
+  useSkipSignal(handleSkip, !showResult)
 
   useNumberKeys((num) => {
     if (num < (challenge?.options.length || 0)) {

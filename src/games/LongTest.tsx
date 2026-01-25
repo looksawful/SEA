@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
 import { Swatch } from "@/components/Swatch";
 import { useKeyboard } from "@/hooks/useKeyboard";
+import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
 import { useGameStore } from "@/store/gameStore";
 import { GameId } from "@/types";
@@ -222,6 +223,16 @@ export const LongTestGame = ({ onAnswer, totalQuestions }: Props) => {
     },
     [challenge, showResult, language, setReviewPause],
   );
+
+  const handleSkip = useCallback(() => {
+    if (!challenge || showResult) return;
+    onAnswer(false);
+    setRound((value) => value + 1);
+    setSelected(null);
+    setShowResult(false);
+  }, [challenge, showResult, onAnswer]);
+
+  useSkipSignal(handleSkip, !showResult);
 
   useKeyboard(
     {

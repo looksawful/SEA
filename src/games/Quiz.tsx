@@ -1,6 +1,7 @@
 "use client";
 import { Card } from "@/components/Card";
 import { useNumberKeys } from "@/hooks/useKeyboard";
+import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
 import { useGameStore } from "@/store/gameStore";
 import { pickRandom, shuffle } from "@/utils/helpers";
@@ -895,6 +896,17 @@ export const QuizGame = ({ onAnswer }: Props) => {
     },
     [challenge, showResult, round, usedQuestions, language, avoidRepeats, setReviewPause],
   );
+
+  const handleSkip = useCallback(() => {
+    if (!challenge || showResult) return;
+    onAnswer(false);
+    setRound((r) => r + 1);
+    setChallenge(generateChallenge(usedQuestions, round + 1, language, avoidRepeats));
+    setSelected(null);
+    setShowResult(false);
+  }, [challenge, showResult, round, usedQuestions, language, avoidRepeats, onAnswer]);
+
+  useSkipSignal(handleSkip, !showResult);
 
   useNumberKeys((num) => {
     if (num < (challenge?.shuffledOptions.length || 0)) handleSelect(num);

@@ -22,6 +22,7 @@ interface GameStore {
   backgroundAnimation: boolean
   timedMode: boolean
   reviewPauseUntil: number | null
+  skipSignal: number
   currentMistakes: MistakeRecord[]
   customQuestions: Record<GameId, CustomQuestion[]>
   customMode: Record<GameId, boolean>
@@ -47,6 +48,7 @@ interface GameStore {
   setTimedMode: (enabled: boolean) => void
   setReviewPause: (durationMs: number) => void
   clearReviewPause: () => void
+  triggerSkip: () => void
   resetGame: () => void
   resetAll: () => void
   addMistake: (mistake: MistakeRecord) => void
@@ -85,6 +87,7 @@ export const useGameStore = create<GameStore>()(
       backgroundAnimation: true,
       timedMode: true,
       reviewPauseUntil: null,
+      skipSignal: 0,
       currentMistakes: [],
       customQuestions: {} as Record<GameId, CustomQuestion[]>,
       customMode: {} as Record<GameId, boolean>,
@@ -156,6 +159,8 @@ export const useGameStore = create<GameStore>()(
       setReviewPause: (durationMs) => set({ reviewPauseUntil: Date.now() + durationMs }),
 
       clearReviewPause: () => set({ reviewPauseUntil: null }),
+
+      triggerSkip: () => set((state) => ({ skipSignal: state.skipSignal + 1 })),
       
       addMistake: (mistake) => set((state) => ({
         currentMistakes: [...state.currentMistakes, mistake]

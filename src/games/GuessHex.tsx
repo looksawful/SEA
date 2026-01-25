@@ -5,6 +5,7 @@ import { Card } from '@/components/Card'
 import { Swatch } from '@/components/Swatch'
 import { useGameStore } from '@/store/gameStore'
 import { useNumberKeys } from '@/hooks/useKeyboard'
+import { useSkipSignal } from '@/hooks/useSkipSignal'
 import { useSound } from '@/hooks/useSound'
 import { randomHsl, hslToRgb, rgbToHex, hexToRgb } from '@/utils/colors'
 import { shuffle, randomInt } from '@/utils/helpers'
@@ -124,6 +125,17 @@ export const GuessHexGame = ({ onAnswer }: Props) => {
       setShowResult(false)
     }, reviewDelay)
   }, [challenge, showResult, round, setReviewPause])
+
+  const handleSkip = useCallback(() => {
+    if (!challenge || showResult) return
+    onAnswer(false)
+    setRound(r => r + 1)
+    setChallenge(generateChallenge(round + 1))
+    setSelected(null)
+    setShowResult(false)
+  }, [challenge, showResult, round, onAnswer])
+
+  useSkipSignal(handleSkip, !showResult)
 
   useNumberKeys((num) => {
     if (num < (challenge?.options.length || 0)) {

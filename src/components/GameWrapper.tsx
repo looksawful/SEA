@@ -8,11 +8,12 @@ import { GAMES } from "@/utils/gameConfig";
 import { Language, getGameLabel, t } from "@/utils/i18n";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { Button } from "./Button";
 import { ProgressBar, TimerDisplay } from "./Progress";
 import { ScoreDisplay } from "./Score";
 import { Swatch } from "./Swatch";
+import { FaForward } from "react-icons/fa";
 
 interface GameWrapperProps {
   gameId: GameId;
@@ -89,6 +90,7 @@ export const GameWrapper = ({
   const [showMistakes, setShowMistakes] = useState(false);
   const [sessionTimeLimit, setSessionTimeLimit] = useState(game.timeLimit);
   const { playComplete } = useSound();
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const {
     score,
@@ -110,6 +112,7 @@ export const GameWrapper = ({
     timedMode,
     reviewPauseUntil,
     clearReviewPause,
+    triggerSkip,
   } = useGameStore();
   const gameLabel = getGameLabel(gameId, language);
   const longTestOptions = [10, 20, 30, 40, 50];
@@ -171,6 +174,11 @@ export const GameWrapper = ({
     }
   };
 
+  const handleSkip = () => {
+    if (!isPlaying || isPaused || showComplete) return;
+    triggerSkip();
+  };
+
   const handleExit = () => {
     stop();
     resetGame();
@@ -189,6 +197,7 @@ export const GameWrapper = ({
     {
       escape: handleExit,
       p: handlePause,
+      s: handleSkip,
       " ": () => !isPlaying && !showComplete && handleStart(),
     },
     true,
@@ -450,6 +459,14 @@ export const GameWrapper = ({
               <ProgressBar value={currentChallenge} max={totalChallenges} size="sm" />
             </div>
             <TimerDisplay seconds={timeLeft} disabled={!timedMode} />
+            <button
+              onClick={handleSkip}
+              className="p-2 rounded-xl border border-subtle bg-surface-2 text-muted hover:text-strong hover:bg-surface-3"
+              aria-label={t(language, "skip")}
+              title={`${t(language, "skip")} (S)`}
+            >
+              <FaForward />
+            </button>
           </div>
           <div className="flex justify-center mt-2">
             <ScoreDisplay compact />
@@ -480,7 +497,26 @@ export const GameWrapper = ({
         )}
       </AnimatePresence>
 
-      <main className="flex-1 flex items-center justify-center p-4">
+      <main
+        className="flex-1 flex items-center justify-center p-4"
+        onTouchStart={(event) => {
+          if (!isPlaying || isPaused || showComplete) return;
+          const touch = event.touches[0];
+          if (!touch) return;
+          touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+        }}
+        onTouchEnd={(event) => {
+          if (!touchStartRef.current) return;
+          const touch = event.changedTouches[0];
+          if (!touch) return;
+          const dx = touch.clientX - touchStartRef.current.x;
+          const dy = touch.clientY - touchStartRef.current.y;
+          touchStartRef.current = null;
+          if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
+            handleSkip();
+          }
+        }}
+      >
         <div className="w-full max-w-2xl">
           <AnimatePresence mode="wait">
             <motion.div

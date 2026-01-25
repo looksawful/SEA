@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
 import { Swatch } from "@/components/Swatch";
 import { useNumberKeys } from "@/hooks/useKeyboard";
+import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
 import { useGameStore } from "@/store/gameStore";
 import { hslToRgb, randomHsl, rgbToHex } from "@/utils/colors";
@@ -182,6 +183,18 @@ export const ColorCompareGame = ({ onAnswer }: Props) => {
     },
     [challenge, showResult, round, setReviewPause],
   );
+
+  const handleSkip = useCallback(() => {
+    if (!challenge || showResult) return;
+    onAnswer(false);
+    const nextRound = round + 1;
+    setRound(nextRound);
+    setChallenge(generateChallenge(nextRound));
+    setSelected(null);
+    setShowResult(false);
+  }, [challenge, showResult, round, onAnswer]);
+
+  useSkipSignal(handleSkip, !showResult);
 
   useNumberKeys((num) => {
     if (num < (challenge?.options.length || 0)) {

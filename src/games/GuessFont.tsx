@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Card } from '@/components/Card'
 import { useGameStore } from '@/store/gameStore'
 import { useNumberKeys } from '@/hooks/useKeyboard'
+import { useSkipSignal } from '@/hooks/useSkipSignal'
 import { useSound } from '@/hooks/useSound'
 import { shuffle, pickRandom, getDisplayText } from '@/utils/helpers'
 import { Difficulty, difficultyDots, getDifficulty } from '@/utils/difficulty'
@@ -119,6 +120,17 @@ export const GuessFontGame = ({ onAnswer }: Props) => {
       setShowResult(false)
     }, reviewDelay)
   }, [challenge, showResult, round, setReviewPause])
+
+  const handleSkip = useCallback(() => {
+    if (!challenge || showResult) return
+    onAnswer(false)
+    setRound(r => r + 1)
+    setChallenge(generateChallenge(round + 1))
+    setSelected(null)
+    setShowResult(false)
+  }, [challenge, showResult, round, onAnswer])
+
+  useSkipSignal(handleSkip, !showResult)
 
   useNumberKeys((num) => {
     if (num < (challenge?.options.length || 0)) {
