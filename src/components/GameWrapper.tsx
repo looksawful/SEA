@@ -444,14 +444,18 @@ export const GameWrapper = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-20 bg-[color:var(--surface-1-95)] flex items-center justify-center"
+            className="fixed inset-0 z-20 bg-[color:var(--surface-1-80)] backdrop-blur flex items-center justify-center"
           >
             <div className="text-center">
-              <div className="text-4xl mb-4" />
               <h2 className="text-2xl font-display font-bold tracking-tight mb-4">{t(language, "pause")}</h2>
-              <Button onClick={handlePause} hotkey="P">
-                {t(language, "resume")}
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button onClick={handlePause} hotkey="P">
+                  {t(language, "resume")}
+                </Button>
+                <Button onClick={handleExit} variant="ghost">
+                  {t(language, "exit")}
+                </Button>
+              </div>
             </div>
           </motion.div>
         )}
