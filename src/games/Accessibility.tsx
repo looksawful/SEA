@@ -10,6 +10,7 @@ import { useSound } from "@/hooks/useSound";
 import { randomHsl, hslToRgb, rgbToHex, getContrastRatio } from "@/utils/colors";
 import { shuffle, pickRandom, getRandomText } from "@/utils/helpers";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
+import { Language, LocalizedText, localize, t } from "@/utils/i18n";
 
 type WcagLevel = "AAA" | "AA" | "AA Large" | "Fail";
 type ChallengeMode = "level" | "pass-fail" | "large-text";
@@ -25,6 +26,8 @@ interface Challenge {
   mode: ChallengeMode;
 }
 
+const text = (ru: string, en: string): LocalizedText => ({ ru, en });
+
 const getWcagLevel = (ratio: number): WcagLevel => {
   if (ratio >= 7) return "AAA";
   if (ratio >= 4.5) return "AA";
@@ -32,11 +35,40 @@ const getWcagLevel = (ratio: number): WcagLevel => {
   return "Fail";
 };
 
-const WCAG_EXPLANATIONS: Record<WcagLevel, string> = {
-  AAA: "Contrast ≥7:1 — highest accessibility level for normal text",
-  AA: "Contrast ≥4.5:1 — minimum standard for normal text",
-  "AA Large": "Contrast ≥3:1 — allowed only for large text (18pt+ or 14pt bold)",
-  Fail: "Contrast <3:1 — does not meet WCAG standards",
+const WCAG_EXPLANATIONS: Record<WcagLevel, LocalizedText> = {
+  AAA: text("Контраст ≥7:1 — максимальный уровень доступности для обычного текста", "Contrast ≥7:1 — highest accessibility level for normal text"),
+  AA: text("Контраст ≥4.5:1 — минимальный стандарт для обычного текста", "Contrast ≥4.5:1 — minimum standard for normal text"),
+  "AA Large": text(
+    "Контраст ≥3:1 — допустимо только для крупного текста (18pt+ или 14pt bold)",
+    "Contrast ≥3:1 — allowed only for large text (18pt+ or 14pt bold)"
+  ),
+  Fail: text("Контраст <3:1 — не соответствует WCAG", "Contrast <3:1 — does not meet WCAG standards"),
+};
+
+const PROMPTS: Record<ChallengeMode, LocalizedText> = {
+  level: text("Определи уровень WCAG", "Determine the WCAG level"),
+  "pass-fail": text("Проходит ли WCAG AA?", "Passes WCAG AA?"),
+  "large-text": text("Проходит ли для крупного текста?", "Passes for large text?"),
+};
+
+const WCAG_HINT = text(
+  "AA требует 4.5:1, для крупного текста достаточно 3:1, AAA начинается с 7:1.",
+  "AA needs 4.5:1, large text allows 3:1, AAA starts at 7:1."
+);
+const PASS_LABEL = text("Проходит", "Pass");
+const FAIL_LABEL = text("Не проходит", "Fail");
+const CONTRAST_LABEL = text("Контраст", "Contrast");
+const TEXT_LABEL = text("Текст", "Text");
+const BACKGROUND_LABEL = text("Фон", "Background");
+const LARGE_TEXT_EXPLANATION = text("Для крупного текста достаточно 3:1 (AA Large).", "Large text requires only 3:1 (AA Large).");
+
+const getPrompt = (mode: ChallengeMode, language: Language) => localize(PROMPTS[mode], language);
+
+const getOptionLabel = (mode: ChallengeMode, level: WcagLevel, language: Language) => {
+  if (mode === "pass-fail" || mode === "large-text") {
+    return level === "AA" ? localize(PASS_LABEL, language) : localize(FAIL_LABEL, language);
+  }
+  return level;
 };
 
 const generateColorWithContrast = (bg: string, targetLevel: WcagLevel): string => {
@@ -77,7 +109,7 @@ const generateColorWithContrast = (bg: string, targetLevel: WcagLevel): string =
   return bgIsLight ? "#333333" : "#cccccc";
 };
 
-const generateChallenge = (round: number): Challenge => {
+const generateChallenge = (round: number, language: Language): Challenge => {
   const difficulty = getDifficulty(round);
   const mode: ChallengeMode =
     difficulty === "easy" ? "pass-fail" : difficulty === "expert" ? "large-text" : pickRandom(["level", "pass-fail"]);
@@ -106,7 +138,7 @@ const generateChallenge = (round: number): Challenge => {
     options = shuffle([...levels]);
   }
 
-  const text = getRandomText();
+  const text = getRandomText(language);
 
   return {
     foreground,
@@ -129,12 +161,13 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
   const [selected, setSelected] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [round, setRound] = useState(0);
+  const language = useGameStore((state) => state.language);
   const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore();
   const { playCorrect, playWrong } = useSound();
 
   useEffect(() => {
-    setChallenge(generateChallenge(round));
-  }, []);
+    setChallenge(generateChallenge(round, language));
+  }, [language]);
 
   const handleSelect = useCallback(
     (index: number) => {
@@ -156,23 +189,24 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
         playWrong();
         const explanation =
           challenge.mode === "large-text"
-            ? "Для крупного текста требуется контраст не ниже 3:1 (AA Large)."
-            : WCAG_EXPLANATIONS[challenge.correctLevel];
+            ? localize(LARGE_TEXT_EXPLANATION, language)
+            : localize(WCAG_EXPLANATIONS[challenge.correctLevel], language);
+        const contrastLabel = localize(CONTRAST_LABEL, language);
+        const textLabel = localize(TEXT_LABEL, language);
+        const backgroundLabel = localize(BACKGROUND_LABEL, language);
+        const question = getPrompt(challenge.mode, language);
+        const userAnswerLabel = getOptionLabel(challenge.mode, userAnswer, language);
+        const correctAnswerLabel = getOptionLabel(challenge.mode, challenge.correctLevel, language);
         addMistake({
-          question:
-            challenge.mode === "level"
-              ? "Determine the WCAG level for this contrast"
-              : challenge.mode === "large-text"
-                ? "Passes for large text?"
-                : "Passes WCAG AA?",
-          userAnswer: userAnswer,
-          correctAnswer: challenge.correctLevel,
-          explanation: `Contrast ${challenge.contrastRatio.toFixed(2)}:1. ${explanation}`,
+          question,
+          userAnswer: userAnswerLabel,
+          correctAnswer: correctAnswerLabel,
+          explanation: `${contrastLabel} ${challenge.contrastRatio.toFixed(2)}:1. ${explanation}`,
           visual: {
             type: "contrast",
             data: {
-              Text: challenge.foreground,
-              Background: challenge.background,
+              [textLabel]: challenge.foreground,
+              [backgroundLabel]: challenge.background,
             },
           },
         });
@@ -186,22 +220,22 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
       setTimeout(() => {
         onAnswer(correct);
         setRound((r) => r + 1);
-        setChallenge(generateChallenge(round + 1));
+        setChallenge(generateChallenge(round + 1, language));
         setSelected(null);
         setShowResult(false);
       }, reviewDelay);
     },
-    [challenge, showResult, round, setReviewPause],
+    [challenge, showResult, round, setReviewPause, language],
   );
 
   const handleSkip = useCallback(() => {
     if (!challenge || showResult) return;
     onAnswer(false);
     setRound((r) => r + 1);
-    setChallenge(generateChallenge(round + 1));
+    setChallenge(generateChallenge(round + 1, language));
     setSelected(null);
     setShowResult(false);
-  }, [challenge, showResult, round, onAnswer]);
+  }, [challenge, showResult, round, onAnswer, language]);
 
   useSkipSignal(handleSkip, !showResult);
 
@@ -228,14 +262,12 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
-          {challenge.mode === "level"
-            ? "Determine the WCAG level"
-            : challenge.mode === "large-text"
-              ? "Passes for large text?"
-              : "Passes WCAG AA?"}
+          {getPrompt(challenge.mode, language)}
         </h2>
-        <HintToggle hint="AA требует 4.5:1, для крупного текста достаточно 3:1, AAA начинается с 7:1." />
-        <div className="text-xs text-soft">Difficulty: {difficultyDots(challenge.difficulty)}</div>
+        <HintToggle hint={localize(WCAG_HINT, language)} />
+        <div className="text-xs text-soft">
+          {t(language, "difficultyLabel")}: {difficultyDots(challenge.difficulty)}
+        </div>
       </div>
 
       <motion.div
@@ -259,7 +291,7 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
           >
             <div className="text-center">
               <span className={`font-mono text-lg ${levelTone[level]}`}>
-                {challenge.mode === "pass-fail" || challenge.mode === "large-text" ? (level === "AA" ? "Pass" : "Fail") : level}
+                {getOptionLabel(challenge.mode, level, language)}
               </span>
               <span className="hidden sm:inline text-xs text-soft ml-2">[{index + 1}]</span>
             </div>
@@ -273,11 +305,13 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-muted"
         >
-          <div className="font-mono">Contrast: {challenge.contrastRatio.toFixed(2)}:1</div>
+          <div className="font-mono">
+            {localize(CONTRAST_LABEL, language)}: {challenge.contrastRatio.toFixed(2)}:1
+          </div>
           <div className="text-xs mt-1 text-soft">
             {challenge.mode === "large-text"
-              ? "Для крупного текста достаточно 3:1 (AA Large)."
-              : WCAG_EXPLANATIONS[challenge.correctLevel]}
+              ? localize(LARGE_TEXT_EXPLANATION, language)
+              : localize(WCAG_EXPLANATIONS[challenge.correctLevel], language)}
           </div>
         </motion.div>
       )}
