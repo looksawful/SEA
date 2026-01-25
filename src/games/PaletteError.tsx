@@ -10,6 +10,7 @@ import { useSound } from '@/hooks/useSound'
 import { hslToRgb, rgbToHex } from '@/utils/colors'
 import { shuffle, randomInt, pickRandom } from '@/utils/helpers'
 import { Difficulty, difficultyDots, getDifficulty } from '@/utils/difficulty'
+import { LocalizedText, localize, t } from '@/utils/i18n'
 
 type PaletteType = 'monochromatic' | 'analogous' | 'complementary' | 'triadic' | 'split' | 'tetradic'
 
@@ -21,22 +22,42 @@ interface Challenge {
   difficulty: Difficulty
 }
 
-const PALETTE_NAMES: Record<PaletteType, string> = {
-  monochromatic: 'монохромная',
-  analogous: 'аналоговая',
-  complementary: 'комплементарная',
-  triadic: 'триадная',
-  split: 'сплит-комплементарная',
-  tetradic: 'тетра́дная',
+const text = (ru: string, en: string): LocalizedText => ({ ru, en })
+
+const PALETTE_NAMES: Record<PaletteType, LocalizedText> = {
+  monochromatic: text('монохромная', 'monochromatic'),
+  analogous: text('аналоговая', 'analogous'),
+  complementary: text('комплементарная', 'complementary'),
+  triadic: text('триадная', 'triadic'),
+  split: text('сплит-комплементарная', 'split-complementary'),
+  tetradic: text('тетра́дная', 'tetradic'),
 }
 
-const PALETTE_EXPLANATIONS: Record<PaletteType, string> = {
-  monochromatic: 'Монохромная палитра использует один тон (H) с разной насыщенностью и светлостью',
-  analogous: 'Аналоговая палитра использует соседние тона на цветовом круге (±30°)',
-  complementary: 'Комплементарная палитра использует противоположные тона (180°)',
-  triadic: 'Триадная палитра использует три равноудалённых тона (120° друг от друга)',
-  split: 'Сплит-комплементарная палитра использует два тона вокруг комплементарного (±30°)',
-  tetradic: 'Тетрадная палитра использует две пары комплементарных тонов (через 90°)',
+const PALETTE_EXPLANATIONS: Record<PaletteType, LocalizedText> = {
+  monochromatic: text(
+    'Монохромная палитра использует один тон (H) с разной насыщенностью и светлотой',
+    'A monochromatic palette uses one hue (H) with varying saturation and lightness'
+  ),
+  analogous: text(
+    'Аналоговая палитра использует соседние тона на цветовом круге (±30°)',
+    'An analogous palette uses neighboring hues on the color wheel (±30°)'
+  ),
+  complementary: text(
+    'Комплементарная палитра использует противоположные тона (180°)',
+    'A complementary palette uses opposite hues (180°)'
+  ),
+  triadic: text(
+    'Триадная палитра использует три равноудалённых тона (120° друг от друга)',
+    'A triadic palette uses three evenly spaced hues (120° apart)'
+  ),
+  split: text(
+    'Сплит-комплементарная палитра использует два тона вокруг комплементарного (±30°)',
+    'A split-complementary palette uses two hues around the complement (±30°)'
+  ),
+  tetradic: text(
+    'Тетрадная палитра использует две пары комплементарных тонов (через 90°)',
+    'A tetradic palette uses two complementary pairs (90° apart)'
+  ),
 }
 
 const generatePalette = (type: PaletteType, baseHue: number, count: number): { h: number; s: number; l: number }[] => {
@@ -172,6 +193,7 @@ export const PaletteErrorGame = ({ onAnswer }: Props) => {
   const [selected, setSelected] = useState<number | null>(null)
   const [showResult, setShowResult] = useState(false)
   const [round, setRound] = useState(0)
+  const language = useGameStore((state) => state.language)
   const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore()
   const { playCorrect, playWrong } = useSound()
 
@@ -195,14 +217,23 @@ export const PaletteErrorGame = ({ onAnswer }: Props) => {
     } else {
       resetStreak()
       playWrong()
+      const paletteName = localize(PALETTE_NAMES[challenge.paletteType], language)
+      const paletteExplanation = localize(PALETTE_EXPLANATIONS[challenge.paletteType], language)
+      const colorLabel = language === 'ru' ? 'Цвет' : 'Color'
       addMistake({
-        question: `Найди цвет, выбивающийся из ${PALETTE_NAMES[challenge.paletteType]} палитры`,
-        userAnswer: `Цвет ${index + 1}`,
-        correctAnswer: `Цвет ${challenge.errorIndex + 1}`,
-        explanation: `${PALETTE_EXPLANATIONS[challenge.paletteType]}. Базовый тон палитры: ${challenge.baseHue}°. Ошибочный цвет имеет тон, не вписывающийся в схему.`,
+        question:
+          language === 'ru'
+            ? `Найди цвет, выбивающийся из ${paletteName} палитры`
+            : `Find the color that does not belong to the ${paletteName} palette`,
+        userAnswer: `${colorLabel} ${index + 1}`,
+        correctAnswer: `${colorLabel} ${challenge.errorIndex + 1}`,
+        explanation:
+          language === 'ru'
+            ? `${paletteExplanation}. Базовый тон палитры: ${challenge.baseHue}°. Ошибочный цвет имеет тон, не вписывающийся в схему.`
+            : `${paletteExplanation}. Palette base hue: ${challenge.baseHue}°. The odd color uses a hue outside the scheme.`,
         visual: {
           type: 'colors',
-          data: challenge.colors.reduce((acc, c, i) => ({ ...acc, [`Цвет ${i + 1}`]: c }), {}),
+          data: challenge.colors.reduce((acc, c, i) => ({ ...acc, [`${colorLabel} ${i + 1}`]: c }), {}),
         }
       })
     }
@@ -219,7 +250,7 @@ export const PaletteErrorGame = ({ onAnswer }: Props) => {
       setSelected(null)
       setShowResult(false)
     }, reviewDelay)
-  }, [challenge, showResult, round, setReviewPause])
+  }, [challenge, showResult, round, setReviewPause, language])
 
   const handleSkip = useCallback(() => {
     if (!challenge || showResult) return
@@ -240,14 +271,20 @@ export const PaletteErrorGame = ({ onAnswer }: Props) => {
 
   if (!challenge) return null
 
+  const paletteName = localize(PALETTE_NAMES[challenge.paletteType], language)
+  const paletteExplanation = localize(PALETTE_EXPLANATIONS[challenge.paletteType], language)
+  const paletteLabel = language === 'ru' ? 'Палитра' : 'Palette'
+  const errorLabel = language === 'ru' ? 'Ошибка в цвете' : 'Odd color'
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">Найди лишний цвет</h2>
-        <HintToggle hint={PALETTE_EXPLANATIONS[challenge.paletteType]} />
+        <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
+          {language === 'ru' ? 'Найди лишний цвет' : 'Find the odd color'}
+        </h2>
+        <HintToggle hint={paletteExplanation} />
         <div className="text-xs text-soft mt-1">
-          Палитра: {PALETTE_NAMES[challenge.paletteType]} •
-          Сложность: {difficultyDots(challenge.difficulty)}
+          {paletteLabel}: {paletteName} • {t(language, 'difficultyLabel')}: {difficultyDots(challenge.difficulty)}
         </div>
       </div>
       
@@ -282,8 +319,10 @@ export const PaletteErrorGame = ({ onAnswer }: Props) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-muted"
         >
-          <div>Ошибка в цвете {challenge.errorIndex + 1}</div>
-          <div className="text-xs mt-1 text-soft">{PALETTE_EXPLANATIONS[challenge.paletteType]}</div>
+          <div>
+            {errorLabel} {challenge.errorIndex + 1}
+          </div>
+          <div className="text-xs mt-1 text-soft">{paletteExplanation}</div>
         </motion.div>
       )}
     </div>
