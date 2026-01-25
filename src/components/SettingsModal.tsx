@@ -2,7 +2,7 @@
 import { useGameStore } from "@/store/gameStore";
 import { t } from "@/utils/i18n";
 import { Button } from "./Button";
-import { FaCog, FaLink, FaTimes } from "react-icons/fa";
+import { FaCog, FaEnvelope, FaLink, FaTimes } from "react-icons/fa";
 
 interface SettingsModalProps {
   onClose: () => void;
@@ -80,7 +80,14 @@ export const SettingsModal = ({ onClose }: SettingsModalProps) => {
             <div>{t(language, "hotkeyAnswer")}</div>
           </div>
 
-          <div className="grid gap-2 sm:grid-cols-2">
+          <div className="grid gap-2 sm:grid-cols-3">
+            <a
+              href="mailto:i@lookawful.ru?subject=Awful-Exercises%20feedback"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-subtle bg-surface-2 px-4 py-2 text-sm text-muted hover:text-strong hover:bg-surface-3"
+            >
+              <FaEnvelope />
+              {t(language, "feedback")}
+            </a>
             <a
               href="https://github.com/looksawful/Awful-Exercises"
               target="_blank"
