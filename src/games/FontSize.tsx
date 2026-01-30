@@ -104,7 +104,7 @@ interface Challenge {
   text: string
   options: number[]
   difficulty: Difficulty
-  scale: string
+  scale: keyof typeof TYPE_SCALES
 }
 
 const getDifficultyOptions = (correctSize: number, scale: number[], difficulty: Difficulty): number[] => {

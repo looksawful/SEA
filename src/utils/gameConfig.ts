@@ -324,3 +324,14 @@ export const GAME_ORDER: GameId[] = [
   "layout-error",
   "palette-from-photo",
 ];
+
+export const normalizeGameOrder = (order: GameId[]): GameId[] => {
+  const seen = new Set<GameId>();
+  const filtered = order.filter((id) => {
+    if (!GAME_ORDER.includes(id) || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+  const missing = GAME_ORDER.filter((id) => !seen.has(id));
+  return [...filtered, ...missing];
+};

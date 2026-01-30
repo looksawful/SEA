@@ -9,7 +9,7 @@ import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
 import { useGameStore } from "@/store/gameStore";
 import { GameId } from "@/types";
-import { GAME_ORDER, GAMES } from "@/utils/gameConfig";
+import { GAMES, normalizeGameOrder } from "@/utils/gameConfig";
 import { getFontSizeClass } from "@/utils/fonts";
 import { generateId, shuffle } from "@/utils/helpers";
 import { Language, getGameLabel, t } from "@/utils/i18n";
@@ -961,14 +961,15 @@ interface CustomQuestionsModalProps {
 }
 
 export const CustomQuestionsModal = ({ onClose, initialGameId }: CustomQuestionsModalProps) => {
-  const [activeGame, setActiveGame] = useState<GameId>(initialGameId ?? GAME_ORDER[0]);
-  const { language } = useGameStore();
+  const { language, gameOrderOverride } = useGameStore();
+  const orderedGameIds = useMemo(() => normalizeGameOrder(gameOrderOverride), [gameOrderOverride]);
+  const [activeGame, setActiveGame] = useState<GameId>(initialGameId ?? orderedGameIds[0]);
 
   useEffect(() => {
-    if (!GAME_ORDER.includes(activeGame)) {
-      setActiveGame(GAME_ORDER[0]);
+    if (!orderedGameIds.includes(activeGame)) {
+      setActiveGame(orderedGameIds[0]);
     }
-  }, [activeGame]);
+  }, [activeGame, orderedGameIds]);
 
   return (
     <div className="fixed inset-0 z-30 bg-[color:var(--surface-1-95)] backdrop-blur-sm overflow-y-auto">
@@ -987,7 +988,7 @@ export const CustomQuestionsModal = ({ onClose, initialGameId }: CustomQuestions
           </div>
 
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {GAME_ORDER.map((id) => {
+            {orderedGameIds.map((id) => {
               const GameIcon = GAMES[id].icon;
               const isActive = id === activeGame;
               const { name } = getGameLabel(id, language);

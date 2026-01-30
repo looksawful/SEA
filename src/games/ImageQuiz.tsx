@@ -112,10 +112,10 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
         const userOption = challenge.options[index];
         const correctOption = challenge.options[challenge.correctIndex];
         addMistake({
-          question: challenge.question.prompt,
+          question: resolveText(challenge.question.prompt, language),
           userAnswer: formatOptionLabel(userOption, language),
           correctAnswer: formatOptionLabel(correctOption, language),
-          explanation: challenge.question.explanation,
+          explanation: resolveText(challenge.question.explanation, language),
           visual:
             userOption.color || correctOption.color
               ? {
@@ -268,7 +268,7 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-muted"
         >
-          {challenge.question.explanation}
+          {resolveText(challenge.question.explanation, language)}
         </motion.div>
       )}
     </div>

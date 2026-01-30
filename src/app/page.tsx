@@ -1,17 +1,17 @@
-'use client'
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { useRouter } from 'next/navigation'
-import { useGameStore } from '@/store/gameStore'
-import { GAMES, GAME_ORDER } from '@/utils/gameConfig'
-import { Button, Card, Skeleton, SettingsModal } from '@/components'
-import { CustomQuestionsModal } from '@/components/CustomQuestions'
-import { GameId, GameTag } from '@/types'
-import { shuffle } from '@/utils/helpers'
-import { useKeyboard } from '@/hooks/useKeyboard'
-import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS } from '@/utils/imageQuizData'
-import { QUIZ_QUESTIONS } from '@/games/Quiz'
-import { getGameLabel, t } from '@/utils/i18n'
+"use client";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useGameStore } from "@/store/gameStore";
+import { GAMES, GAME_ORDER } from "@/utils/gameConfig";
+import { Button, Card, Skeleton, SettingsModal } from "@/components";
+import { CustomQuestionsModal } from "@/components/CustomQuestions";
+import { GameId, GameTag } from "@/types";
+import { shuffle } from "@/utils/helpers";
+import { useKeyboard } from "@/hooks/useKeyboard";
+import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS } from "@/utils/imageQuizData";
+import { QUIZ_QUESTIONS } from "@/games/Quiz";
+import { getGameLabel, t } from "@/utils/i18n";
 import {
   FaArrowLeft,
   FaArrowRight,
@@ -32,22 +32,22 @@ import {
   FaVolumeMute,
   FaVolumeUp,
   FaHome,
-} from 'react-icons/fa'
+} from "react-icons/fa";
 
-type View = 'menu' | 'games' | 'stats' | 'random'
-type GamesView = 'list' | 'grid'
+type View = "menu" | "games" | "stats" | "random";
+type GamesView = "list" | "grid";
 
 export default function Home() {
-  const [view, setView] = useState<View>('menu')
-  const [mounted, setMounted] = useState(false)
-  const [showCustomModal, setShowCustomModal] = useState(false)
-  const [customModalGame, setCustomModalGame] = useState<GameId | null>(null)
-  const [showSettings, setShowSettings] = useState(false)
-  const [gameSearch, setGameSearch] = useState('')
-  const [gamesView, setGamesView] = useState<GamesView>('list')
-  const [activeTag, setActiveTag] = useState<GameTag | 'all'>('all')
-  const [sortMode, setSortMode] = useState<'default' | 'name' | 'played'>('default')
-  const [favoritesOnly, setFavoritesOnly] = useState(false)
+  const [view, setView] = useState<View>("menu");
+  const [mounted, setMounted] = useState(false);
+  const [showCustomModal, setShowCustomModal] = useState(false);
+  const [customModalGame, setCustomModalGame] = useState<GameId | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [gameSearch, setGameSearch] = useState("");
+  const [gamesView, setGamesView] = useState<GamesView>("list");
+  const [activeTag, setActiveTag] = useState<GameTag | "all">("all");
+  const [sortMode, setSortMode] = useState<"default" | "name" | "played">("default");
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
   const {
     stats,
     bestStreak,
@@ -60,144 +60,138 @@ export default function Home() {
     setLanguage,
     favorites,
     toggleFavorite,
-  } = useGameStore()
-  const mainClass = 'flex-1 p-4 pb-24 sm:pb-4 w-full flex items-center justify-center'
-  const router = useRouter()
-  const isGrid = gamesView === 'grid'
-  const favoriteIds = GAME_ORDER.filter((id) => favorites[id])
-  const normalizedSearch = gameSearch.trim().toLowerCase()
+  } = useGameStore();
+  const mainClass = "flex-1 p-4 pb-24 sm:pb-4 w-full flex items-center justify-center";
+  const router = useRouter();
+  const isGrid = gamesView === "grid";
+  const favoriteIds = GAME_ORDER.filter((id) => favorites[id]);
+  const normalizedSearch = gameSearch.trim().toLowerCase();
   const filteredGameIds = GAME_ORDER.filter((id) => {
-    if (favoritesOnly && !favorites[id]) return false
-    if (activeTag !== 'all' && !GAMES[id].tags.includes(activeTag)) return false
-    if (!normalizedSearch) return true
-    const game = getGameLabel(id, language)
+    if (favoritesOnly && !favorites[id]) return false;
+    if (activeTag !== "all" && !GAMES[id].tags.includes(activeTag)) return false;
+    if (!normalizedSearch) return true;
+    const game = getGameLabel(id, language);
     return (
-      game.name.toLowerCase().includes(normalizedSearch) ||
-      game.description.toLowerCase().includes(normalizedSearch)
-    )
-  })
+      game.name.toLowerCase().includes(normalizedSearch) || game.description.toLowerCase().includes(normalizedSearch)
+    );
+  });
 
   const sortGames = (ids: GameId[]) =>
     [...ids].sort((a, b) => {
-      if (sortMode === 'name') {
-        return getGameLabel(a, language).name.localeCompare(getGameLabel(b, language).name)
+      if (sortMode === "name") {
+        return getGameLabel(a, language).name.localeCompare(getGameLabel(b, language).name);
       }
-      if (sortMode === 'played') {
-        return (stats.gamesPlayed[b] || 0) - (stats.gamesPlayed[a] || 0)
+      if (sortMode === "played") {
+        return (stats.gamesPlayed[b] || 0) - (stats.gamesPlayed[a] || 0);
       }
-      return GAME_ORDER.indexOf(a) - GAME_ORDER.indexOf(b)
-    })
+      return GAME_ORDER.indexOf(a) - GAME_ORDER.indexOf(b);
+    });
 
-  const sortedGameIds = sortGames(filteredGameIds)
-  const sortedFavoriteIds = sortGames(favoriteIds)
+  const sortedGameIds = sortGames(filteredGameIds);
+  const sortedFavoriteIds = sortGames(favoriteIds);
   const showFavoritesSection =
-    !favoritesOnly && sortedFavoriteIds.length > 0 && activeTag === 'all' && !normalizedSearch
-  const displayGameIds = showFavoritesSection
-    ? sortedGameIds.filter((id) => !favorites[id])
-    : sortedGameIds
+    !favoritesOnly && sortedFavoriteIds.length > 0 && activeTag === "all" && !normalizedSearch;
+  const displayGameIds = showFavoritesSection ? sortedGameIds.filter((id) => !favorites[id]) : sortedGameIds;
 
-  const tagOptions: { id: GameTag | 'all'; label: string }[] = [
-    { id: 'all', label: t(language, 'tagAll') },
-    { id: 'design', label: t(language, 'tagDesign') },
-    { id: 'interface', label: t(language, 'tagInterface') },
-    { id: 'color', label: t(language, 'tagColor') },
-    { id: 'typography', label: t(language, 'tagTypography') },
-    { id: 'layout', label: t(language, 'tagLayout') },
-    { id: 'photo', label: t(language, 'tagPhoto') },
-    { id: 'accessibility', label: t(language, 'tagAccessibility') },
-    { id: 'theory', label: t(language, 'tagTheory') },
-  ]
+  const tagOptions: { id: GameTag | "all"; label: string }[] = [
+    { id: "all", label: t(language, "tagAll") },
+    { id: "design", label: t(language, "tagDesign") },
+    { id: "interface", label: t(language, "tagInterface") },
+    { id: "color", label: t(language, "tagColor") },
+    { id: "typography", label: t(language, "tagTypography") },
+    { id: "layout", label: t(language, "tagLayout") },
+    { id: "photo", label: t(language, "tagPhoto") },
+    { id: "accessibility", label: t(language, "tagAccessibility") },
+    { id: "theory", label: t(language, "tagTheory") },
+  ];
 
   const getQuestionStats = (gameId: GameId) => {
-    if (gameId === 'quiz') {
-      return countDifficulties(QUIZ_QUESTIONS)
+    if (gameId === "quiz") {
+      return countDifficulties(QUIZ_QUESTIONS);
     }
 
     if (IMAGE_QUIZ_IDS.includes(gameId as (typeof IMAGE_QUIZ_IDS)[number])) {
-      return countDifficulties(IMAGE_QUIZ_DATA[gameId as keyof typeof IMAGE_QUIZ_DATA] || [])
+      return countDifficulties(IMAGE_QUIZ_DATA[gameId as keyof typeof IMAGE_QUIZ_DATA] || []);
     }
 
-    return null
-  }
+    return null;
+  };
 
   const renderGameCard = (id: GameId) => {
-    const game = GAMES[id]
-    const gameLabel = getGameLabel(id, language)
-    const played = stats.gamesPlayed[id] || 0
-    const accuracy = stats.accuracy[id]
-    const customCount = customQuestions[id]?.length || 0
-    const GameIcon = game.icon
-    const questionStats = getQuestionStats(id)
-    const lastResult = [...results].reverse().find((result) => result.gameId === id)
-    const lastAccuracy = lastResult
-      ? Math.round((lastResult.correct / Math.max(1, lastResult.total)) * 100)
-      : null
-    const isFavorite = Boolean(favorites[id])
+    const game = GAMES[id];
+    const gameLabel = getGameLabel(id, language);
+    const played = stats.gamesPlayed[id] || 0;
+    const accuracy = stats.accuracy[id];
+    const customCount = customQuestions[id]?.length || 0;
+    const GameIcon = game.icon;
+    const questionStats = getQuestionStats(id);
+    const lastResult = [...results].reverse().find((result) => result.gameId === id);
+    const lastAccuracy = lastResult ? Math.round((lastResult.correct / Math.max(1, lastResult.total)) * 100) : null;
+    const isFavorite = Boolean(favorites[id]);
 
     return (
       <Card
         key={id}
         className="transition-colors shadow-card min-w-0"
-        padding={isGrid ? 'sm' : 'md'}
+        padding={isGrid ? "sm" : "md"}
         onClick={() => router.push(`/game/${id}`)}
       >
-        <div className={isGrid ? 'flex flex-col gap-3' : 'flex items-start gap-4'}>
+        <div className={isGrid ? "flex flex-col gap-3" : "flex items-start gap-4"}>
           <div
             className={`${
-              isGrid ? 'w-10 h-10' : 'w-12 h-12'
+              isGrid ? "w-10 h-10" : "w-12 h-12"
             } rounded-2xl bg-surface-2 border border-subtle flex items-center justify-center text-accent ${
-              isGrid ? '' : 'flex-shrink-0'
+              isGrid ? "" : "flex-shrink-0"
             }`}
           >
-            <GameIcon className={isGrid ? 'text-xl' : 'text-2xl'} />
+            <GameIcon className={isGrid ? "text-xl" : "text-2xl"} />
           </div>
           <div className="flex-1 min-w-0">
-            <div className={isGrid ? 'font-medium text-sm sm:text-base' : 'font-medium'}>
-              {gameLabel.name}
-            </div>
+            <div className={isGrid ? "font-medium text-sm sm:text-base" : "font-medium"}>{gameLabel.name}</div>
             {!isGrid && (
               <div className="text-sm text-muted">
                 <span className="truncate block">{gameLabel.description}</span>
               </div>
             )}
-            <div className={isGrid ? 'text-[11px] text-soft mt-2 space-y-1' : 'text-xs text-soft mt-2 space-y-1'}>
+            <div className={isGrid ? "text-[11px] text-soft mt-2 space-y-1" : "text-xs text-soft mt-2 space-y-1"}>
               {questionStats ? (
                 <div>
-                  {t(language, 'questions')}: {questionStats.total}
+                  {t(language, "questions")}: {questionStats.total}
                 </div>
               ) : (
                 <div>
-                  {t(language, 'questions')}: {t(language, 'generated')}
+                  {t(language, "questions")}: {t(language, "generated")}
                 </div>
               )}
               <div>
-                {t(language, 'played')}: {played} • {t(language, 'accuracy')}: {Math.round(accuracy || 0)}%
+                {t(language, "played")}: {played} • {t(language, "accuracy")}: {Math.round(accuracy || 0)}%
               </div>
               {!isGrid && (
                 <div>
-                  {t(language, 'lastResult')}: {lastResult ? `${lastResult.correct}/${lastResult.total} (${lastAccuracy}%)` : '—'}
+                  {t(language, "lastResult")}:{" "}
+                  {lastResult ? `${lastResult.correct}/${lastResult.total} (${lastAccuracy}%)` : "—"}
                 </div>
               )}
               {!isGrid && customCount > 0 && (
                 <div>
-                  {t(language, 'customQuestionsCount')}: {customCount}
+                  {t(language, "customQuestionsCount")}: {customCount}
                 </div>
               )}
             </div>
           </div>
-          <div className={gamesView === 'grid' ? 'flex justify-between gap-2' : 'flex items-start gap-2 text-soft'}>
+          <div className={gamesView === "grid" ? "flex justify-between gap-2" : "flex items-start gap-2 text-soft"}>
             <button
               onClick={(event) => {
-                event.stopPropagation()
-                toggleFavorite(id)
+                event.stopPropagation();
+                toggleFavorite(id);
               }}
               className="w-8 h-8 rounded-xl border border-subtle bg-surface-2 text-muted hover:text-strong flex items-center justify-center"
               aria-pressed={isFavorite}
-              title={t(language, 'favorites')}
+              title={t(language, "favorites")}
             >
               {isFavorite ? <FaStar /> : <FaRegStar />}
             </button>
-            {gamesView === 'grid' ? (
+            {gamesView === "grid" ? (
               <div className="text-soft self-center">
                 <FaArrowRight />
               </div>
@@ -207,41 +201,41 @@ export default function Home() {
           </div>
         </div>
 
-        <div className={isGrid ? 'mt-3 grid grid-cols-2 gap-2' : 'mt-4 flex flex-wrap gap-2'}>
+        <div className={isGrid ? "mt-3 grid grid-cols-2 gap-2" : "mt-4 flex flex-wrap gap-2"}>
           <button
             onClick={(event) => {
-              event.stopPropagation()
-              setCustomModalGame(id)
-              setShowCustomModal(true)
+              event.stopPropagation();
+              setCustomModalGame(id);
+              setShowCustomModal(true);
             }}
             className={`inline-flex items-center justify-center gap-2 px-3 py-2 text-xs rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors ${
-              isGrid ? 'w-full' : ''
+              isGrid ? "w-full" : ""
             }`}
           >
             <FaPlus className="text-xs" />
-            <span className={isGrid ? 'hidden sm:inline' : ''}>{t(language, 'addQuestions')}</span>
+            <span className={isGrid ? "hidden sm:inline" : ""}>{t(language, "addQuestions")}</span>
           </button>
           <button
             onClick={(event) => {
-              event.stopPropagation()
-              setCustomModalGame(id)
-              setShowCustomModal(true)
+              event.stopPropagation();
+              setCustomModalGame(id);
+              setShowCustomModal(true);
             }}
             className={`inline-flex items-center justify-center gap-2 px-3 py-2 text-xs rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors ${
-              isGrid ? 'w-full' : ''
+              isGrid ? "w-full" : ""
             }`}
           >
             <FaPen className="text-xs" />
-            <span className={isGrid ? 'hidden sm:inline' : ''}>{t(language, 'edit')}</span>
+            <span className={isGrid ? "hidden sm:inline" : ""}>{t(language, "edit")}</span>
           </button>
         </div>
       </Card>
-    )
-  }
+    );
+  };
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
     return (
@@ -259,67 +253,67 @@ export default function Home() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-10 border-b border-subtle bg-[color:var(--surface-1-80)] backdrop-blur">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <button onClick={() => setView('menu')} className="flex items-center gap-2">
-            <span className="text-lg font-display font-semibold">{t(language, 'appName')}</span>
+          <button onClick={() => setView("menu")} className="flex items-center gap-2">
+            <span className="text-lg font-display font-semibold">{t(language, "appName")}</span>
           </button>
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
-                setCustomModalGame(null)
-                setShowCustomModal(true)
+                setCustomModalGame(null);
+                setShowCustomModal(true);
               }}
               className="flex items-center gap-2 px-3 py-2 text-sm rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors"
-              title={t(language, 'customQuestions')}
+              title={t(language, "customQuestions")}
             >
               <FaPenNib className="text-base" />
-              <span className="hidden sm:inline">{t(language, 'customQuestions')}</span>
+              <span className="hidden sm:inline">{t(language, "customQuestions")}</span>
             </button>
             <button
               onClick={toggleSound}
               className="flex items-center gap-2 px-3 py-2 text-sm rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors"
-              title={soundEnabled ? t(language, 'soundOn') : t(language, 'soundOff')}
+              title={soundEnabled ? t(language, "soundOn") : t(language, "soundOff")}
               aria-pressed={soundEnabled}
             >
               {soundEnabled ? <FaVolumeUp className="text-base" /> : <FaVolumeMute className="text-base" />}
               <span className="hidden sm:inline">
-                {soundEnabled ? t(language, 'soundOn') : t(language, 'soundOff')}
+                {soundEnabled ? t(language, "soundOn") : t(language, "soundOff")}
               </span>
             </button>
             <button
               onClick={() => setShowSettings(true)}
               className="flex items-center gap-2 px-3 py-2 text-sm rounded-xl bg-surface-2 border border-subtle text-muted hover:text-strong hover:bg-surface-3 transition-colors"
-              title={t(language, 'settings')}
+              title={t(language, "settings")}
             >
               <FaCog className="text-base" />
-              <span className="hidden sm:inline">{t(language, 'settings')}</span>
+              <span className="hidden sm:inline">{t(language, "settings")}</span>
             </button>
             <div
               className="flex items-center rounded-xl border border-subtle bg-surface-2 p-1"
               role="group"
-              aria-label={t(language, 'uiLanguage')}
+              aria-label={t(language, "uiLanguage")}
             >
               <button
-                onClick={() => setLanguage('ru')}
+                onClick={() => setLanguage("ru")}
                 className={`px-2 py-1 text-xs rounded-lg ${
-                  language === 'ru' ? 'bg-surface-3 text-strong' : 'text-muted hover:text-strong'
+                  language === "ru" ? "bg-surface-3 text-strong" : "text-muted hover:text-strong"
                 }`}
-                aria-pressed={language === 'ru'}
+                aria-pressed={language === "ru"}
               >
                 RU
               </button>
               <button
-                onClick={() => setLanguage('en')}
+                onClick={() => setLanguage("en")}
                 className={`px-2 py-1 text-xs rounded-lg ${
-                  language === 'en' ? 'bg-surface-3 text-strong' : 'text-muted hover:text-strong'
+                  language === "en" ? "bg-surface-3 text-strong" : "text-muted hover:text-strong"
                 }`}
-                aria-pressed={language === 'en'}
+                aria-pressed={language === "en"}
               >
                 EN
               </button>
@@ -330,7 +324,7 @@ export default function Home() {
 
       <main className={mainClass}>
         <AnimatePresence mode="wait">
-          {view === 'menu' && (
+          {view === "menu" && (
             <motion.div
               key="menu"
               initial={{ opacity: 0 }}
@@ -341,21 +335,21 @@ export default function Home() {
               <div className="bg-surface border border-subtle rounded-3xl p-6 shadow-card space-y-3">
                 <Button
                   onClick={() => {
-                    setFavoritesOnly(false)
-                    setView('games')
+                    setFavoritesOnly(false);
+                    setView("games");
                   }}
                   fullWidth
                   size="lg"
                 >
                   <span className="inline-flex items-center justify-center gap-2">
                     <FaListUl className="text-base" />
-                    {t(language, 'chooseExercise')}
+                    {t(language, "chooseExercise")}
                   </span>
                 </Button>
                 <Button
                   onClick={() => {
-                    setFavoritesOnly(true)
-                    setView('games')
+                    setFavoritesOnly(true);
+                    setView("games");
                   }}
                   variant="secondary"
                   fullWidth
@@ -363,55 +357,52 @@ export default function Home() {
                 >
                   <span className="inline-flex items-center justify-center gap-2">
                     <FaStar className="text-base" />
-                    {t(language, 'favorites')}
+                    {t(language, "favorites")}
                   </span>
                 </Button>
-                <Button onClick={() => setView('random')} variant="secondary" fullWidth size="lg">
+                <Button onClick={() => setView("random")} variant="secondary" fullWidth size="lg">
                   <span className="inline-flex items-center justify-center gap-2">
                     <FaDice className="text-base" />
-                    {t(language, 'randomMode')}
+                    {t(language, "randomMode")}
                   </span>
                 </Button>
-                <Button onClick={() => setView('stats')} variant="ghost" fullWidth>
+                <Button onClick={() => setView("stats")} variant="ghost" fullWidth>
                   <span className="inline-flex items-center justify-center gap-2">
                     <FaChartBar className="text-base" />
-                    {t(language, 'stats')}
+                    {t(language, "stats")}
                   </span>
                 </Button>
                 <Button onClick={() => setShowSettings(true)} variant="ghost" fullWidth>
                   <span className="inline-flex items-center justify-center gap-2">
                     <FaCog className="text-base" />
-                    {t(language, 'settings')}
+                    {t(language, "settings")}
                   </span>
                 </Button>
-                <div className="text-center text-xs text-soft pt-2 hidden sm:block">
-                  {t(language, 'hotkeys')}
-                </div>
+                <div className="text-center text-xs text-soft pt-2 hidden sm:block">{t(language, "hotkeys")}</div>
               </div>
 
               {stats.totalGames > 0 && (
                 <Card className="mt-8 shadow-card">
                   <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <div className="text-2xl font-mono font-bold">{stats.totalScore.toLocaleString()}</div>
-                    <div className="text-xs text-muted">{t(language, 'totalScore')}</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-mono font-bold">{stats.totalGames}</div>
-                    <div className="text-xs text-muted">{t(language, 'games')}</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-mono font-bold">{bestStreak}</div>
-                    <div className="text-xs text-muted">{t(language, 'bestStreak')}</div>
-                  </div>
+                    <div>
+                      <div className="text-2xl font-mono font-bold">{stats.totalScore.toLocaleString()}</div>
+                      <div className="text-xs text-muted">{t(language, "totalScore")}</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-mono font-bold">{stats.totalGames}</div>
+                      <div className="text-xs text-muted">{t(language, "games")}</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-mono font-bold">{bestStreak}</div>
+                      <div className="text-xs text-muted">{t(language, "bestStreak")}</div>
+                    </div>
                   </div>
                 </Card>
               )}
-
             </motion.div>
           )}
 
-          {view === 'games' && (
+          {view === "games" && (
             <motion.div
               key="games"
               initial={{ opacity: 0 }}
@@ -420,46 +411,40 @@ export default function Home() {
               className="space-y-4 w-full max-w-4xl"
             >
               <div className="flex flex-wrap items-center gap-3 mb-6">
-                <button onClick={() => setView('menu')} className="p-2 -ml-2 text-muted hover:text-strong">
+                <button onClick={() => setView("menu")} className="p-2 -ml-2 text-muted hover:text-strong">
                   <FaArrowLeft />
                 </button>
                 <h2 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight flex-1">
-                  {t(language, 'chooseExerciseTitle')}
+                  {t(language, "chooseExerciseTitle")}
                 </h2>
                 <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
                   <button
                     onClick={() => setFavoritesOnly(!favoritesOnly)}
                     className={`w-9 h-9 rounded-xl border border-subtle flex items-center justify-center ${
-                      favoritesOnly
-                        ? 'bg-surface-3 text-strong'
-                        : 'bg-surface-2 text-muted hover:text-strong'
+                      favoritesOnly ? "bg-surface-3 text-strong" : "bg-surface-2 text-muted hover:text-strong"
                     }`}
                     aria-pressed={favoritesOnly}
-                    title={t(language, 'favorites')}
+                    title={t(language, "favorites")}
                   >
                     {favoritesOnly ? <FaStar /> : <FaRegStar />}
                   </button>
                   <button
-                    onClick={() => setGamesView('list')}
+                    onClick={() => setGamesView("list")}
                     className={`w-9 h-9 rounded-xl border border-subtle flex items-center justify-center ${
-                      gamesView === 'list'
-                        ? 'bg-surface-3 text-strong'
-                        : 'bg-surface-2 text-muted hover:text-strong'
+                      gamesView === "list" ? "bg-surface-3 text-strong" : "bg-surface-2 text-muted hover:text-strong"
                     }`}
-                    aria-pressed={gamesView === 'list'}
-                    title={t(language, 'listView')}
+                    aria-pressed={gamesView === "list"}
+                    title={t(language, "listView")}
                   >
                     <FaBars />
                   </button>
                   <button
-                    onClick={() => setGamesView('grid')}
+                    onClick={() => setGamesView("grid")}
                     className={`w-9 h-9 rounded-xl border border-subtle flex items-center justify-center ${
-                      gamesView === 'grid'
-                        ? 'bg-surface-3 text-strong'
-                        : 'bg-surface-2 text-muted hover:text-strong'
+                      gamesView === "grid" ? "bg-surface-3 text-strong" : "bg-surface-2 text-muted hover:text-strong"
                     }`}
-                    aria-pressed={gamesView === 'grid'}
-                    title={t(language, 'gridView')}
+                    aria-pressed={gamesView === "grid"}
+                    title={t(language, "gridView")}
                   >
                     <FaThLarge />
                   </button>
@@ -473,15 +458,12 @@ export default function Home() {
                     value={gameSearch}
                     onChange={(event) => setGameSearch(event.target.value)}
                     className="flex-1 bg-transparent text-sm text-strong placeholder:text-soft focus:outline-none"
-                    placeholder={t(language, 'searchPlaceholder')}
-                    aria-label={t(language, 'searchLabel')}
+                    placeholder={t(language, "searchPlaceholder")}
+                    aria-label={t(language, "searchLabel")}
                   />
                   {gameSearch.length > 0 && (
-                    <button
-                      onClick={() => setGameSearch('')}
-                      className="text-xs text-muted hover:text-strong"
-                    >
-                      {t(language, 'clear')}
+                    <button onClick={() => setGameSearch("")} className="text-xs text-muted hover:text-strong">
+                      {t(language, "clear")}
                     </button>
                   )}
                 </div>
@@ -493,8 +475,8 @@ export default function Home() {
                       onClick={() => setActiveTag(tag.id)}
                       className={`px-3 py-1 rounded-full border text-xs whitespace-nowrap ${
                         activeTag === tag.id
-                          ? 'bg-surface-3 text-strong border-subtle'
-                          : 'bg-surface-2 text-muted border-subtle hover:text-strong'
+                          ? "bg-surface-3 text-strong border-subtle"
+                          : "bg-surface-2 text-muted border-subtle hover:text-strong"
                       }`}
                       aria-pressed={activeTag === tag.id}
                     >
@@ -504,16 +486,16 @@ export default function Home() {
                 </div>
 
                 <div className="flex items-center justify-between gap-3">
-                  <div className="text-xs text-soft">{t(language, 'sort')}</div>
+                  <div className="text-xs text-soft">{t(language, "sort")}</div>
                   <select
                     value={sortMode}
                     onChange={(event) => setSortMode(event.target.value as typeof sortMode)}
                     className="text-xs bg-surface-2 border border-subtle rounded-full px-3 py-1 text-strong"
-                    aria-label={t(language, 'sort')}
+                    aria-label={t(language, "sort")}
                   >
-                    <option value="default">{t(language, 'sortDefault')}</option>
-                    <option value="name">{t(language, 'sortName')}</option>
-                    <option value="played">{t(language, 'sortPlayed')}</option>
+                    <option value="default">{t(language, "sortDefault")}</option>
+                    <option value="name">{t(language, "sortName")}</option>
+                    <option value="played">{t(language, "sortPlayed")}</option>
                   </select>
                 </div>
               </div>
@@ -521,33 +503,31 @@ export default function Home() {
               {showFavoritesSection && (
                 <div className="space-y-3">
                   <h3 className="text-lg font-display font-semibold tracking-tight text-strong">
-                    {t(language, 'favorites')}
+                    {t(language, "favorites")}
                   </h3>
-                  <div className={isGrid ? 'grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3' : 'grid gap-3'}>
+                  <div className={isGrid ? "grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3" : "grid gap-3"}>
                     {sortedFavoriteIds.map(renderGameCard)}
                   </div>
                 </div>
               )}
 
-              <div className={isGrid ? 'grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3' : 'grid gap-3'}>
+              <div className={isGrid ? "grid gap-3 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3" : "grid gap-3"}>
                 {displayGameIds.map(renderGameCard)}
               </div>
 
               {filteredGameIds.length === 0 && (
-                <div className="text-center text-sm text-muted py-8">
-                  {t(language, 'noResults')}
-                </div>
+                <div className="text-center text-sm text-muted py-8">{t(language, "noResults")}</div>
               )}
             </motion.div>
           )}
 
-          {view === 'random' && (
+          {view === "random" && (
             <div className="w-full max-w-4xl">
-              <RandomMode onBack={() => setView('menu')} />
+              <RandomMode onBack={() => setView("menu")} />
             </div>
           )}
 
-          {view === 'stats' && (
+          {view === "stats" && (
             <motion.div
               key="stats"
               initial={{ opacity: 0 }}
@@ -556,11 +536,11 @@ export default function Home() {
               className="space-y-4 w-full max-w-4xl"
             >
               <div className="flex items-center gap-4 mb-6">
-                <button onClick={() => setView('menu')} className="p-2 -ml-2 text-muted hover:text-strong">
+                <button onClick={() => setView("menu")} className="p-2 -ml-2 text-muted hover:text-strong">
                   <FaArrowLeft />
                 </button>
                 <h2 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight">
-                  {t(language, 'statsTitle')}
+                  {t(language, "statsTitle")}
                 </h2>
               </div>
 
@@ -568,40 +548,47 @@ export default function Home() {
                 <div className="grid grid-cols-2 gap-6">
                   <div className="text-center">
                     <div className="text-3xl font-mono font-bold">{stats.totalScore.toLocaleString()}</div>
-                    <div className="text-sm text-muted">{t(language, 'totalScore')}</div>
+                    <div className="text-sm text-muted">{t(language, "totalScore")}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-mono font-bold">{stats.totalGames}</div>
-                    <div className="text-sm text-muted">{t(language, 'gamesPlayed')}</div>
+                    <div className="text-sm text-muted">{t(language, "gamesPlayed")}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-mono font-bold">{bestStreak}</div>
-                    <div className="text-sm text-muted">{t(language, 'bestStreak')}</div>
+                    <div className="text-sm text-muted">{t(language, "bestStreak")}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-mono font-bold">
-                      {Object.values(stats.accuracy).length > 0 
-                        ? Math.round(Object.values(stats.accuracy).reduce((a, b) => a + b, 0) / Object.values(stats.accuracy).length)
-                        : 0}%
+                      {Object.values(stats.accuracy).length > 0
+                        ? Math.round(
+                            Object.values(stats.accuracy).reduce((a, b) => a + b, 0) /
+                              Object.values(stats.accuracy).length,
+                          )
+                        : 0}
+                      %
                     </div>
-                    <div className="text-sm text-muted">{t(language, 'averageAccuracy')}</div>
+                    <div className="text-sm text-muted">{t(language, "averageAccuracy")}</div>
                   </div>
                 </div>
               </Card>
 
               <h3 className="text-lg font-display font-semibold tracking-tight mt-6 mb-3 text-strong">
-                {t(language, 'byGames')}
+                {t(language, "byGames")}
               </h3>
               <div className="space-y-2">
                 {GAME_ORDER.map((id) => {
-                  const game = GAMES[id]
-                  const played = stats.gamesPlayed[id] || 0
-                  const accuracy = stats.accuracy[id] || 0
-                  const GameIcon = game.icon
-                  const gameLabel = getGameLabel(id, language)
+                  const game = GAMES[id];
+                  const played = stats.gamesPlayed[id] || 0;
+                  const accuracy = stats.accuracy[id] || 0;
+                  const GameIcon = game.icon;
+                  const gameLabel = getGameLabel(id, language);
 
                   return (
-                    <div key={id} className="flex items-center gap-3 p-3 bg-surface border border-subtle rounded-lg shadow-card">
+                    <div
+                      key={id}
+                      className="flex items-center gap-3 p-3 bg-surface border border-subtle rounded-lg shadow-card"
+                    >
                       <span className="w-9 h-9 rounded-xl bg-surface border border-subtle flex items-center justify-center text-accent">
                         <GameIcon className="text-lg" />
                       </span>
@@ -613,21 +600,21 @@ export default function Home() {
                         <div className="text-xs text-soft">{Math.round(accuracy)}%</div>
                       </div>
                     </div>
-                  )
+                  );
                 })}
               </div>
 
               <div className="pt-6">
-                <Button 
+                <Button
                   onClick={() => {
-                    if (confirm(t(language, 'resetStatsConfirm'))) {
-                      resetAll()
+                    if (confirm(t(language, "resetStatsConfirm"))) {
+                      resetAll();
                     }
                   }}
                   variant="danger"
                   fullWidth
                 >
-                  {t(language, 'resetStats')}
+                  {t(language, "resetStats")}
                 </Button>
               </div>
             </motion.div>
@@ -638,40 +625,40 @@ export default function Home() {
       <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-subtle bg-[color:var(--surface-1-80)] backdrop-blur sm:hidden">
         <div className="grid grid-cols-4 gap-1 px-2 py-2">
           <button
-            onClick={() => setView('menu')}
+            onClick={() => setView("menu")}
             className={`flex flex-col items-center gap-1 py-2 rounded-xl text-xs ${
-              view === 'menu' ? 'bg-surface-3 text-strong' : 'text-muted'
+              view === "menu" ? "bg-surface-3 text-strong" : "text-muted"
             }`}
           >
             <FaHome className="text-base" />
-            {t(language, 'home')}
+            {t(language, "home")}
           </button>
           <button
-            onClick={() => setView('games')}
+            onClick={() => setView("games")}
             className={`flex flex-col items-center gap-1 py-2 rounded-xl text-xs ${
-              view === 'games' ? 'bg-surface-3 text-strong' : 'text-muted'
+              view === "games" ? "bg-surface-3 text-strong" : "text-muted"
             }`}
           >
             <FaListUl className="text-base" />
-            {t(language, 'gamesNav')}
+            {t(language, "gamesNav")}
           </button>
           <button
-            onClick={() => setView('random')}
+            onClick={() => setView("random")}
             className={`flex flex-col items-center gap-1 py-2 rounded-xl text-xs ${
-              view === 'random' ? 'bg-surface-3 text-strong' : 'text-muted'
+              view === "random" ? "bg-surface-3 text-strong" : "text-muted"
             }`}
           >
             <FaDice className="text-base" />
-            {t(language, 'randomNav')}
+            {t(language, "randomNav")}
           </button>
           <button
-            onClick={() => setView('stats')}
+            onClick={() => setView("stats")}
             className={`flex flex-col items-center gap-1 py-2 rounded-xl text-xs ${
-              view === 'stats' ? 'bg-surface-3 text-strong' : 'text-muted'
+              view === "stats" ? "bg-surface-3 text-strong" : "text-muted"
             }`}
           >
             <FaChartBar className="text-base" />
-            {t(language, 'stats')}
+            {t(language, "stats")}
           </button>
         </div>
       </nav>
@@ -679,75 +666,75 @@ export default function Home() {
       {showCustomModal && (
         <CustomQuestionsModal
           onClose={() => {
-            setShowCustomModal(false)
-            setCustomModalGame(null)
+            setShowCustomModal(false);
+            setCustomModalGame(null);
           }}
           initialGameId={customModalGame ?? undefined}
         />
       )}
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
     </div>
-  )
+  );
 }
 
 type DifficultyCounts = {
-  easy: number
-  medium: number
-  hard: number
-  expert: number
-  unknown: number
-  total: number
-}
+  easy: number;
+  medium: number;
+  hard: number;
+  expert: number;
+  unknown: number;
+  total: number;
+};
 
 const countDifficulties = (items: { difficulty?: string }[]): DifficultyCounts => {
   return items.reduce(
     (acc, item) => {
-      const diff = item.difficulty || 'unknown'
-      if (diff === 'easy') acc.easy += 1
-      else if (diff === 'medium') acc.medium += 1
-      else if (diff === 'hard') acc.hard += 1
-      else if (diff === 'expert') acc.expert += 1
-      else acc.unknown += 1
-      acc.total += 1
-      return acc
+      const diff = item.difficulty || "unknown";
+      if (diff === "easy") acc.easy += 1;
+      else if (diff === "medium") acc.medium += 1;
+      else if (diff === "hard") acc.hard += 1;
+      else if (diff === "expert") acc.expert += 1;
+      else acc.unknown += 1;
+      acc.total += 1;
+      return acc;
     },
     { easy: 0, medium: 0, hard: 0, expert: 0, unknown: 0, total: 0 },
-  )
-}
+  );
+};
 
 function RandomMode({ onBack }: { onBack: () => void }) {
-  const router = useRouter()
-  const [queue, setQueue] = useState<GameId[]>([])
-  const currentIndex = 0
-  const { language, longTestLength } = useGameStore()
+  const router = useRouter();
+  const [queue, setQueue] = useState<GameId[]>([]);
+  const currentIndex = 0;
+  const { language, longTestLength } = useGameStore();
 
   const reroll = () => {
-    setQueue(shuffle([...GAME_ORDER]))
-  }
+    setQueue(shuffle([...GAME_ORDER]));
+  };
 
   useEffect(() => {
-    reroll()
-  }, [])
+    reroll();
+  }, []);
 
   useKeyboard(
     {
       r: reroll,
     },
     true,
-  )
+  );
 
   if (queue.length === 0) {
-    return <div className="text-muted">{t(language, 'loading')}</div>
+    return <div className="text-muted">{t(language, "loading")}</div>;
   }
 
-  const currentGame = queue[currentIndex]
-  const CurrentIcon = GAMES[currentGame].icon
-  const currentLabel = getGameLabel(currentGame, language)
-  const nextQueue = queue.slice(currentIndex + 1)
+  const currentGame = queue[currentIndex];
+  const CurrentIcon = GAMES[currentGame].icon;
+  const currentLabel = getGameLabel(currentGame, language);
+  const nextQueue = queue.slice(currentIndex + 1);
   const handleStart = () => {
-    const nextParam = nextQueue.length > 0 ? `?next=${encodeURIComponent(JSON.stringify(nextQueue))}` : ''
-    router.push(`/game/${currentGame}${nextParam}`)
-  }
+    const nextParam = nextQueue.length > 0 ? `?next=${encodeURIComponent(JSON.stringify(nextQueue))}` : "";
+    router.push(`/game/${currentGame}${nextParam}`);
+  };
 
   return (
     <motion.div
@@ -761,14 +748,14 @@ function RandomMode({ onBack }: { onBack: () => void }) {
           <FaArrowLeft />
         </button>
         <h2 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight text-center">
-          {t(language, 'randomModeTitle')}
+          {t(language, "randomModeTitle")}
         </h2>
         <div className="w-8" />
       </div>
 
       <div className="text-center bg-surface border border-subtle rounded-3xl p-6 space-y-3 shadow-card">
         <div className="text-xs text-muted uppercase tracking-[0.2em]">
-          {t(language, 'gameOf', { current: currentIndex + 1, total: queue.length })}
+          {t(language, "gameOf", { current: currentIndex + 1, total: queue.length })}
         </div>
         <div className="text-5xl text-accent">
           <CurrentIcon />
@@ -777,27 +764,27 @@ function RandomMode({ onBack }: { onBack: () => void }) {
       </div>
 
       <div className="text-center bg-surface border border-subtle rounded-3xl p-6 space-y-4 shadow-card">
-        <div className="text-xs text-muted uppercase tracking-[0.2em]">{t(language, 'longTest')}</div>
-        <div className="text-lg font-medium">{t(language, 'longTestDescription')}</div>
+        <div className="text-xs text-muted uppercase tracking-[0.2em]">{t(language, "longTest")}</div>
+        <div className="text-lg font-medium">{t(language, "longTestDescription")}</div>
         <div className="text-xs text-soft">
-          {t(language, 'questionCount')}: {longTestLength}
+          {t(language, "questionCount")}: {longTestLength}
         </div>
-        <Button onClick={() => router.push('/game/long-test')} fullWidth>
+        <Button onClick={() => router.push("/game/long-test")} fullWidth>
           <span className="inline-flex items-center justify-center gap-2">
             <FaPlay className="text-base" />
-            {t(language, 'start')}
+            {t(language, "start")}
           </span>
         </Button>
       </div>
 
       <div className="grid grid-cols-2 gap-3 max-w-md mx-auto w-full">
         <Button onClick={onBack} variant="ghost" fullWidth>
-          {t(language, 'cancel')}
+          {t(language, "cancel")}
         </Button>
         <Button onClick={handleStart} fullWidth>
           <span className="inline-flex items-center justify-center gap-2">
             <FaPlay className="text-base" />
-            {t(language, 'start')}
+            {t(language, "start")}
           </span>
         </Button>
       </div>
@@ -805,7 +792,7 @@ function RandomMode({ onBack }: { onBack: () => void }) {
       <Button onClick={reroll} variant="secondary" fullWidth hotkey="R">
         <span className="inline-flex items-center justify-center gap-2">
           <FaSyncAlt className="text-base" />
-          {t(language, 'reroll')}
+          {t(language, "reroll")}
         </span>
       </Button>
 
@@ -813,10 +800,10 @@ function RandomMode({ onBack }: { onBack: () => void }) {
         {queue.map((_, i) => (
           <div
             key={i}
-            className={`w-2 h-2 rounded-full ${i === currentIndex ? 'bg-[color:var(--accent)]' : 'bg-surface-3'}`}
+            className={`w-2 h-2 rounded-full ${i === currentIndex ? "bg-[color:var(--accent)]" : "bg-surface-3"}`}
           />
         ))}
       </div>
     </motion.div>
-  )
+  );
 }

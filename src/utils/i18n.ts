@@ -21,6 +21,11 @@ const UI: Record<Language, Record<string, UiValue>> = {
     randomModeTitle: "Случайный режим",
     reroll: "Перемешать",
     settings: "Настройки",
+    gameOrganization: "Игры",
+    gameOrder: "Порядок",
+    gameTags: "Теги",
+    moveUp: "Вверх",
+    moveDown: "Вниз",
     longTest: "Длинный тест",
     longTestDescription: "Случайные вопросы из разных игр",
     stats: "Статистика",
@@ -59,8 +64,10 @@ const UI: Record<Language, Record<string, UiValue>> = {
     nextGame: ({ name }) => `Далее: ${name}`,
     mistakesCount: ({ count, label }) => `${count} ${label}`,
     mistakesLabel: ({ count }) => {
-      if (count % 10 === 1 && count % 100 !== 11) return "ошибка";
-      if (count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 10 || count % 100 >= 20)) return "ошибки";
+      const value = typeof count === "number" ? count : Number(count);
+      if (!Number.isFinite(value)) return "ошибок";
+      if (value % 10 === 1 && value % 100 !== 11) return "ошибка";
+      if (value % 10 >= 2 && value % 10 <= 4 && (value % 100 < 10 || value % 100 >= 20)) return "ошибки";
       return "ошибок";
     },
     exit: "Выйти",
@@ -192,6 +199,11 @@ const UI: Record<Language, Record<string, UiValue>> = {
     randomModeTitle: "Random mode",
     reroll: "Reroll",
     settings: "Settings",
+    gameOrganization: "Games",
+    gameOrder: "Order",
+    gameTags: "Tags",
+    moveUp: "Up",
+    moveDown: "Down",
     longTest: "Long test",
     longTestDescription: "Random questions from multiple games",
     stats: "Stats",

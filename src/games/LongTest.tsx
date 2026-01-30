@@ -17,33 +17,33 @@ import { ImageQuizOption, ImageQuizSource, IMAGE_QUIZ_DATA } from "@/utils/image
 import { Language, LocalizedText, localize, t } from "@/utils/i18n";
 import { QUIZ_QUESTIONS } from "@/games/Quiz";
 
+type LongTestOption = Omit<ImageQuizOption, "label"> & { label?: string };
+type LongTestImageSource = Omit<ImageQuizSource, "label"> & { label: string };
+
 interface LongTestQuestion {
   id: string;
   sourceGameId: GameId;
   prompt: string;
   helper?: string;
   explanation: string;
-  options: ImageQuizOption[];
+  options: LongTestOption[];
   correctIndex: number;
   difficulty?: Difficulty;
   imageSrc?: string;
   imageAlt?: string;
-  imageSource?: ImageQuizSource;
+  imageSource?: LongTestImageSource;
   imageContainerClass?: string;
   imageFrameClass?: string;
   imageClass?: string;
 }
 
-interface LongTestChallenge extends LongTestQuestion {
-  options: ImageQuizOption[];
-  correctIndex: number;
-}
+type LongTestChallenge = LongTestQuestion;
 
 const buildLongTestPool = (language: Language): LongTestQuestion[] => {
   const resolveText = (value: string | LocalizedText): string =>
     typeof value === "string" ? value : localize(value, language);
 
-  const quizQuestions = QUIZ_QUESTIONS.map((question, index) => ({
+  const quizQuestions: LongTestQuestion[] = QUIZ_QUESTIONS.map((question, index) => ({
     id: `quiz-${index}`,
     sourceGameId: "quiz",
     prompt: localize(question.question, language),
@@ -54,7 +54,7 @@ const buildLongTestPool = (language: Language): LongTestQuestion[] => {
     difficulty: question.difficulty,
   }));
 
-  const imageQuestions = Object.entries(IMAGE_QUIZ_DATA).flatMap(([gameId, questions]) =>
+  const imageQuestions: LongTestQuestion[] = Object.entries(IMAGE_QUIZ_DATA).flatMap(([gameId, questions]) =>
     questions.map((question) => ({
       id: `${gameId}-${question.id}`,
       sourceGameId: gameId as GameId,
@@ -63,7 +63,7 @@ const buildLongTestPool = (language: Language): LongTestQuestion[] => {
       explanation: resolveText(question.explanation),
       options: question.options.map((option) => ({
         ...option,
-        label: option.label ? resolveText(option.label) : option.label,
+        label: option.label ? resolveText(option.label) : undefined,
       })),
       correctIndex: question.correctIndex,
       difficulty: question.difficulty,
@@ -81,7 +81,7 @@ const buildLongTestPool = (language: Language): LongTestQuestion[] => {
   return [...quizQuestions, ...imageQuestions];
 };
 
-const renderOption = (option: ImageQuizOption) => {
+const renderOption = (option: LongTestOption) => {
   if (option.palette && option.palette.length > 0) {
     return (
       <div className="flex flex-col items-center gap-2">
@@ -119,7 +119,7 @@ const renderOption = (option: ImageQuizOption) => {
 
 const fallbackOptionLabels: Record<Language, string> = { ru: "Вариант", en: "Option" };
 
-const formatOptionLabel = (option: ImageQuizOption, language: Language): string => {
+const formatOptionLabel = (option: LongTestOption, language: Language): string => {
   if (option.label) return option.label;
   if (option.color) return option.color;
   if (option.palette) return option.palette.join(", ");
