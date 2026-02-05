@@ -1,6 +1,6 @@
 {
-  "name": "Awful-Exercises Alpha",
-  "short_name": "Awful-Exercises Alpha",
+  "name": "Awful Exercises",
+  "short_name": "Awful Exercises",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
