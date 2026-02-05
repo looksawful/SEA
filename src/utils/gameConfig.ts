@@ -1,13 +1,14 @@
 import { GameConfig, GameId } from "@/types";
 import {
   FaAdjust,
+  FaBold,
   FaBug,
   FaCamera,
   FaCircleNotch,
   FaCrop,
   FaDice,
-  FaExpand,
   FaExclamationTriangle,
+  FaExpand,
   FaEye,
   FaEyeDropper,
   FaFilm,
@@ -15,9 +16,8 @@ import {
   FaHandPointer,
   FaHashtag,
   FaImage,
-  FaBold,
-  FaPalette,
   FaPaintBrush,
+  FaPalette,
   FaQuestionCircle,
   FaRulerCombined,
   FaShapes,
@@ -25,16 +25,16 @@ import {
   FaSun,
   FaSwatchbook,
   FaTemperatureHigh,
-  FaThLarge,
   FaTextHeight,
+  FaThLarge,
   FaUniversalAccess,
 } from "react-icons/fa";
 
 export const GAMES: Record<GameId, GameConfig> = {
   "color-compare": {
     id: "color-compare",
-    name: "Сравни цвета",
-    description: "Определи, какой цвет ярче, темнее или насыщеннее",
+    name: "Сравнить цвета",
+    description: "Определить, какой цвет ярче, темнее или насыщеннее",
     tags: ["color", "design"],
     icon: FaAdjust,
     timeLimit: 45,
@@ -43,7 +43,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "font-size": {
     id: "font-size",
     name: "Размер шрифта",
-    description: "Угадай размер шрифта в пикселях",
+    description: "Угадать размер шрифта в пикселях",
     tags: ["typography", "interface"],
     icon: FaTextHeight,
     timeLimit: 45,
@@ -52,7 +52,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "font-weight": {
     id: "font-weight",
     name: "Толщина шрифта",
-    description: "Выбери самый лёгкий или самый жирный вес",
+    description: "Выбрать самый лёгкий или самый жирный вес",
     tags: ["typography", "interface"],
     icon: FaBold,
     timeLimit: 45,
@@ -60,8 +60,8 @@ export const GAMES: Record<GameId, GameConfig> = {
   },
   "guess-font": {
     id: "guess-font",
-    name: "Угадай шрифт",
-    description: "Определи название шрифта",
+    name: "Угадать шрифт",
+    description: "Определить название шрифта",
     tags: ["typography", "design"],
     icon: FaFont,
     timeLimit: 60,
@@ -70,7 +70,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "color-params": {
     id: "color-params",
     name: "Параметры цвета",
-    description: "Сравни HSL параметры цветов",
+    description: "Сравнить HSL параметры цветов",
     tags: ["color", "design"],
     icon: FaSlidersH,
     timeLimit: 45,
@@ -79,7 +79,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "color-temperature": {
     id: "color-temperature",
     name: "Температура цвета",
-    description: "Определи тёплый или холодный оттенок",
+    description: "Определить тёплый или холодный оттенок",
     tags: ["color", "design"],
     icon: FaTemperatureHigh,
     timeLimit: 45,
@@ -88,7 +88,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   accessibility: {
     id: "accessibility",
     name: "Доступность",
-    description: "Определи читаемость текста по WCAG",
+    description: "Определить читаемость текста по WCAG",
     tags: ["accessibility", "interface"],
     icon: FaUniversalAccess,
     timeLimit: 45,
@@ -97,7 +97,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "palette-error": {
     id: "palette-error",
     name: "Ошибка в палитре",
-    description: "Найди цвет, который выбивается из палитры",
+    description: "Найти цвет, который выбивается из палитры",
     tags: ["color", "design"],
     icon: FaSwatchbook,
     timeLimit: 45,
@@ -106,7 +106,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "size-sequence": {
     id: "size-sequence",
     name: "Типографская шкала",
-    description: "Найди ошибку в последовательности размеров",
+    description: "Найти ошибку в последовательности размеров",
     tags: ["typography", "layout"],
     icon: FaRulerCombined,
     timeLimit: 45,
@@ -115,7 +115,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   complementary: {
     id: "complementary",
     name: "Дополнительный цвет",
-    description: "Выбери комплементарный или split-комплемент",
+    description: "Выбрать комплементарный или split-комплемент",
     tags: ["color", "theory"],
     icon: FaPalette,
     timeLimit: 45,
@@ -123,8 +123,8 @@ export const GAMES: Record<GameId, GameConfig> = {
   },
   "guess-hex": {
     id: "guess-hex",
-    name: "Угадай HEX",
-    description: "Определи HEX-код цвета",
+    name: "Угадать HEX",
+    description: "Определить HEX-код цвета",
     tags: ["color", "theory"],
     icon: FaHashtag,
     timeLimit: 60,
@@ -132,8 +132,8 @@ export const GAMES: Record<GameId, GameConfig> = {
   },
   "guess-params": {
     id: "guess-params",
-    name: "Угадай HSL",
-    description: "Определи параметры H, S, L цвета",
+    name: "Угадать HSL",
+    description: "Определить параметры H, S, L цвета",
     tags: ["color", "theory"],
     icon: FaEyeDropper,
     timeLimit: 60,
@@ -151,7 +151,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "theme-analog": {
     id: "theme-analog",
     name: "Тёмная/Светлая тема",
-    description: "Подбери аналог цвета для другой темы",
+    description: "Подобрать аналог цвета для другой темы",
     tags: ["color", "interface"],
     icon: FaSun,
     timeLimit: 45,
@@ -159,8 +159,8 @@ export const GAMES: Record<GameId, GameConfig> = {
   },
   "artist-guess": {
     id: "artist-guess",
-    name: "Угадай художника",
-    description: "Определи автора по изображению",
+    name: "Угадать художника",
+    description: "Определить автора по изображению",
     tags: ["photo", "design"],
     icon: FaPaintBrush,
     timeLimit: 60,
@@ -168,8 +168,8 @@ export const GAMES: Record<GameId, GameConfig> = {
   },
   "style-guess": {
     id: "style-guess",
-    name: "Угадай стиль",
-    description: "Определи художественный стиль",
+    name: "Угадать стиль",
+    description: "Определить художественный стиль",
     tags: ["photo", "design"],
     icon: FaShapes,
     timeLimit: 60,
@@ -178,7 +178,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "image-size": {
     id: "image-size",
     name: "Размер изображения",
-    description: "Оцени размер кадра на глаз",
+    description: "Оценить размер кадра на глаз",
     tags: ["photo", "interface"],
     icon: FaExpand,
     timeLimit: 60,
@@ -187,7 +187,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "image-format": {
     id: "image-format",
     name: "Формат кадра",
-    description: "Определи формат изображения",
+    description: "Определить формат изображения",
     tags: ["photo", "layout"],
     icon: FaCrop,
     timeLimit: 60,
@@ -195,9 +195,9 @@ export const GAMES: Record<GameId, GameConfig> = {
   },
   "color-eye": {
     id: "color-eye",
-    name: "Цвет на глаз",
-    description: "Подбери оттенок по фото",
-    tags: ["color", "photo"],
+    name: "Цвет по образцу",
+    description: "Подобрать оттенок по образцу",
+    tags: ["color", "theory"],
     icon: FaEye,
     timeLimit: 60,
     pointsPerCorrect: 130,
@@ -205,7 +205,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "color-wheel": {
     id: "color-wheel",
     name: "Цветовой круг",
-    description: "Найди комплементарный или аналоговый цвет",
+    description: "Найти комплементарный или аналоговый цвет",
     tags: ["color", "theory"],
     icon: FaCircleNotch,
     timeLimit: 60,
@@ -213,8 +213,8 @@ export const GAMES: Record<GameId, GameConfig> = {
   },
   "film-type": {
     id: "film-type",
-    name: "Тип плёнки",
-    description: "Определи плёнку по характеру кадра",
+    name: "Профиль плёнки",
+    description: "Определить профиль по карте цветов",
     tags: ["photo", "theory"],
     icon: FaFilm,
     timeLimit: 60,
@@ -223,7 +223,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "composition-technique": {
     id: "composition-technique",
     name: "Композиция",
-    description: "Узнай композиционный приём",
+    description: "Определить приём по схеме",
     tags: ["photo", "layout"],
     icon: FaThLarge,
     timeLimit: 60,
@@ -232,7 +232,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "focal-length": {
     id: "focal-length",
     name: "Фокусное расстояние",
-    description: "Определи фокус по фото",
+    description: "Определить фокус по углу обзора",
     tags: ["photo", "theory"],
     icon: FaCamera,
     timeLimit: 60,
@@ -241,7 +241,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "wcag-issue": {
     id: "wcag-issue",
     name: "Проблема WCAG",
-    description: "Найди ошибку доступности в макете",
+    description: "Найти ошибку доступности в макете",
     tags: ["accessibility", "interface"],
     icon: FaExclamationTriangle,
     timeLimit: 60,
@@ -250,7 +250,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "button-color": {
     id: "button-color",
     name: "Цвет кнопки",
-    description: "Подбери контрастный цвет кнопки",
+    description: "Подобрать контрастный цвет кнопки",
     tags: ["interface", "color"],
     icon: FaHandPointer,
     timeLimit: 60,
@@ -259,7 +259,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "font-size-choice": {
     id: "font-size-choice",
     name: "Размер шрифта UI",
-    description: "Подбери размер текста для интерфейса",
+    description: "Подобрать размер текста для интерфейса",
     tags: ["interface", "typography"],
     icon: FaTextHeight,
     timeLimit: 60,
@@ -268,7 +268,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   "layout-error": {
     id: "layout-error",
     name: "Ошибка вёрстки",
-    description: "Найди проблемное место в макете",
+    description: "Найти проблемное место в макете",
     tags: ["layout", "interface"],
     icon: FaBug,
     timeLimit: 60,
@@ -276,9 +276,9 @@ export const GAMES: Record<GameId, GameConfig> = {
   },
   "palette-from-photo": {
     id: "palette-from-photo",
-    name: "Палитра из фото",
-    description: "Выбери подходящую палитру",
-    tags: ["color", "photo"],
+    name: "Палитра по образцу",
+    description: "Выбрать совпадающую палитру",
+    tags: ["color", "design"],
     icon: FaImage,
     timeLimit: 60,
     pointsPerCorrect: 140,

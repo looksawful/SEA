@@ -40,6 +40,7 @@ export const FONT_SIZE_CLASSES: Record<number, string> = {
   36: 'text-[36px]',
   40: 'text-[40px]',
   48: 'text-[48px]',
+  52: 'text-[52px]',
   56: 'text-[56px]',
   60: 'text-[60px]',
   64: 'text-[64px]',

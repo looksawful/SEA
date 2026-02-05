@@ -5,8 +5,8 @@ import { useNumberKeys } from "@/hooks/useKeyboard";
 import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
 import { useGameStore } from "@/store/gameStore";
-import { pickRandom, shuffle } from "@/utils/helpers";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
+import { pickRandom, shuffle } from "@/utils/helpers";
 import { Language, LocalizedText, localize, t } from "@/utils/i18n";
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
@@ -24,7 +24,10 @@ const text = (ru: string, en: string): LocalizedText => ({ ru, en });
 
 export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
-    question: text("Какой контраст минимально необходим для WCAG AA?", "What is the minimum contrast required for WCAG AA?"),
+    question: text(
+      "Какой контраст минимально необходим для WCAG AA для обычного текста?",
+      "What is the minimum contrast required for WCAG AA for normal text?",
+    ),
     options: [text("3:1", "3:1"), text("4.5:1", "4.5:1"), text("7:1", "7:1"), text("2:1", "2:1")],
     correctIndex: 1,
     explanation: text(
@@ -37,12 +40,12 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     question: text("Что такое кернинг?", "What is kerning?"),
     options: [
-      text("Расстояние между строками", "Spacing between lines"),
-      text("Расстояние между буквами", "Spacing between letters"),
+      text("Расстояние между конкретными парами букв", "Spacing between specific letter pairs"),
+      text("Одинаковое расстояние между всеми буквами", "Uniform spacing between all letters"),
       text("Расстояние между словами", "Spacing between words"),
       text("Размер шрифта", "Font size"),
     ],
-    correctIndex: 1,
+    correctIndex: 0,
     explanation: text(
       "Кернинг — регулировка расстояния между конкретными парами букв",
       "Kerning is the adjustment of spacing between specific letter pairs",
@@ -51,7 +54,10 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     difficulty: "easy",
   },
   {
-    question: text("Комплементарные цвета находятся на цветовом круге...", "Complementary colors on the color wheel are..."),
+    question: text(
+      "Комплементарные цвета находятся на цветовом круге...",
+      "Complementary colors on the color wheel are...",
+    ),
     options: [
       text("Рядом (30°)", "Adjacent (30°)"),
       text("Напротив (180°)", "Opposite (180°)"),
@@ -83,13 +89,11 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     difficulty: "easy",
   },
   {
-    question: text("Какой цвет получится при смешении красного и синего в RGB?", "What color results from mixing red and blue in RGB?"),
-    options: [
-      text("Зелёный", "Green"),
-      text("Жёлтый", "Yellow"),
-      text("Маджента", "Magenta"),
-      text("Циан", "Cyan"),
-    ],
+    question: text(
+      "Какой цвет получится при смешении красного и синего в RGB?",
+      "What color results from mixing red and blue in RGB?",
+    ),
+    options: [text("Зелёный", "Green"), text("Жёлтый", "Yellow"), text("Маджента", "Magenta"), text("Циан", "Cyan")],
     correctIndex: 2,
     explanation: text("В аддитивной модели RGB: красный + синий = маджента", "In additive RGB, red + blue = magenta"),
     category: "color",
@@ -113,7 +117,12 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   },
   {
     question: text("Какой шрифт относится к sans-serif?", "Which font is sans-serif?"),
-    options: [text("Times New Roman", "Times New Roman"), text("Georgia", "Georgia"), text("Arial", "Arial"), text("Courier", "Courier")],
+    options: [
+      text("Times New Roman", "Times New Roman"),
+      text("Georgia", "Georgia"),
+      text("Arial", "Arial"),
+      text("Courier", "Courier"),
+    ],
     correctIndex: 2,
     explanation: text(
       "Sans-serif — шрифты без засечек. Arial — классический гротеск",
@@ -199,7 +208,12 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       "Какой принцип гештальта описывает группировку близких элементов?",
       "Which Gestalt principle describes grouping by proximity?",
     ),
-    options: [text("Similarity", "Similarity"), text("Proximity", "Proximity"), text("Closure", "Closure"), text("Continuity", "Continuity")],
+    options: [
+      text("Similarity", "Similarity"),
+      text("Proximity", "Proximity"),
+      text("Closure", "Closure"),
+      text("Continuity", "Continuity"),
+    ],
     correctIndex: 1,
     explanation: text(
       "Proximity — элементы, расположенные близко, воспринимаются как группа",
@@ -233,10 +247,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       text("Оттенки одного цвета", "Shades of one color"),
     ],
     correctIndex: 1,
-    explanation: text(
-      "Триадная схема: 3 цвета через 120° друг от друга",
-      "Triadic scheme: 3 colors spaced 120° apart",
-    ),
+    explanation: text("Триадная схема: 3 цвета через 120° друг от друга", "Triadic scheme: 3 colors spaced 120° apart"),
     category: "color",
     difficulty: "medium",
   },
@@ -244,14 +255,14 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: text("Что такое orphan в типографике?", "What is an orphan in typography?"),
     options: [
       text("Слово в конце абзаца", "Word at end of paragraph"),
-      text("Строка в начале страницы", "Line at the top of a page"),
-      text("Строка в конце страницы", "Line at the bottom of a page"),
+      text("Последняя строка абзаца на новой странице", "Last line of paragraph on new page"),
+      text("Первая строка абзаца в конце страницы", "First line of paragraph at page bottom"),
       text("Перенос слова", "Hyphenation"),
     ],
     correctIndex: 2,
     explanation: text(
-      "Orphan — последняя строка абзаца одна на новой странице",
-      "An orphan is the last line of a paragraph stranded at the top of a new page",
+      "Orphan — первая строка абзаца, оставшаяся одна внизу страницы",
+      "An orphan is the first line of a paragraph stranded at the bottom of a page",
     ),
     category: "typography",
     difficulty: "medium",
@@ -275,15 +286,15 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     question: text("Что такое widow в типографике?", "What is a widow in typography?"),
     options: [
-      text("Короткая последняя строка", "Short last line"),
+      text("Последняя строка абзаца на новой странице", "Last line of paragraph on new page"),
+      text("Первая строка абзаца в конце страницы", "First line of paragraph at page bottom"),
       text("Одинокое слово на строке", "Single word on a line"),
-      text("Перенос слова", "Hyphenation"),
       text("Висячая пунктуация", "Hanging punctuation"),
     ],
-    correctIndex: 1,
+    correctIndex: 0,
     explanation: text(
-      "Widow — одинокое короткое слово на последней строке абзаца",
-      "A widow is a single short word left on the last line of a paragraph",
+      "Widow — последняя строка абзаца, оставшаяся одна в начале новой страницы",
+      "A widow is the last line of a paragraph stranded at the top of a new page",
     ),
     category: "typography",
     difficulty: "hard",
@@ -417,12 +428,15 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: text("Какая модель цвета используется для печати?", "Which color model is used for print?"),
     options: [text("RGB", "RGB"), text("HSL", "HSL"), text("CMYK", "CMYK"), text("LAB", "LAB")],
     correctIndex: 2,
-    explanation: text("Для печати используется субтрактивная модель CMYK.", "Printing uses the subtractive CMYK model."),
+    explanation: text(
+      "Для печати используется субтрактивная модель CMYK.",
+      "Printing uses the subtractive CMYK model.",
+    ),
     category: "color",
     difficulty: "easy",
   },
   {
-    question: text("Что такое контраст по яркости?", "What is luminance contrast?"),
+    question: text("Что такое контраст по светлоте (Lightness)?", "What is lightness contrast?"),
     options: [
       text("Разница в насыщенности", "Difference in saturation"),
       text("Разница в светлоте", "Difference in lightness"),
@@ -430,13 +444,24 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       text("Разница в прозрачности", "Difference in transparency"),
     ],
     correctIndex: 1,
-    explanation: text("Контраст по яркости — это отличие по светлоте (L).", "Luminance contrast is the difference in lightness (L)."),
+    explanation: text(
+      "Контраст по светлоте — это отличие по Lightness (L) в HSL.",
+      "Lightness contrast is the difference in HSL lightness (L).",
+    ),
     category: "color",
     difficulty: "easy",
   },
   {
-    question: text("Как называется расстояние между колонками сетки?", "What is the space between grid columns called?"),
-    options: [text("Gutter", "Gutter"), text("Kerning", "Kerning"), text("Padding", "Padding"), text("Baseline", "Baseline")],
+    question: text(
+      "Как называется расстояние между колонками сетки?",
+      "What is the space between grid columns called?",
+    ),
+    options: [
+      text("Gutter", "Gutter"),
+      text("Kerning", "Kerning"),
+      text("Padding", "Padding"),
+      text("Baseline", "Baseline"),
+    ],
     correctIndex: 0,
     explanation: text("Gutter — межколоночное пространство в сетке.", "A gutter is the space between columns."),
     category: "layout",
@@ -493,7 +518,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     difficulty: "medium",
   },
   {
-    question: text("Что такое x-height важно для...", "X-height is important for..."),
+    question: text("X-height важна для...", "X-height is important for..."),
     options: [
       text("Определения ширины", "Defining width"),
       text("Читаемости", "Readability"),
@@ -510,7 +535,12 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   },
   {
     question: text("Тон (hue) измеряется в...", "Hue is measured in..."),
-    options: [text("процентах", "percent"), text("пикселях", "pixels"), text("градусах", "degrees"), text("канделах", "candelas")],
+    options: [
+      text("процентах", "percent"),
+      text("пикселях", "pixels"),
+      text("градусах", "degrees"),
+      text("канделах", "candelas"),
+    ],
     correctIndex: 2,
     explanation: text("Hue измеряется в градусах на цветовом круге.", "Hue is measured in degrees on the color wheel."),
     category: "color",
@@ -738,17 +768,17 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     difficulty: "expert",
   },
   {
-    question: text("Закон Шнайдера говорит о...", "Schneider's law is about..."),
+    question: text("Закон Теслера говорит о...", "Tesler's law is about..."),
     options: [
-      text("Быстродействии мыши", "Mouse performance"),
-      text("Группировании сигналов", "Signal grouping"),
-      text("Приоритетах задач", "Task priorities"),
-      text("Метамерии", "Metamerism"),
+      text("Сохранении сложности", "Conservation of complexity"),
+      text("Привычках пользователей", "User habits"),
+      text("Времени реакции от числа вариантов", "Reaction time vs number of choices"),
+      text("Зависимости времени от расстояния и размера цели", "Time vs distance and target size"),
     ],
-    correctIndex: 2,
+    correctIndex: 0,
     explanation: text(
-      "Schneider's Law: больше функций — больше когнитивной нагрузки и ошибки.",
-      "Schneider's Law: more functions increase cognitive load and errors.",
+      "Закон Теслера: сложность нельзя убрать, её можно только перераспределить.",
+      "Tesler's law: complexity cannot be eliminated, only redistributed.",
     ),
     category: "ux",
     difficulty: "expert",
@@ -794,6 +824,23 @@ const categoryLabels: Record<Language, Record<QuizQuestion["category"], string>>
     layout: "layout",
     ux: "UX",
     accessibility: "accessibility",
+  },
+};
+
+const categoryHints: Record<Language, Record<QuizQuestion["category"], string>> = {
+  ru: {
+    color: "Подумай о цветовом круге, моделях RGB/HSL и гармонии цветов.",
+    typography: "Вспомни основы шрифтов, кернинг, трекинг и интерлиньяж.",
+    layout: "Подумай о сетках, пропорциях и визуальной иерархии.",
+    ux: "Вспомни законы UX: Фиттса, Хика, Миллера, Якоба.",
+    accessibility: "Подумай о WCAG, контрасте и доступности.",
+  },
+  en: {
+    color: "Think about the color wheel, RGB/HSL models, and color harmony.",
+    typography: "Recall font basics, kerning, tracking, and leading.",
+    layout: "Think about grids, proportions, and visual hierarchy.",
+    ux: "Recall UX laws: Fitts, Hick, Miller, Jakob.",
+    accessibility: "Think about WCAG, contrast, and accessibility.",
   },
 };
 
@@ -935,7 +982,7 @@ export const QuizGame = ({ onAnswer }: Props) => {
           </span>
         </div>
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">{challenge.prompt}</h2>
-        <HintToggle hint={challenge.explanation} />
+        <HintToggle hint={categoryHints[language][challenge.category]} />
       </div>
 
       <div className="flex flex-col gap-2 sm:gap-3">
@@ -969,4 +1016,3 @@ export const QuizGame = ({ onAnswer }: Props) => {
     </div>
   );
 };
-

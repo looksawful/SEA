@@ -1,4 +1,4 @@
-import { GameId } from "@/types";
+﻿import { GameId } from "@/types";
 import { Language } from "@/utils/i18n";
 
 export type CustomOptionKind = "text" | "color" | "size" | "weight" | "font" | "palette";
@@ -60,7 +60,7 @@ export interface CustomQuestionConfig {
 
 export const CUSTOM_QUESTION_CONFIG: Record<GameId, CustomQuestionConfigBase> = {
   "color-compare": {
-    title: { ru: "Сравни цвета", en: "Compare colors" },
+    title: { ru: "Сравнить цвета", en: "Compare colors" },
     optionKind: "color",
     previewKind: "none",
     defaultOptions: 4,
@@ -74,7 +74,7 @@ export const CUSTOM_QUESTION_CONFIG: Record<GameId, CustomQuestionConfigBase> = 
     optionLabel: { ru: "Размер", en: "Size" },
   },
   "guess-font": {
-    title: { ru: "Угадай шрифт", en: "Guess the font" },
+    title: { ru: "Угадать шрифт", en: "Guess the font" },
     optionKind: "text",
     previewKind: "sample",
     defaultOptions: 4,
@@ -132,7 +132,7 @@ export const CUSTOM_QUESTION_CONFIG: Record<GameId, CustomQuestionConfigBase> = 
     optionLabel: { ru: "Цвет", en: "Color" },
   },
   "guess-hex": {
-    title: { ru: "Угадай HEX", en: "Guess HEX" },
+    title: { ru: "Угадать HEX", en: "Guess HEX" },
     optionKind: "text",
     previewKind: "single-color",
     defaultOptions: 4,
@@ -140,7 +140,7 @@ export const CUSTOM_QUESTION_CONFIG: Record<GameId, CustomQuestionConfigBase> = 
     previewLabels: [{ ru: "Цвет", en: "Color" }],
   },
   "guess-params": {
-    title: { ru: "Угадай HSL", en: "Guess HSL" },
+    title: { ru: "Угадать HSL", en: "Guess HSL" },
     optionKind: "text",
     previewKind: "single-color",
     defaultOptions: 4,
@@ -170,14 +170,14 @@ export const CUSTOM_QUESTION_CONFIG: Record<GameId, CustomQuestionConfigBase> = 
     optionLabel: { ru: "Вес", en: "Weight" },
   },
   "artist-guess": {
-    title: { ru: "Угадай художника", en: "Guess the artist" },
+    title: { ru: "Угадать художника", en: "Guess the artist" },
     optionKind: "text",
     previewKind: "image",
     defaultOptions: 4,
     optionLabel: { ru: "Художник", en: "Artist" },
   },
   "style-guess": {
-    title: { ru: "Угадай стиль", en: "Guess the style" },
+    title: { ru: "Угадать стиль", en: "Guess the style" },
     optionKind: "text",
     previewKind: "image",
     defaultOptions: 4,
@@ -198,7 +198,7 @@ export const CUSTOM_QUESTION_CONFIG: Record<GameId, CustomQuestionConfigBase> = 
     optionLabel: { ru: "Формат", en: "Format" },
   },
   "color-eye": {
-    title: { ru: "Цвет на глаз", en: "Color by eye" },
+    title: { ru: "Цвет по образцу", en: "Color match" },
     optionKind: "color",
     previewKind: "image",
     defaultOptions: 4,
@@ -212,14 +212,14 @@ export const CUSTOM_QUESTION_CONFIG: Record<GameId, CustomQuestionConfigBase> = 
     optionLabel: { ru: "Цвет", en: "Color" },
   },
   "film-type": {
-    title: { ru: "Тип плёнки", en: "Film type" },
+    title: { ru: "Профиль плёнки", en: "Film profile" },
     optionKind: "text",
     previewKind: "image",
     defaultOptions: 4,
-    optionLabel: { ru: "Плёнка", en: "Film" },
+    optionLabel: { ru: "Профиль", en: "Profile" },
   },
   "composition-technique": {
-    title: { ru: "Композиция", en: "Composition" },
+    title: { ru: "Композиция (схема)", en: "Composition diagram" },
     optionKind: "text",
     previewKind: "image",
     defaultOptions: 4,
@@ -261,7 +261,7 @@ export const CUSTOM_QUESTION_CONFIG: Record<GameId, CustomQuestionConfigBase> = 
     optionLabel: { ru: "Ошибка", en: "Error" },
   },
   "palette-from-photo": {
-    title: { ru: "Палитра из фото", en: "Palette from photo" },
+    title: { ru: "Палитра по образцу", en: "Palette match" },
     optionKind: "palette",
     previewKind: "image",
     defaultOptions: 3,
