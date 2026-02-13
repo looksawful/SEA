@@ -1,6 +1,4 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
 import { HintToggle } from "@/components/HintToggle";
 import { Swatch } from "@/components/Swatch";
@@ -9,9 +7,10 @@ import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
 import { useGameStore } from "@/store/gameStore";
 import { hslToRgb, randomHsl, rgbToHex } from "@/utils/colors";
-import { clamp, pickRandom, shuffle } from "@/utils/helpers";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
+import { clamp, pickRandom, shuffle } from "@/utils/helpers";
 import { LocalizedText, localize, t } from "@/utils/i18n";
+import { useCallback, useEffect, useState } from "react";
 
 type CompareType = "brighter" | "darker" | "saturated" | "muted";
 
@@ -33,25 +32,37 @@ const PROMPTS: Record<
 > = {
   brighter: {
     title: { ru: "Какой цвет ярче?", en: "Which color is brighter?" },
-    helper: { ru: "Сравни светлоту (L): у яркого цвета значение L выше.", en: "Compare lightness (L): the brighter color has a higher L." },
+    helper: {
+      ru: "Сравните светлоту (L): у яркого цвета значение L выше.",
+      en: "Compare lightness (L): the brighter color has a higher L.",
+    },
     axis: "l",
     target: "max",
   },
   darker: {
     title: { ru: "Какой цвет темнее?", en: "Which color is darker?" },
-    helper: { ru: "Сравни светлоту (L): у темного цвета значение L ниже.", en: "Compare lightness (L): the darker color has a lower L." },
+    helper: {
+      ru: "Сравните светлоту (L): у темного цвета значение L ниже.",
+      en: "Compare lightness (L): the darker color has a lower L.",
+    },
     axis: "l",
     target: "min",
   },
   saturated: {
     title: { ru: "Какой цвет насыщеннее?", en: "Which color is more saturated?" },
-    helper: { ru: "Сравни насыщенность (S): у насыщенного цвета значение S выше.", en: "Compare saturation (S): the more saturated color has a higher S." },
+    helper: {
+      ru: "Сравните насыщенность (S): у насыщенного цвета значение S выше.",
+      en: "Compare saturation (S): the more saturated color has a higher S.",
+    },
     axis: "s",
     target: "max",
   },
   muted: {
     title: { ru: "Какой цвет более приглушённый?", en: "Which color is more muted?" },
-    helper: { ru: "Сравни насыщенность (S): у приглушённого цвета значение S ниже.", en: "Compare saturation (S): the more muted color has a lower S." },
+    helper: {
+      ru: "Сравните насыщенность (S): у приглушённого цвета значение S ниже.",
+      en: "Compare saturation (S): the more muted color has a lower S.",
+    },
     axis: "s",
     target: "min",
   },
@@ -244,8 +255,6 @@ export const ColorCompareGame = ({ onAnswer }: Props) => {
           </Card>
         ))}
       </div>
-
     </div>
   );
 };
-

@@ -1,15 +1,15 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
 import { HintToggle } from "@/components/HintToggle";
-import { useGameStore } from "@/store/gameStore";
 import { useNumberKeys } from "@/hooks/useKeyboard";
 import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
-import { getDisplayText, pickRandom, shuffle } from "@/utils/helpers";
+import { useGameStore } from "@/store/gameStore";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
+import { getDisplayText, pickRandom, shuffle } from "@/utils/helpers";
 import { Language, t } from "@/utils/i18n";
+import { motion } from "framer-motion";
+import { useCallback, useEffect, useState } from "react";
 
 type WeightMode = "heavier" | "lighter";
 
@@ -104,8 +104,8 @@ export const FontWeightGame = ({ onAnswer }: Props) => {
         const question =
           language === "ru"
             ? challenge.mode === "heavier"
-              ? "Найди самый жирный текст"
-              : "Найди самый лёгкий текст"
+              ? "Найти самый жирный текст"
+              : "Найти самый лёгкий текст"
             : challenge.mode === "heavier"
               ? "Find the heaviest text"
               : "Find the lightest text";
@@ -115,7 +115,7 @@ export const FontWeightGame = ({ onAnswer }: Props) => {
           correctAnswer: language === "ru" ? `Вес ${correctWeight}` : `Weight ${correctWeight}`,
           explanation:
             language === "ru"
-              ? "Сравни визуальную толщину штрихов: больший вес делает буквы заметно массивнее."
+              ? "Сравните визуальную толщину штрихов: больший вес делает буквы заметно массивнее."
               : "Compare stroke thickness: heavier weights make letters noticeably bolder.",
         });
       }
@@ -161,8 +161,8 @@ export const FontWeightGame = ({ onAnswer }: Props) => {
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
           {language === "ru"
             ? challenge.mode === "heavier"
-              ? "Найди самый жирный текст"
-              : "Найди самый лёгкий текст"
+              ? "Найти самый жирный текст"
+              : "Найти самый лёгкий текст"
             : challenge.mode === "heavier"
               ? "Find the heaviest text"
               : "Find the lightest text"}
@@ -170,7 +170,7 @@ export const FontWeightGame = ({ onAnswer }: Props) => {
         <HintToggle
           hint={
             language === "ru"
-              ? "Сравни толщину штриха: более жирный выглядит темнее и массивнее."
+              ? "Сравните толщину штриха: более жирный выглядит темнее и массивнее."
               : "Compare stroke thickness: heavier weights look darker and more massive."
           }
         />
@@ -207,10 +207,10 @@ export const FontWeightGame = ({ onAnswer }: Props) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-muted"
         >
-          {language === "ru" ? "Вес правильного варианта" : "Correct weight"}: {challenge.weights[challenge.correctIndex]}
+          {language === "ru" ? "Вес правильного варианта" : "Correct weight"}:{" "}
+          {challenge.weights[challenge.correctIndex]}
         </motion.div>
       )}
     </div>
   );
 };
-

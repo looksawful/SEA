@@ -1,13 +1,13 @@
-import type { Metadata, Viewport } from "next";
 import { BackgroundLayer } from "@/components/BackgroundLayer";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-const basePath = process.env.NODE_ENV === "production" ? "/Awful-Exercises" : "";
+const basePath = process.env.NODE_ENV === "production" ? "/SEA" : "";
 
 export const metadata: Metadata = {
-  title: "Awful-Exercises Alpha",
-  description: "Train your design eye",
+  title: "SEA",
+  description: "Train your eye to see",
 };
 
 export const viewport: Viewport = {
@@ -31,8 +31,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href={`${basePath}/icons/icon-180.png`} />
         <meta name="theme-color" content="#0b0b0b" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-title" content="Awful-Exercises Alpha" />
-        <meta name="application-name" content="Awful-Exercises Alpha" />
+        <meta name="apple-mobile-web-app-title" content="SEA" />
+        <meta name="application-name" content="SEA" />
       </head>
       <body className="antialiased font-body text-strong relative" data-basepath={basePath}>
         <BackgroundLayer />

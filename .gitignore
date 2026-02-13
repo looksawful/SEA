@@ -40,3 +40,6 @@ coverage/
 *.swp
 *.bak
 *.orig
+
+# Documentation (internal)
+.docs/

@@ -1,6 +1,4 @@
 "use client";
-import { CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { Swatch } from "@/components/Swatch";
@@ -9,10 +7,6 @@ import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
 import { useGameStore } from "@/store/gameStore";
 import { GameId } from "@/types";
-import { GAMES, normalizeGameOrder } from "@/utils/gameConfig";
-import { getFontSizeClass } from "@/utils/fonts";
-import { generateId, shuffle } from "@/utils/helpers";
-import { Language, getGameLabel, t } from "@/utils/i18n";
 import {
   CustomOptionKind,
   CustomQuestion,
@@ -21,6 +15,12 @@ import {
   CustomQuestionPreview,
   getCustomQuestionConfig,
 } from "@/utils/customQuestions";
+import { getFontSizeClass } from "@/utils/fonts";
+import { GAMES, normalizeGameOrder } from "@/utils/gameConfig";
+import { generateId, shuffle } from "@/utils/helpers";
+import { Language, getGameLabel, t } from "@/utils/i18n";
+import { motion } from "framer-motion";
+import { CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
 
 const WEIGHT_CLASS: Record<number, string> = {
   300: "font-light",
@@ -32,10 +32,10 @@ const WEIGHT_CLASS: Record<number, string> = {
 };
 
 const inputClass =
-  "w-full px-3 py-2 rounded-lg bg-surface-2 border border-subtle text-sm text-strong focus-visible:outline focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]";
+  "w-full px-3 py-2 rounded-xl glass-input text-sm text-strong placeholder:text-soft focus-visible:outline-none";
 
 const textAreaClass =
-  "w-full px-3 py-2 rounded-lg bg-surface-2 border border-subtle text-sm text-strong min-h-[96px] resize-y focus-visible:outline focus-visible:ring-2 focus-visible:ring-[color:var(--accent)]";
+  "w-full px-3 py-2 rounded-xl glass-input text-sm text-strong min-h-[96px] resize-y placeholder:text-soft focus-visible:outline-none";
 
 const maxOptions = 6;
 const previewDefaults: Record<Language, { sample: string; contrast: string; imageAlt: string }> = {
@@ -96,10 +96,7 @@ const createDefaultOptions = (config: CustomQuestionConfig): CustomQuestionOptio
   }));
 };
 
-const createDefaultPreview = (
-  config: CustomQuestionConfig,
-  language: Language,
-): CustomQuestionPreview | undefined => {
+const createDefaultPreview = (config: CustomQuestionConfig, language: Language): CustomQuestionPreview | undefined => {
   if (config.previewKind === "none") return undefined;
 
   if (config.previewKind === "sample") {
@@ -148,11 +145,7 @@ const fallbackOptionLabels: Record<Language, { color: string; palette: string; f
   en: { color: "Color", palette: "Palette", font: "Font", option: "Option" },
 };
 
-const formatOptionLabel = (
-  option: CustomQuestionOption,
-  kind: CustomOptionKind,
-  language: Language,
-): string => {
+const formatOptionLabel = (option: CustomQuestionOption, kind: CustomOptionKind, language: Language): string => {
   if (kind === "color") {
     return option.label || option.color || fallbackOptionLabels[language].color;
   }
@@ -256,9 +249,7 @@ const renderOption = (option: CustomQuestionOption, kind: CustomOptionKind) => {
     const displaySize = Math.min(size, 48);
     return (
       <div className="flex flex-col items-center gap-2">
-        <span className={`text-strong ${getFontSizeClass(displaySize, "text-[32px]")}`}>
-          {option.label || "Aa"}
-        </span>
+        <span className={`text-strong ${getFontSizeClass(displaySize, "text-[32px]")}`}>{option.label || "Aa"}</span>
         <span className="text-xs text-soft">{size}px</span>
       </div>
     );
@@ -378,32 +369,33 @@ export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps
                   },
                 }
               : challenge.question.optionKind === "color"
-              ? {
-                  type: "colors",
-                  data: {
-                    Correct: correctOption.color || "",
-                    Selected: userOption.color || "",
-                  },
-                }
-              : challenge.question.preview?.kind === "contrast"
                 ? {
-                    type: "contrast",
+                    type: "colors",
                     data: {
-                      Text: challenge.question.preview.colors?.[0] || "",
-                      Background: challenge.question.preview.colors?.[1] || "",
+                      Correct: correctOption.color || "",
+                      Selected: userOption.color || "",
                     },
                   }
-                : challenge.question.preview?.kind === "single-color" || challenge.question.preview?.kind === "dual-color"
+                : challenge.question.preview?.kind === "contrast"
                   ? {
-                      type: "colors",
-                      data: Object.fromEntries(
-                        (challenge.question.preview.colors || []).map((color, idx) => [
-                          challenge.question.preview?.labels?.[idx] || `Color ${idx + 1}`,
-                          color,
-                        ]),
-                      ),
+                      type: "contrast",
+                      data: {
+                        Text: challenge.question.preview.colors?.[0] || "",
+                        Background: challenge.question.preview.colors?.[1] || "",
+                      },
                     }
-                  : undefined,
+                  : challenge.question.preview?.kind === "single-color" ||
+                      challenge.question.preview?.kind === "dual-color"
+                    ? {
+                        type: "colors",
+                        data: Object.fromEntries(
+                          (challenge.question.preview.colors || []).map((color, idx) => [
+                            challenge.question.preview?.labels?.[idx] || `Color ${idx + 1}`,
+                            color,
+                          ]),
+                        ),
+                      }
+                    : undefined,
         });
       }
 
@@ -459,8 +451,7 @@ export const CustomQuestionGame = ({ gameId, onAnswer }: CustomQuestionGameProps
     );
   }
 
-  const gridClass =
-    challenge.options.length <= 4 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3";
+  const gridClass = challenge.options.length <= 4 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3";
 
   return (
     <div className="space-y-6">
@@ -732,7 +723,10 @@ export const CustomQuestionManager = ({
       </div>
       <div className="space-y-2">
         {options.map((option, index) => (
-          <div key={`${index}-${option.label}`} className="flex flex-col gap-2 rounded-xl border border-subtle bg-surface-2 p-3">
+          <div
+            key={`${index}-${option.label}`}
+            className="flex flex-col gap-2 rounded-xl border border-subtle bg-surface-2 p-3"
+          >
             <div className="flex items-center justify-between text-xs text-soft">
               <span>{t(language, "optionLabel", { index: index + 1 })}</span>
               <button
@@ -858,7 +852,9 @@ export const CustomQuestionManager = ({
       </div>
 
       <div className="space-y-3">
-        <div className="text-sm font-medium text-strong">{t(language, "questionsList", { count: existing.length })}</div>
+        <div className="text-sm font-medium text-strong">
+          {t(language, "questionsList", { count: existing.length })}
+        </div>
         {existing.length === 0 && <div className="text-sm text-soft">{t(language, "emptyList")}</div>}
         {existing.length > 0 && (
           <div className="space-y-2">
@@ -867,9 +863,7 @@ export const CustomQuestionManager = ({
                 <div>
                   <div className="text-sm font-medium text-strong">{item.prompt}</div>
                   <div className="text-xs text-soft">{t(language, "optionsCount", { count: item.options.length })}</div>
-                  {editingId === item.id && (
-                    <div className="text-xs text-accent mt-1">{t(language, "editing")}</div>
-                  )}
+                  {editingId === item.id && <div className="text-xs text-accent mt-1">{t(language, "editing")}</div>}
                 </div>
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="sm" onClick={() => startEdit(item)}>
@@ -948,9 +942,7 @@ export const CustomQuestionManager = ({
 
   return (
     <div className="fixed inset-0 z-30 bg-[color:var(--surface-1-95)] backdrop-blur-sm overflow-y-auto">
-      <div className="max-w-3xl mx-auto p-4 sm:p-6">
-        {content}
-      </div>
+      <div className="max-w-3xl mx-auto p-4 sm:p-6">{content}</div>
     </div>
   );
 };
@@ -1010,12 +1002,7 @@ export const CustomQuestionsModal = ({ onClose, initialGameId }: CustomQuestions
           </div>
         </div>
 
-        <CustomQuestionManager
-          gameId={activeGame}
-          onClose={onClose}
-          variant="embedded"
-          showClose={false}
-        />
+        <CustomQuestionManager gameId={activeGame} onClose={onClose} variant="embedded" showClose={false} />
       </div>
     </div>
   );

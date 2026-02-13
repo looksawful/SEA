@@ -1,17 +1,17 @@
 "use client";
-import { useState, useCallback, useEffect } from "react";
-import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
 import { HintToggle } from "@/components/HintToggle";
 import { Swatch } from "@/components/Swatch";
-import { useGameStore } from "@/store/gameStore";
 import { useNumberKeys } from "@/hooks/useKeyboard";
 import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
-import { randomHsl, hslToRgb, rgbToHex } from "@/utils/colors";
-import { shuffle, pickRandom } from "@/utils/helpers";
+import { useGameStore } from "@/store/gameStore";
+import { hslToRgb, randomHsl, rgbToHex } from "@/utils/colors";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
+import { pickRandom, shuffle } from "@/utils/helpers";
 import { LocalizedText, localize, t } from "@/utils/i18n";
+import { motion } from "framer-motion";
+import { useCallback, useEffect, useState } from "react";
 
 type ParamType = "hue" | "saturation" | "lightness";
 type ParamMode = "value" | "shift";
@@ -62,11 +62,7 @@ const PARAM_EXPLANATIONS: Record<ParamType, LocalizedText> = {
   ),
 };
 
-const generateOptions = (
-  correctValue: number,
-  paramType: ParamType,
-  difficulty: Difficulty,
-): number[] => {
+const generateOptions = (correctValue: number, paramType: ParamType, difficulty: Difficulty): number[] => {
   const max = paramType === "hue" ? 360 : 100;
   let spread: number;
 
@@ -153,7 +149,7 @@ const generateShiftChallenge = (difficulty: Difficulty): ShiftChallenge => {
   const targetHsl = { ...baseHsl };
 
   if (paramType === "hue") {
-    targetHsl.h = ((targetHsl.h + direction * delta) % 360 + 360) % 360;
+    targetHsl.h = (((targetHsl.h + direction * delta) % 360) + 360) % 360;
   } else if (paramType === "saturation") {
     targetHsl.s = Math.max(10, Math.min(95, targetHsl.s + direction * delta));
   } else {
@@ -236,8 +232,7 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
               ? `${paramExplanation(challenge.paramType)}. Полные HSL значения для этого цвета: H=${challenge.hsl.h}°, S=${challenge.hsl.s}%, L=${challenge.hsl.l}%`
               : `${paramExplanation(challenge.paramType)}. Full HSL values for this color: H=${challenge.hsl.h}°, S=${challenge.hsl.s}%, L=${challenge.hsl.l}%`;
           addMistake({
-            question:
-              language === "ru" ? `Определи ${label} цвета` : `Determine the ${label} of the color`,
+            question: language === "ru" ? `Определи ${label} цвета` : `Determine the ${label} of the color`,
             userAnswer: `${userAnswer}${unit}`,
             correctAnswer: `${challenge.correctValue}${unit}`,
             explanation,
@@ -255,7 +250,8 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
           const colorALabel = language === "ru" ? "Цвет A" : "Color A";
           const colorBLabel = language === "ru" ? "Цвет B" : "Color B";
           addMistake({
-            question: language === "ru" ? "Что изменилось между двумя цветами?" : "What changed between the two colors?",
+            question:
+              language === "ru" ? "Что изменилось между двумя цветами?" : "What changed between the two colors?",
             userAnswer: paramName(userAnswer),
             correctAnswer: paramName(challenge.paramType),
             explanation,
@@ -308,7 +304,7 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
           {challenge.mode === "value"
             ? language === "ru"
-              ? `Определи ${paramName(challenge.paramType)}`
+              ? `Определить ${paramName(challenge.paramType)}`
               : `Determine ${paramName(challenge.paramType)}`
             : language === "ru"
               ? "Что изменилось между цветами?"
@@ -319,7 +315,7 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
             challenge.mode === "value"
               ? paramExplanation(challenge.paramType)
               : language === "ru"
-                ? "Сравни оба свотча и реши, какой параметр изменился."
+                ? "Сравните оба свотча и определите, какой параметр изменился."
                 : "Compare both swatches and decide which parameter shifted."
           }
         />
@@ -399,4 +395,3 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
     </div>
   );
 };
-

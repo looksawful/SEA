@@ -1,16 +1,16 @@
 "use client";
-import { CSSProperties, useCallback, useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
 import { HintToggle } from "@/components/HintToggle";
-import { useGameStore } from "@/store/gameStore";
 import { useNumberKeys } from "@/hooks/useKeyboard";
 import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
-import { randomHsl, hslToRgb, rgbToHex, getContrastRatio } from "@/utils/colors";
-import { shuffle, pickRandom, getRandomText } from "@/utils/helpers";
+import { useGameStore } from "@/store/gameStore";
+import { getContrastRatio, hslToRgb, randomHsl, rgbToHex } from "@/utils/colors";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
+import { getRandomText, pickRandom, shuffle } from "@/utils/helpers";
 import { Language, LocalizedText, localize, t } from "@/utils/i18n";
+import { motion } from "framer-motion";
+import { CSSProperties, useCallback, useEffect, useState } from "react";
 
 type WcagLevel = "AAA" | "AA" | "AA Large" | "Fail";
 type ChallengeMode = "level" | "pass-fail" | "large-text";
@@ -36,31 +36,40 @@ const getWcagLevel = (ratio: number): WcagLevel => {
 };
 
 const WCAG_EXPLANATIONS: Record<WcagLevel, LocalizedText> = {
-  AAA: text("Контраст ≥7:1 — максимальный уровень доступности для обычного текста", "Contrast ≥7:1 — highest accessibility level for normal text"),
-  AA: text("Контраст ≥4.5:1 — минимальный стандарт для обычного текста", "Contrast ≥4.5:1 — minimum standard for normal text"),
+  AAA: text(
+    "Контраст ≥7:1 — максимальный уровень доступности для обычного текста",
+    "Contrast ≥7:1 — highest accessibility level for normal text",
+  ),
+  AA: text(
+    "Контраст ≥4.5:1 — минимальный стандарт для обычного текста",
+    "Contrast ≥4.5:1 — minimum standard for normal text",
+  ),
   "AA Large": text(
     "Контраст ≥3:1 — допустимо только для крупного текста (18pt+ или 14pt bold)",
-    "Contrast ≥3:1 — allowed only for large text (18pt+ or 14pt bold)"
+    "Contrast ≥3:1 — allowed only for large text (18pt+ or 14pt bold)",
   ),
   Fail: text("Контраст <3:1 — не соответствует WCAG", "Contrast <3:1 — does not meet WCAG standards"),
 };
 
 const PROMPTS: Record<ChallengeMode, LocalizedText> = {
-  level: text("Определи уровень WCAG", "Determine the WCAG level"),
+  level: text("Определить уровень WCAG", "Determine the WCAG level"),
   "pass-fail": text("Проходит ли WCAG AA?", "Passes WCAG AA?"),
   "large-text": text("Проходит ли для крупного текста?", "Passes for large text?"),
 };
 
 const WCAG_HINT = text(
   "AA требует 4.5:1, для крупного текста достаточно 3:1, AAA начинается с 7:1.",
-  "AA needs 4.5:1, large text allows 3:1, AAA starts at 7:1."
+  "AA needs 4.5:1, large text allows 3:1, AAA starts at 7:1.",
 );
 const PASS_LABEL = text("Проходит", "Pass");
 const FAIL_LABEL = text("Не проходит", "Fail");
 const CONTRAST_LABEL = text("Контраст", "Contrast");
 const TEXT_LABEL = text("Текст", "Text");
 const BACKGROUND_LABEL = text("Фон", "Background");
-const LARGE_TEXT_EXPLANATION = text("Для крупного текста достаточно 3:1 (AA Large).", "Large text requires only 3:1 (AA Large).");
+const LARGE_TEXT_EXPLANATION = text(
+  "Для крупного текста достаточно 3:1 (AA Large).",
+  "Large text requires only 3:1 (AA Large).",
+);
 
 const getPrompt = (mode: ChallengeMode, language: Language) => localize(PROMPTS[mode], language);
 
@@ -126,7 +135,15 @@ const generateChallenge = (round: number, language: Language): Challenge => {
   const passesNormal = contrastRatio >= 4.5;
   const passesLarge = contrastRatio >= 3;
   const correctLevel =
-    mode === "pass-fail" ? (passesNormal ? "AA" : "Fail") : mode === "large-text" ? (passesLarge ? "AA" : "Fail") : computedLevel;
+    mode === "pass-fail"
+      ? passesNormal
+        ? "AA"
+        : "Fail"
+      : mode === "large-text"
+        ? passesLarge
+          ? "AA"
+          : "Fail"
+        : computedLevel;
 
   let options: WcagLevel[];
   if (mode === "pass-fail" || mode === "large-text") {
@@ -271,12 +288,19 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
       </div>
 
       <motion.div
-        className="rounded-2xl p-8 min-h-32 flex items-center justify-center bg-swatch border border-subtle shadow-card"
+        className="rounded-2xl p-8 min-h-32 flex flex-col items-center justify-center bg-swatch border border-subtle shadow-card"
         style={swatchStyle}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <p className="text-2xl font-medium text-center text-swatch">
+        {challenge.mode === "large-text" && (
+          <span className="text-xs opacity-60 mb-2 text-swatch">
+            {language === "ru" ? "КРУПНЫЙ ТЕКСТ (18pt+)" : "LARGE TEXT (18pt+)"}
+          </span>
+        )}
+        <p
+          className={`font-medium text-center text-swatch ${challenge.mode === "large-text" ? "text-3xl" : "text-2xl"}`}
+        >
           {challenge.text}
         </p>
       </motion.div>
@@ -318,4 +342,3 @@ export const AccessibilityGame = ({ onAnswer }: Props) => {
     </div>
   );
 };
-

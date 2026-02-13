@@ -1,37 +1,37 @@
 "use client";
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { useGameStore } from "@/store/gameStore";
-import { GAMES, GAME_ORDER } from "@/utils/gameConfig";
-import { Button, Card, Skeleton, SettingsModal } from "@/components";
+import { Button, Card, SettingsModal, Skeleton } from "@/components";
 import { CustomQuestionsModal } from "@/components/CustomQuestions";
-import { GameId, GameTag } from "@/types";
-import { shuffle } from "@/utils/helpers";
-import { useKeyboard } from "@/hooks/useKeyboard";
-import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS } from "@/utils/imageQuizData";
 import { QUIZ_QUESTIONS } from "@/games/Quiz";
+import { useKeyboard } from "@/hooks/useKeyboard";
+import { useGameStore } from "@/store/gameStore";
+import { GameId, GameTag } from "@/types";
+import { GAMES, GAME_ORDER } from "@/utils/gameConfig";
+import { shuffle } from "@/utils/helpers";
 import { getGameLabel, t } from "@/utils/i18n";
+import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS } from "@/utils/imageQuizData";
+import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   FaArrowLeft,
   FaArrowRight,
+  FaBars,
   FaChartBar,
   FaCog,
   FaDice,
+  FaHome,
   FaListUl,
   FaPen,
-  FaPlay,
   FaPenNib,
+  FaPlay,
   FaPlus,
-  FaThLarge,
-  FaSearch,
-  FaBars,
-  FaSyncAlt,
-  FaStar,
   FaRegStar,
+  FaSearch,
+  FaStar,
+  FaSyncAlt,
+  FaThLarge,
   FaVolumeMute,
   FaVolumeUp,
-  FaHome,
 } from "react-icons/fa";
 
 type View = "menu" | "games" | "stats" | "random";
@@ -378,7 +378,6 @@ export default function Home() {
                     {t(language, "settings")}
                   </span>
                 </Button>
-                <div className="text-center text-xs text-soft pt-2 hidden sm:block">{t(language, "hotkeys")}</div>
               </div>
 
               {stats.totalGames > 0 && (
@@ -452,7 +451,7 @@ export default function Home() {
               </div>
 
               <div className="sticky top-3 z-10 sm:static space-y-3">
-                <div className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-subtle bg-[color:var(--surface-1-90)] backdrop-blur">
+                <div className="flex items-center gap-3 px-4 py-3 rounded-2xl glass-input">
                   <FaSearch className="text-muted" />
                   <input
                     value={gameSearch}
@@ -473,10 +472,8 @@ export default function Home() {
                     <button
                       key={tag.id}
                       onClick={() => setActiveTag(tag.id)}
-                      className={`px-3 py-1 rounded-full border text-xs whitespace-nowrap ${
-                        activeTag === tag.id
-                          ? "bg-surface-3 text-strong border-subtle"
-                          : "bg-surface-2 text-muted border-subtle hover:text-strong"
+                      className={`px-3 py-1 rounded-full text-xs whitespace-nowrap transition-colors ${
+                        activeTag === tag.id ? "glass text-strong" : "glass-subtle text-muted hover:text-strong"
                       }`}
                       aria-pressed={activeTag === tag.id}
                     >
@@ -490,7 +487,7 @@ export default function Home() {
                   <select
                     value={sortMode}
                     onChange={(event) => setSortMode(event.target.value as typeof sortMode)}
-                    className="text-xs bg-surface-2 border border-subtle rounded-full px-3 py-1 text-strong"
+                    className="text-xs bg-surface-2 border border-subtle rounded-full px-3 py-1 text-strong cursor-pointer"
                     aria-label={t(language, "sort")}
                   >
                     <option value="default">{t(language, "sortDefault")}</option>

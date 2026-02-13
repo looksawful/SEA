@@ -1,17 +1,17 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
 import { HintToggle } from "@/components/HintToggle";
 import { Swatch } from "@/components/Swatch";
-import { useGameStore } from "@/store/gameStore";
 import { useNumberKeys } from "@/hooks/useKeyboard";
 import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
+import { useGameStore } from "@/store/gameStore";
 import { hslToRgb, rgbToHex } from "@/utils/colors";
-import { pickRandom, randomInt, shuffle } from "@/utils/helpers";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
+import { pickRandom, randomInt, shuffle } from "@/utils/helpers";
 import { LocalizedText, localize, t } from "@/utils/i18n";
+import { motion } from "framer-motion";
+import { useCallback, useEffect, useState } from "react";
 
 type TemperatureTarget = "warm" | "cool";
 
@@ -31,14 +31,14 @@ const text = (ru: string, en: string): LocalizedText => ({ ru, en });
 
 const TARGET_COPY: Record<TemperatureTarget, { title: LocalizedText; hint: LocalizedText }> = {
   warm: {
-    title: text("Найди самый тёплый цвет", "Find the warmest color"),
+    title: text("Найти самый тёплый цвет", "Find the warmest color"),
     hint: text(
       "Тёплые оттенки ближе к красному и жёлтому сектору.",
       "Warm hues sit closer to the red and yellow sector.",
     ),
   },
   cool: {
-    title: text("Найди самый холодный цвет", "Find the coolest color"),
+    title: text("Найти самый холодный цвет", "Find the coolest color"),
     hint: text(
       "Холодные оттенки ближе к синему и голубому сектору.",
       "Cool hues sit closer to the blue and cyan sector.",
@@ -47,7 +47,7 @@ const TARGET_COPY: Record<TemperatureTarget, { title: LocalizedText; hint: Local
 };
 
 const EXPLANATION = text(
-  "Тёплые тона лежат ближе к красно-жёлтой зоне, холодные — к синей. Сравни положение оттенка на круге.",
+  "Тёплые тона лежат ближе к красно-жёлтой зоне, холодные — к синей. Сравните положение оттенка на круге.",
   "Warm tones are closer to the red-yellow zone, cool ones to blue. Compare the hue position on the wheel.",
 );
 
@@ -97,9 +97,7 @@ const getRanges = (target: TemperatureTarget, difficulty: Difficulty) => {
 
   const targetRanges = target === "warm" ? warmRanges[difficulty] : coolRanges[difficulty];
   const wrongRanges =
-    target === "warm"
-      ? [...coolRanges[difficulty], ...NEUTRAL_RANGES]
-      : [...warmRanges[difficulty], ...NEUTRAL_RANGES];
+    target === "warm" ? [...coolRanges[difficulty], ...NEUTRAL_RANGES] : [...warmRanges[difficulty], ...NEUTRAL_RANGES];
 
   return { targetRanges, wrongRanges };
 };
@@ -169,7 +167,7 @@ export const ColorTemperatureGame = ({ onAnswer }: Props) => {
         playWrong();
         const userChoice = challenge.options[index];
         const correctChoice = challenge.options[challenge.correctIndex];
-        const choiceLabel = language === "ru" ? "Твой выбор" : "Your choice";
+        const choiceLabel = language === "ru" ? "Ваш выбор" : "Your choice";
         const correctLabel = language === "ru" ? "Правильный" : "Correct";
         addMistake({
           question: localize(TARGET_COPY[challenge.target].title, language),
@@ -256,10 +254,10 @@ export const ColorTemperatureGame = ({ onAnswer }: Props) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-muted"
         >
-          {language === "ru" ? "Правильный оттенок" : "Correct hue"}: Hue {challenge.options[challenge.correctIndex].hue}°
+          {language === "ru" ? "Правильный оттенок" : "Correct hue"}: Hue{" "}
+          {challenge.options[challenge.correctIndex].hue}°
         </motion.div>
       )}
     </div>
   );
 };
-

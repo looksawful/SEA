@@ -1,16 +1,55 @@
 "use client";
-import { CSSProperties, useCallback, useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
 import { HintToggle } from "@/components/HintToggle";
 import { Swatch } from "@/components/Swatch";
-import { useGameStore } from "@/store/gameStore";
 import { useNumberKeys } from "@/hooks/useKeyboard";
 import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
+import { useGameStore } from "@/store/gameStore";
 import { hslToRgb, rgbToHex } from "@/utils/colors";
-import { shuffle, randomInt, pickRandom } from "@/utils/helpers";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
+import { pickRandom, randomInt, shuffle } from "@/utils/helpers";
+import { LocalizedText, localize, t } from "@/utils/i18n";
+import { motion } from "framer-motion";
+import { CSSProperties, useCallback, useEffect, useState } from "react";
+
+const text = (ru: string, en: string): LocalizedText => ({ ru, en });
+
+const THEME_TITLES = {
+  "light-to-dark": text("Адаптируй для тёмной темы", "Adapt for the dark theme"),
+  "dark-to-light": text("Адаптируй для светлой темы", "Adapt for the light theme"),
+};
+
+const THEME_HINTS = {
+  "light-to-dark": text(
+    "Инвертируй светлоту и слегка снизь насыщенность для тёмного UI.",
+    "Invert lightness and slightly reduce saturation for dark UI.",
+  ),
+  "dark-to-light": text(
+    "Инвертируй светлоту и слегка увеличь насыщенность для светлого UI.",
+    "Invert lightness and slightly increase saturation for light UI.",
+  ),
+};
+
+const THEME_EXPLANATIONS = {
+  "light-to-dark": text(
+    "Для тёмной темы: инвертируй светлоту (L), слегка снизь насыщенность (S), сохрани тон (H). Это обеспечивает читаемость на тёмном фоне.",
+    "For a dark theme: invert lightness (L), slightly reduce saturation (S), keep hue (H). This ensures readability on a dark background.",
+  ),
+  "dark-to-light": text(
+    "Для светлой темы: инвертируй светлоту (L), слегка увеличь насыщенность (S), сохрани тон (H). Это обеспечивает контраст на светлом фоне.",
+    "For a light theme: invert lightness (L), slightly increase saturation (S), keep hue (H). This ensures contrast on a light background.",
+  ),
+};
+
+const LABELS = {
+  original: text("Оригинал", "Original"),
+  correct: text("Правильный", "Correct"),
+  yourChoice: text("Ваш выбор", "Your choice"),
+  originalTheme: text("Оригинал (светлая тема)", "Original (light theme)"),
+  targetTheme: text("Целевая тема", "Target theme"),
+  correctAdaptation: text("Правильная адаптация", "Correct adaptation"),
+};
 
 type ThemeType = "light-to-dark" | "dark-to-light";
 
@@ -23,7 +62,10 @@ interface Challenge {
   difficulty: Difficulty;
 }
 
-const adaptColorForDarkTheme = (hsl: { h: number; s: number; l: number }, difficulty: Difficulty): { h: number; s: number; l: number } => {
+const adaptColorForDarkTheme = (
+  hsl: { h: number; s: number; l: number },
+  difficulty: Difficulty,
+): { h: number; s: number; l: number } => {
   const saturationShift = difficulty === "expert" ? 16 : difficulty === "hard" ? 12 : 10;
   const lightnessShift = difficulty === "expert" ? 20 : difficulty === "hard" ? 18 : 15;
   return {
@@ -33,7 +75,10 @@ const adaptColorForDarkTheme = (hsl: { h: number; s: number; l: number }, diffic
   };
 };
 
-const adaptColorForLightTheme = (hsl: { h: number; s: number; l: number }, difficulty: Difficulty): { h: number; s: number; l: number } => {
+const adaptColorForLightTheme = (
+  hsl: { h: number; s: number; l: number },
+  difficulty: Difficulty,
+): { h: number; s: number; l: number } => {
   const saturationShift = difficulty === "expert" ? 16 : difficulty === "hard" ? 12 : 10;
   const lightnessShift = difficulty === "expert" ? 20 : difficulty === "hard" ? 18 : 15;
   return {
@@ -97,7 +142,9 @@ const generateChallenge = (round: number): Challenge => {
   const originalColor = rgbToHex(r, g, b);
 
   const correctHsl =
-    themeType === "light-to-dark" ? adaptColorForDarkTheme(originalHsl, difficulty) : adaptColorForLightTheme(originalHsl, difficulty);
+    themeType === "light-to-dark"
+      ? adaptColorForDarkTheme(originalHsl, difficulty)
+      : adaptColorForLightTheme(originalHsl, difficulty);
 
   const wrongOptions: { h: number; s: number; l: number }[] = [];
   const usedKeys = new Set<string>();
@@ -141,7 +188,7 @@ export const ThemeAnalogGame = ({ onAnswer }: Props) => {
   const [selected, setSelected] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [round, setRound] = useState(0);
-  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause } = useGameStore();
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, setReviewPause, language } = useGameStore();
   const { playCorrect, playWrong } = useSound();
 
   useEffect(() => {
@@ -159,7 +206,14 @@ export const ThemeAnalogGame = ({ onAnswer }: Props) => {
       const correctOption = challenge.options[challenge.correctIndex];
 
       if (correct) {
-        const pts = challenge.difficulty === "expert" ? 210 : challenge.difficulty === "hard" ? 180 : challenge.difficulty === "medium" ? 140 : 110;
+        const pts =
+          challenge.difficulty === "expert"
+            ? 210
+            : challenge.difficulty === "hard"
+              ? 180
+              : challenge.difficulty === "medium"
+                ? 140
+                : 110;
         addScore(pts);
         incrementStreak();
         playCorrect();
@@ -168,19 +222,16 @@ export const ThemeAnalogGame = ({ onAnswer }: Props) => {
         playWrong();
         const userOption = challenge.options[index];
         addMistake({
-          question: `Adapt the color for the ${challenge.themeType === "light-to-dark" ? "dark" : "light"} theme`,
+          question: localize(THEME_TITLES[challenge.themeType], language),
           userAnswer: `H=${userOption.hsl.h}° S=${userOption.hsl.s}% L=${userOption.hsl.l}%`,
           correctAnswer: `H=${correctOption.hsl.h}° S=${correctOption.hsl.s}% L=${correctOption.hsl.l}%`,
-          explanation:
-            challenge.themeType === "light-to-dark"
-              ? "For a dark theme: invert lightness (L), slightly reduce saturation (S), keep hue (H). This ensures readability on a dark background."
-              : "For a light theme: invert lightness (L), slightly increase saturation (S), keep hue (H). This ensures contrast on a light background.",
+          explanation: localize(THEME_EXPLANATIONS[challenge.themeType], language),
           visual: {
             type: "colors",
             data: {
-              Original: challenge.originalColor,
-              Correct: correctOption.color,
-              "Your choice": userOption.color,
+              [localize(LABELS.original, language)]: challenge.originalColor,
+              [localize(LABELS.correct, language)]: correctOption.color,
+              [localize(LABELS.yourChoice, language)]: userOption.color,
             },
           },
         });
@@ -227,31 +278,28 @@ export const ThemeAnalogGame = ({ onAnswer }: Props) => {
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-xl sm:text-2xl font-display font-semibold tracking-tight">
-          Adapt for the {challenge.themeType === "light-to-dark" ? "dark" : "light"} theme
+          {localize(THEME_TITLES[challenge.themeType], language)}
         </h2>
-        <HintToggle
-          hint={
-            challenge.themeType === "light-to-dark"
-              ? "Invert lightness and slightly reduce saturation for dark UI."
-              : "Invert lightness and slightly increase saturation for light UI."
-          }
-        />
-        <div className="text-xs text-soft">Difficulty: {difficultyDots(challenge.difficulty)}</div>
+        <HintToggle hint={localize(THEME_HINTS[challenge.themeType], language)} />
+        <div className="text-xs text-soft">
+          {t(language, "difficultyLabel")}: {difficultyDots(challenge.difficulty)}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <div className="text-xs text-muted text-center">Original (light theme)</div>
+          <div className="text-xs text-muted text-center">{localize(LABELS.originalTheme, language)}</div>
           <div className="bg-surface rounded-xl p-4 flex items-center justify-center h-24 border border-subtle shadow-card">
             <Swatch color={challenge.originalColor} className="w-16 h-16 rounded-lg shadow-card border border-subtle" />
           </div>
         </div>
         <div className="space-y-2">
-          <div className="text-xs text-muted text-center">Target theme</div>
-          <div className="rounded-xl p-4 flex items-center justify-center h-24 bg-swatch text-swatch border border-subtle shadow-card" style={themeStyle}>
-            <span className="text-2xl">
-              ?
-            </span>
+          <div className="text-xs text-muted text-center">{localize(LABELS.targetTheme, language)}</div>
+          <div
+            className="rounded-xl p-4 flex items-center justify-center h-24 bg-swatch text-swatch border border-subtle shadow-card"
+            style={themeStyle}
+          >
+            <span className="text-2xl">?</span>
           </div>
         </div>
       </div>
@@ -277,9 +325,7 @@ export const ThemeAnalogGame = ({ onAnswer }: Props) => {
                 <div>S: {option.hsl.s}%</div>
                 <div>L: {option.hsl.l}%</div>
               </div>
-              <span className="ml-auto text-xs opacity-50 hidden sm:inline">
-                [{index + 1}]
-              </span>
+              <span className="ml-auto text-xs opacity-50 hidden sm:inline">[{index + 1}]</span>
             </div>
           </Card>
         ))}
@@ -291,11 +337,10 @@ export const ThemeAnalogGame = ({ onAnswer }: Props) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-muted"
         >
-          Correct adaptation: H={challenge.options[challenge.correctIndex].hsl.h}° S=
+          {localize(LABELS.correctAdaptation, language)}: H={challenge.options[challenge.correctIndex].hsl.h}° S=
           {challenge.options[challenge.correctIndex].hsl.s}% L={challenge.options[challenge.correctIndex].hsl.l}%
         </motion.div>
       )}
     </div>
   );
 };
-

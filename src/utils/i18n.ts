@@ -10,7 +10,7 @@ type UiValue = string | ((params: Record<string, number | string>) => string);
 
 const UI: Record<Language, Record<string, UiValue>> = {
   ru: {
-    appName: "Awful Exercises",
+    appName: "SEA",
     customQuestions: "Свои вопросы",
     sound: "Звук",
     soundOn: "Звук включен",
@@ -187,7 +187,7 @@ const UI: Record<Language, Record<string, UiValue>> = {
     sortPlayed: "По сыгранным",
   },
   en: {
-    appName: "Awful Exercises",
+    appName: "SEA",
     customQuestions: "Custom questions",
     sound: "Sound",
     soundOn: "Sound on",

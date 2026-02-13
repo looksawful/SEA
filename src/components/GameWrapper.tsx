@@ -9,11 +9,11 @@ import { Language, getGameLabel, t } from "@/utils/i18n";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useRef, useState } from "react";
+import { FaFlag, FaForward } from "react-icons/fa";
 import { Button } from "./Button";
 import { ProgressBar, TimerDisplay } from "./Progress";
 import { ScoreDisplay } from "./Score";
 import { Swatch } from "./Swatch";
-import { FaFlag, FaForward } from "react-icons/fa";
 
 interface GameWrapperProps {
   gameId: GameId;
@@ -26,15 +26,7 @@ interface GameWrapperProps {
   correctCount?: number | null;
 }
 
-const MistakeCard = ({
-  mistake,
-  index,
-  language,
-}: {
-  mistake: MistakeRecord;
-  index: number;
-  language: Language;
-}) => (
+const MistakeCard = ({ mistake, index, language }: { mistake: MistakeRecord; index: number; language: Language }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -133,8 +125,7 @@ export const GameWrapper = ({
     },
   });
 
-  const resolvedCorrect =
-    typeof correctCount === "number" ? correctCount : Math.floor(score / game.pointsPerCorrect);
+  const resolvedCorrect = typeof correctCount === "number" ? correctCount : Math.floor(score / game.pointsPerCorrect);
 
   const handleGameComplete = () => {
     stop();
@@ -199,7 +190,7 @@ export const GameWrapper = ({
   };
 
   const handleReportGithub = () => {
-    const url = `https://github.com/looksawful/Awful-Exercises/issues/new?title=${encodeURIComponent(
+    const url = `https://github.com/looksawful/SEA/issues/new?title=${encodeURIComponent(
       reportSubject,
     )}&body=${encodeURIComponent(reportBody)}`;
     window.open(url, "_blank", "noopener,noreferrer");
@@ -215,8 +206,7 @@ export const GameWrapper = ({
 
   const handleNext = () => {
     if (!nextGame) return;
-    const nextQueue =
-      nextGame.queue.length > 0 ? `?next=${encodeURIComponent(JSON.stringify(nextGame.queue))}` : "";
+    const nextQueue = nextGame.queue.length > 0 ? `?next=${encodeURIComponent(JSON.stringify(nextGame.queue))}` : "";
     router.push(`/game/${nextGame.id}${nextQueue}`);
   };
 
@@ -563,7 +553,7 @@ export const GameWrapper = ({
                 value={reportText}
                 onChange={(event) => setReportText(event.target.value)}
                 placeholder={t(language, "reportPlaceholder")}
-                className="w-full min-h-[120px] rounded-2xl border border-subtle bg-surface-2 p-3 text-sm text-strong placeholder:text-soft focus:outline-none focus:ring-2 focus:ring-[color:var(--accent)]"
+                className="w-full min-h-[120px] rounded-2xl glass-input p-3 text-sm text-strong placeholder:text-soft focus:outline-none"
               />
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button onClick={handleReportEmail} fullWidth>
