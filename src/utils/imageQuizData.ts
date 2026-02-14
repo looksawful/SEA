@@ -48,14 +48,31 @@ export const IMAGE_QUIZ_IDS = [
   "film-type",
   "composition-technique",
   "focal-length",
+  "fov-angle",
   "wcag-issue",
   "button-color",
   "font-size-choice",
   "layout-error",
   "palette-from-photo",
+  "palette-lab",
 ] as const satisfies GameId[];
 
 export type ImageQuizGameId = (typeof IMAGE_QUIZ_IDS)[number];
+
+export const GENERATED_IMAGE_QUIZ_IDS = [
+  "color-eye",
+  "film-type",
+  "composition-technique",
+  "focal-length",
+  "palette-from-photo",
+  "fov-angle",
+  "palette-lab",
+] as const satisfies GameId[];
+
+export type GeneratedImageQuizGameId = (typeof GENERATED_IMAGE_QUIZ_IDS)[number];
+
+export const isGeneratedImageQuizGame = (gameId: GameId): gameId is GeneratedImageQuizGameId =>
+  GENERATED_IMAGE_QUIZ_IDS.includes(gameId as GeneratedImageQuizGameId);
 
 const commons = (file: string, width = 1200) =>
   `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
@@ -2423,4 +2440,6 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
       difficulty: "easy",
     },
   ],
+  "fov-angle": [],
+  "palette-lab": [],
 };

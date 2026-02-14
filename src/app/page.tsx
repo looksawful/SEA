@@ -8,7 +8,7 @@ import { GameId, GameTag } from "@/types";
 import { GAMES, GAME_ORDER } from "@/utils/gameConfig";
 import { shuffle } from "@/utils/helpers";
 import { getGameLabel, t } from "@/utils/i18n";
-import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS } from "@/utils/imageQuizData";
+import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS, isGeneratedImageQuizGame } from "@/utils/imageQuizData";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -111,7 +111,9 @@ export default function Home() {
     }
 
     if (IMAGE_QUIZ_IDS.includes(gameId as (typeof IMAGE_QUIZ_IDS)[number])) {
-      return countDifficulties(IMAGE_QUIZ_DATA[gameId as keyof typeof IMAGE_QUIZ_DATA] || []);
+      if (isGeneratedImageQuizGame(gameId)) return null;
+      const questions = IMAGE_QUIZ_DATA[gameId as keyof typeof IMAGE_QUIZ_DATA] || [];
+      return questions.length > 0 ? countDifficulties(questions) : null;
     }
 
     return null;

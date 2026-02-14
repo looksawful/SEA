@@ -23,7 +23,7 @@ import {
 import { GameId } from "@/types";
 import { useGameStore } from "@/store/gameStore";
 import { GAMES } from "@/utils/gameConfig";
-import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS } from "@/utils/imageQuizData";
+import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS, isGeneratedImageQuizGame } from "@/utils/imageQuizData";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { QUIZ_QUESTIONS } from "@/games/Quiz";
@@ -51,8 +51,11 @@ function GameWithWrapper({
   const { customMode, customQuestions, avoidRepeats } = useGameStore();
   const customCount = customQuestions[gameId]?.length || 0;
   const useCustom = Boolean(customMode[gameId]) && customCount > 0;
+  const generatedImageQuiz = isGeneratedImageQuizGame(gameId);
   const imageCount = IMAGE_QUIZ_IDS.includes(gameId as (typeof IMAGE_QUIZ_IDS)[number])
-    ? IMAGE_QUIZ_DATA[gameId as keyof typeof IMAGE_QUIZ_DATA]?.length || 0
+    ? generatedImageQuiz
+      ? baseTotal
+      : IMAGE_QUIZ_DATA[gameId as keyof typeof IMAGE_QUIZ_DATA]?.length || 0
     : 0;
   const availableCount = useCustom ? customCount : gameId === "quiz" ? QUIZ_QUESTIONS.length : imageCount;
   const totalChallenges = avoidRepeats && availableCount > 0 ? Math.min(baseTotal, availableCount) : baseTotal;
@@ -132,7 +135,7 @@ export function GamePageClient({ gameId }: Props) {
     try {
       const parsed = JSON.parse(raw);
       if (!Array.isArray(parsed)) return [];
-      return parsed.filter((id): id is GameId => Boolean(GAMES[id as GameId]));
+      return parsed.filter((id): id is GameId => Boolean(GAMES[id as GameId] && !GAMES[id as GameId].disabled));
     } catch {
       return [];
     }

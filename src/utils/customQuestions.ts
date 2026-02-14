@@ -232,6 +232,13 @@ export const CUSTOM_QUESTION_CONFIG: Record<GameId, CustomQuestionConfigBase> = 
     defaultOptions: 4,
     optionLabel: { ru: "Фокусное", en: "Focal length" },
   },
+  "fov-angle": {
+    title: { ru: "Угол обзора", en: "Field of view" },
+    optionKind: "text",
+    previewKind: "image",
+    defaultOptions: 4,
+    optionLabel: { ru: "Угол", en: "Angle" },
+  },
   "wcag-issue": {
     title: { ru: "Проблема WCAG", en: "WCAG issue" },
     optionKind: "text",
@@ -262,6 +269,13 @@ export const CUSTOM_QUESTION_CONFIG: Record<GameId, CustomQuestionConfigBase> = 
   },
   "palette-from-photo": {
     title: { ru: "Палитра по образцу", en: "Palette match" },
+    optionKind: "palette",
+    previewKind: "image",
+    defaultOptions: 3,
+    optionLabel: { ru: "Палитра", en: "Palette" },
+  },
+  "palette-lab": {
+    title: { ru: "Лаборатория палитр", en: "Palette lab" },
     optionKind: "palette",
     previewKind: "image",
     defaultOptions: 3,

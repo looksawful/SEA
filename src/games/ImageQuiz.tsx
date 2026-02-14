@@ -13,7 +13,14 @@ import { GAMES } from "@/utils/gameConfig";
 import { difficultyDots, getDifficulty } from "@/utils/difficulty";
 import { getFontSizeClass } from "@/utils/fonts";
 import { shuffle } from "@/utils/helpers";
-import { ImageQuizGameId, ImageQuizOption, IMAGE_QUIZ_DATA } from "@/utils/imageQuizData";
+import { buildGeneratedImageQuizQuestion } from "@/utils/imageQuizGenerated";
+import {
+  GeneratedImageQuizGameId,
+  ImageQuizGameId,
+  ImageQuizOption,
+  IMAGE_QUIZ_DATA,
+  isGeneratedImageQuizGame,
+} from "@/utils/imageQuizData";
 import { Language, LocalizedText, localize, t } from "@/utils/i18n";
 
 const resolveText = (value: string | LocalizedText, language: Language): string =>
@@ -82,9 +89,16 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
   const [showResult, setShowResult] = useState(false);
 
   const questions = IMAGE_QUIZ_DATA[gameId as ImageQuizGameId] || [];
+  const generatedMode = isGeneratedImageQuizGame(gameId);
   const order = useMemo(() => shuffle(questions.map((_, index) => index)), [questions.length]);
   const currentIndex = order.length > 0 ? (avoidRepeats ? order[round] : order[round % order.length]) : -1;
-  const question = typeof currentIndex === "number" ? questions[currentIndex] : null;
+  const question = useMemo(() => {
+    if (generatedMode) {
+      return buildGeneratedImageQuizQuestion(gameId as GeneratedImageQuizGameId);
+    }
+    if (typeof currentIndex !== "number") return null;
+    return questions[currentIndex] ?? null;
+  }, [generatedMode, gameId, currentIndex, questions, round]);
   const challenge = useMemo(() => {
     if (!question) return null;
     const optionOrder = shuffle(question.options.map((_, index) => index));

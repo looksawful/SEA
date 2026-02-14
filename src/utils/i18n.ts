@@ -452,6 +452,10 @@ const GAME_LABELS_EN: Record<GameId, { name: string; description: string }> = {
     name: "Focal Length",
     description: "Match focal length to field of view",
   },
+  "fov-angle": {
+    name: "Field of View",
+    description: "Estimate the field-of-view angle from a diagram",
+  },
   "wcag-issue": {
     name: "WCAG Issue",
     description: "Spot an accessibility issue",
@@ -471,6 +475,10 @@ const GAME_LABELS_EN: Record<GameId, { name: string; description: string }> = {
   "palette-from-photo": {
     name: "Palette Match",
     description: "Pick the palette that matches the image",
+  },
+  "palette-lab": {
+    name: "Palette Lab",
+    description: "Match a generated scene to the correct palette",
   },
   "long-test": {
     name: "Long test",

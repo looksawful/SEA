@@ -29,6 +29,8 @@ export type GameId =
   | 'font-size-choice'
   | 'layout-error'
   | 'palette-from-photo'
+  | 'palette-lab'
+  | 'fov-angle'
   | 'long-test'
 
 export type GameTag =
@@ -49,6 +51,7 @@ export interface GameConfig {
   icon: IconType
   timeLimit: number
   pointsPerCorrect: number
+  disabled?: boolean
 }
 
 export interface MistakeRecord {

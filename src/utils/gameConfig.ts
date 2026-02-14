@@ -165,6 +165,7 @@ export const GAMES: Record<GameId, GameConfig> = {
     icon: FaPaintBrush,
     timeLimit: 60,
     pointsPerCorrect: 140,
+    disabled: true,
   },
   "style-guess": {
     id: "style-guess",
@@ -174,6 +175,7 @@ export const GAMES: Record<GameId, GameConfig> = {
     icon: FaShapes,
     timeLimit: 60,
     pointsPerCorrect: 140,
+    disabled: true,
   },
   "image-size": {
     id: "image-size",
@@ -183,6 +185,7 @@ export const GAMES: Record<GameId, GameConfig> = {
     icon: FaExpand,
     timeLimit: 60,
     pointsPerCorrect: 120,
+    disabled: true,
   },
   "image-format": {
     id: "image-format",
@@ -192,6 +195,7 @@ export const GAMES: Record<GameId, GameConfig> = {
     icon: FaCrop,
     timeLimit: 60,
     pointsPerCorrect: 120,
+    disabled: true,
   },
   "color-eye": {
     id: "color-eye",
@@ -210,6 +214,7 @@ export const GAMES: Record<GameId, GameConfig> = {
     icon: FaCircleNotch,
     timeLimit: 60,
     pointsPerCorrect: 130,
+    disabled: true,
   },
   "film-type": {
     id: "film-type",
@@ -233,6 +238,15 @@ export const GAMES: Record<GameId, GameConfig> = {
     id: "focal-length",
     name: "Фокусное расстояние",
     description: "Определить фокус по углу обзора",
+    tags: ["photo", "theory"],
+    icon: FaCamera,
+    timeLimit: 60,
+    pointsPerCorrect: 140,
+  },
+  "fov-angle": {
+    id: "fov-angle",
+    name: "Угол обзора",
+    description: "Оценить угол обзора по схеме",
     tags: ["photo", "theory"],
     icon: FaCamera,
     timeLimit: 60,
@@ -283,6 +297,15 @@ export const GAMES: Record<GameId, GameConfig> = {
     timeLimit: 60,
     pointsPerCorrect: 140,
   },
+  "palette-lab": {
+    id: "palette-lab",
+    name: "Лаборатория палитр",
+    description: "Сопоставить палитру с сгенерированной сценой",
+    tags: ["color", "design"],
+    icon: FaPalette,
+    timeLimit: 60,
+    pointsPerCorrect: 140,
+  },
   "long-test": {
     id: "long-test",
     name: "Длинный тест",
@@ -294,7 +317,7 @@ export const GAMES: Record<GameId, GameConfig> = {
   },
 };
 
-export const GAME_ORDER: GameId[] = [
+const ALL_GAME_ORDER: GameId[] = [
   "color-compare",
   "font-size",
   "font-weight",
@@ -318,17 +341,23 @@ export const GAME_ORDER: GameId[] = [
   "film-type",
   "composition-technique",
   "focal-length",
+  "fov-angle",
   "wcag-issue",
   "button-color",
   "font-size-choice",
   "layout-error",
   "palette-from-photo",
+  "palette-lab",
 ];
+
+export const DISABLED_GAME_IDS = new Set<GameId>((Object.keys(GAMES) as GameId[]).filter((id) => GAMES[id].disabled));
+
+export const GAME_ORDER: GameId[] = ALL_GAME_ORDER.filter((id) => !DISABLED_GAME_IDS.has(id));
 
 export const normalizeGameOrder = (order: GameId[]): GameId[] => {
   const seen = new Set<GameId>();
   const filtered = order.filter((id) => {
-    if (!GAME_ORDER.includes(id) || seen.has(id)) return false;
+    if (!GAME_ORDER.includes(id) || seen.has(id) || DISABLED_GAME_IDS.has(id)) return false;
     seen.add(id);
     return true;
   });
