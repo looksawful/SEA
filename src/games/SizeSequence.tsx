@@ -35,24 +35,24 @@ const SCALE_NAMES: Record<ScaleType, LocalizedText> = {
 
 const SCALE_EXPLANATIONS: Record<ScaleType, LocalizedText> = {
   modular: text(
-    "Модульная шкала умножает базовый размер на постоянный коэффициент (обычно 1.2-1.5)",
+    "Модульная шкала умножает базовый размер на постоянный коэффициент (обычно 1.2–1.5).",
     "A modular scale multiplies the base size by a constant ratio (typically 1.2–1.5).",
   ),
   linear: text(
-    "Линейная шкала добавляет фиксированное значение к каждому следующему размеру",
+    "Линейная шкала добавляет фиксированное значение к каждому следующему размеру.",
     "A linear scale adds a fixed step to each next size.",
   ),
   fibonacci: text(
-    "Шкала Фибоначчи: каждое число — сумма двух предыдущих",
+    "Шкала Фибоначчи: каждое число — сумма двух предыдущих.",
     "A Fibonacci scale: each number is the sum of the two previous ones.",
   ),
   golden: text(
-    "Золотое сечение использует коэффициент 1.618 для каждого следующего размера",
+    "Золотое сечение использует коэффициент 1.618 для каждого следующего размера.",
     "The golden ratio uses 1.618 as the multiplier for each next size.",
   ),
-  "major-third": text("Major Third масштабирует размеры по коэффициенту 1.25", "Major Third scales sizes by 1.25."),
+  "major-third": text("Major Third масштабирует размеры по коэффициенту 1.25.", "Major Third scales sizes by 1.25."),
   "perfect-fourth": text(
-    "Perfect Fourth масштабирует размеры по коэффициенту 1.333",
+    "Perfect Fourth масштабирует размеры по коэффициенту 1.333.",
     "Perfect Fourth scales sizes by 1.333.",
   ),
 };

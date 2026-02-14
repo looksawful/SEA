@@ -1,6 +1,6 @@
 "use client";
-import { GameWrapper } from "@/components/GameWrapper";
 import { CustomQuestionGame } from "@/components/CustomQuestions";
+import { GameWrapper } from "@/components/GameWrapper";
 import { Skeleton } from "@/components/Skeleton";
 import {
   AccessibilityGame,
@@ -20,17 +20,19 @@ import {
   SizeSequenceGame,
   ThemeAnalogGame,
 } from "@/games";
-import { GameId } from "@/types";
+import { QUIZ_QUESTIONS } from "@/games/Quiz";
 import { useGameStore } from "@/store/gameStore";
-import { GAMES } from "@/utils/gameConfig";
+import { GameId } from "@/types";
+import { DISABLED_GAME_IDS, GAMES } from "@/utils/gameConfig";
 import { IMAGE_QUIZ_DATA, IMAGE_QUIZ_IDS, isGeneratedImageQuizGame } from "@/utils/imageQuizData";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { QUIZ_QUESTIONS } from "@/games/Quiz";
 
 const LONG_TEST_POOL_SIZE =
   QUIZ_QUESTIONS.length +
-  Object.values(IMAGE_QUIZ_DATA).reduce((total, items) => total + items.length, 0);
+  Object.entries(IMAGE_QUIZ_DATA)
+    .filter(([id]) => !DISABLED_GAME_IDS.has(id as GameId))
+    .reduce((total, [, items]) => total + items.length, 0);
 
 interface Props {
   gameId: string;
@@ -119,7 +121,6 @@ function LongTestWithWrapper({ nextGame }: { nextGame?: { id: GameId; queue: Gam
     </GameWrapper>
   );
 }
-
 
 export function GamePageClient({ gameId }: Props) {
   const searchParams = useSearchParams();

@@ -296,6 +296,7 @@ export const GAMES: Record<GameId, GameConfig> = {
     icon: FaImage,
     timeLimit: 60,
     pointsPerCorrect: 140,
+    disabled: true,
   },
   "palette-lab": {
     id: "palette-lab",

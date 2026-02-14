@@ -14,6 +14,7 @@ import { Button } from "./Button";
 import { ProgressBar, TimerDisplay } from "./Progress";
 import { ScoreDisplay } from "./Score";
 import { Swatch } from "./Swatch";
+import { TheoryButton, TheoryPanel } from "./TheoryPanel";
 
 interface GameWrapperProps {
   gameId: GameId;
@@ -81,6 +82,7 @@ export const GameWrapper = ({
   const [showComplete, setShowComplete] = useState(false);
   const [showMistakes, setShowMistakes] = useState(false);
   const [showReport, setShowReport] = useState(false);
+  const [showTheory, setShowTheory] = useState(false);
   const [reportText, setReportText] = useState("");
   const [sessionTimeLimit, setSessionTimeLimit] = useState(game.timeLimit);
   const { playComplete } = useSound();
@@ -452,6 +454,7 @@ export const GameWrapper = ({
               </div>
             )}
           </div>
+          <TheoryButton gameId={gameId} language={language} onClick={() => setShowTheory(true)} />
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button onClick={handleExit} variant="ghost" fullWidth>
               {t(language, "back")}
@@ -461,6 +464,7 @@ export const GameWrapper = ({
             </Button>
           </div>
           <div className="mt-6 text-xs text-soft hidden sm:block">{t(language, "hotkeys")}</div>
+          <TheoryPanel gameId={gameId} language={language} open={showTheory} onClose={() => setShowTheory(false)} />
         </motion.div>
       </div>
     );

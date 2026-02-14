@@ -139,7 +139,7 @@ export const GuessParamsGame = ({ onAnswer }: Props) => {
             ? `H (Hue) — тон на цветовом круге (0–360°). S (Saturation) — насыщенность (0–100%). L (Lightness) — светлота (0–100%). Разница: H на ${Math.abs(userHsl.h - challenge.hsl.h)}°, S на ${Math.abs(userHsl.s - challenge.hsl.s)}%, L на ${Math.abs(userHsl.l - challenge.hsl.l)}%`
             : `H (Hue) is the hue angle (0–360°). S (Saturation) is saturation (0–100%). L (Lightness) is lightness (0–100%). Difference: H by ${Math.abs(userHsl.h - challenge.hsl.h)}°, S by ${Math.abs(userHsl.s - challenge.hsl.s)}%, L by ${Math.abs(userHsl.l - challenge.hsl.l)}%`;
         addMistake({
-          question: language === "ru" ? "Определить HSL-параметры цвета" : "Determine the HSL parameters of the color",
+          question: language === "ru" ? "Угадать HSL-параметры цвета" : "Guess the HSL parameters of the color",
           userAnswer: `H=${userHsl.h}° S=${userHsl.s}% L=${userHsl.l}%`,
           correctAnswer: `H=${challenge.hsl.h}° S=${challenge.hsl.s}% L=${challenge.hsl.l}%`,
           explanation,

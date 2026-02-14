@@ -46,7 +46,8 @@ const LABELS = {
   original: text("Оригинал", "Original"),
   correct: text("Правильный", "Correct"),
   yourChoice: text("Ваш выбор", "Your choice"),
-  originalTheme: text("Оригинал (светлая тема)", "Original (light theme)"),
+  originalLightTheme: text("Оригинал (светлая тема)", "Original (light theme)"),
+  originalDarkTheme: text("Оригинал (тёмная тема)", "Original (dark theme)"),
   targetTheme: text("Целевая тема", "Target theme"),
   correctAdaptation: text("Правильная адаптация", "Correct adaptation"),
 };
@@ -288,7 +289,7 @@ export const ThemeAnalogGame = ({ onAnswer }: Props) => {
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <div className="text-xs text-muted text-center">{localize(LABELS.originalTheme, language)}</div>
+          <div className="text-xs text-muted text-center">{localize(challenge.themeType === "light-to-dark" ? LABELS.originalLightTheme : LABELS.originalDarkTheme, language)}</div>
           <div className="bg-surface rounded-xl p-4 flex items-center justify-center h-24 border border-subtle shadow-card">
             <Swatch color={challenge.originalColor} className="w-16 h-16 rounded-lg shadow-card border border-subtle" />
           </div>

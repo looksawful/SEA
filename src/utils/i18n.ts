@@ -238,7 +238,7 @@ const UI: Record<Language, Record<string, UiValue>> = {
     roundComplete: "Round complete!",
     correctSummary: ({ correct, total, accuracy }) => `Correct: ${correct} of ${total} (${accuracy}%)`,
     nextGame: ({ name }) => `Next: ${name}`,
-    mistakesCount: ({ count }) => `${count} mistakes`,
+    mistakesCount: ({ count, label }) => `${count} ${label}`,
     mistakesLabel: ({ count }) => (count === 1 ? "mistake" : "mistakes"),
     exit: "Exit",
     again: "Again",

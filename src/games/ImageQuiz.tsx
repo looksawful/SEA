@@ -135,20 +135,20 @@ export const ImageQuizGame = ({ gameId, onAnswer }: Props) => {
               ? {
                   type: "colors",
                   data: {
-                    Correct: correctOption.color || "",
-                    Selected: userOption.color || "",
+                    [language === "ru" ? "Правильный" : "Correct"]: correctOption.color || "",
+                    [language === "ru" ? "Выбранный" : "Selected"]: userOption.color || "",
                   },
                 }
               : userOption.palette || correctOption.palette
                 ? {
                     type: "colors",
                     data: {
-                      "Correct 1": correctOption.palette?.[0] || "",
-                      "Correct 2": correctOption.palette?.[1] || "",
-                      "Correct 3": correctOption.palette?.[2] || "",
-                      "Selected 1": userOption.palette?.[0] || "",
-                      "Selected 2": userOption.palette?.[1] || "",
-                      "Selected 3": userOption.palette?.[2] || "",
+                      [`${language === "ru" ? "Правильный" : "Correct"} 1`]: correctOption.palette?.[0] || "",
+                      [`${language === "ru" ? "Правильный" : "Correct"} 2`]: correctOption.palette?.[1] || "",
+                      [`${language === "ru" ? "Правильный" : "Correct"} 3`]: correctOption.palette?.[2] || "",
+                      [`${language === "ru" ? "Выбранный" : "Selected"} 1`]: userOption.palette?.[0] || "",
+                      [`${language === "ru" ? "Выбранный" : "Selected"} 2`]: userOption.palette?.[1] || "",
+                      [`${language === "ru" ? "Выбранный" : "Selected"} 3`]: userOption.palette?.[2] || "",
                     },
                   }
                 : undefined,

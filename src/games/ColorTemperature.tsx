@@ -171,8 +171,8 @@ export const ColorTemperatureGame = ({ onAnswer }: Props) => {
         const correctLabel = language === "ru" ? "Правильный" : "Correct";
         addMistake({
           question: localize(TARGET_COPY[challenge.target].title, language),
-          userAnswer: `Hue ${userChoice.hue}°`,
-          correctAnswer: `Hue ${correctChoice.hue}°`,
+          userAnswer: `${language === "ru" ? "Тон" : "Hue"} ${userChoice.hue}°`,
+          correctAnswer: `${language === "ru" ? "Тон" : "Hue"} ${correctChoice.hue}°`,
           explanation: localize(EXPLANATION, language),
           visual: {
             type: "colors",
@@ -254,7 +254,7 @@ export const ColorTemperatureGame = ({ onAnswer }: Props) => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center text-sm text-muted"
         >
-          {language === "ru" ? "Правильный оттенок" : "Correct hue"}: Hue{" "}
+          {language === "ru" ? "Правильный оттенок" : "Correct hue"}: {language === "ru" ? "Тон" : "Hue"}{" "}
           {challenge.options[challenge.correctIndex].hue}°
         </motion.div>
       )}

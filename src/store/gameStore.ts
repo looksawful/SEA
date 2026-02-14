@@ -1,8 +1,8 @@
+import { GameId, GameResult, GameTag, MistakeRecord, Stats } from "@/types";
+import { CustomQuestion } from "@/utils/customQuestions";
+import { Language } from "@/utils/i18n";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { GameId, GameResult, Stats, MistakeRecord, GameTag } from "@/types";
-import { Language } from "@/utils/i18n";
-import { CustomQuestion } from "@/utils/customQuestions";
 
 interface GameStore {
   currentGame: GameId | null;

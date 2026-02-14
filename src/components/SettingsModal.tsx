@@ -52,7 +52,6 @@ export const SettingsModal = ({ onClose }: SettingsModalProps) => {
         className="w-full max-w-md bg-surface-2 border border-subtle rounded-2xl shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-subtle">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
@@ -69,7 +68,6 @@ export const SettingsModal = ({ onClose }: SettingsModalProps) => {
           </button>
         </div>
 
-        {/* Settings List */}
         <div className="p-4 space-y-2">
           {settings.map((setting, index) => {
             const Icon = setting.icon;
@@ -100,10 +98,8 @@ export const SettingsModal = ({ onClose }: SettingsModalProps) => {
           })}
         </div>
 
-        {/* Divider */}
         <div className="h-px bg-subtle mx-4" />
 
-        {/* Footer Links */}
         <div className="p-4">
           <div className="flex items-center justify-center gap-4">
             <a

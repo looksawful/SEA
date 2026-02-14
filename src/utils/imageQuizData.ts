@@ -341,7 +341,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
       imageFrameClass: "w-full max-w-xl aspect-[3/4] bg-surface-2",
       imageClass: "object-contain",
       options: [
-        { label: text("Голландское барокко", "Dutch Golden Age (Baroque)") },
+        { label: text("Голландский золотой век (барокко)", "Dutch Golden Age (Baroque)") },
         { label: text("Кубизм", "Cubism") },
         { label: text("Футуризм", "Futurism") },
         { label: text("Сюрреализм", "Surrealism") },
@@ -573,7 +573,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "format-3-2",
       prompt: text("Какой формат кадра?", "What is the frame aspect ratio?"),
-      helper: text("Посмотритете на отношение сторон.", "Look at the aspect ratio."),
+      helper: text("Посмотрите на отношение сторон.", "Look at the aspect ratio."),
       explanation: text("Кадр задан в формате 3:2.", "The frame is in 3:2."),
       imageSrc: commons("Fronalpstock_big.jpg"),
       imageAlt: text("Горный пейзаж", "Mountain landscape"),
@@ -601,7 +601,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "format-1-1",
       prompt: text("Какой формат кадра?", "What is the frame aspect ratio?"),
-      helper: text("Кадр выглядит квадратным.", "The frame looks square."),
+      helper: text("Сравните ширину и высоту — оцените пропорции.", "Compare width to height — assess the proportions."),
       explanation: text("Формат 1:1 — квадрат.", "1:1 is square."),
       imageSrc: commons("The_Earth_seen_from_Apollo_17.jpg"),
       imageAlt: text("Земля", "Earth"),
@@ -615,7 +615,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "format-16-9",
       prompt: text("Определить формат изображения.", "Identify the image aspect ratio."),
-      helper: text("Широкий кадр с низкой высотой.", "A wide frame with low height."),
+      helper: text("Оцените, насколько ширина превышает высоту.", "Assess how much the width exceeds the height."),
       explanation: text("Это формат 16:9.", "This is 16:9."),
       imageSrc: commons("City Skyline Urban Skyscrapers (Unsplash).jpg"),
       imageAlt: text("Городской пейзаж", "Cityscape"),
@@ -629,7 +629,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "format-2-1",
       prompt: text("Какой формат кадра?", "What is the frame aspect ratio?"),
-      helper: text("Очень широкий кадр.", "Very wide frame."),
+      helper: text("Попробуйте мысленно уложить высоту в ширину — сколько раз поместится?", "Try mentally fitting the height into the width — how many times does it fit?"),
       explanation: text("Формат 2:1 — панорамный.", "2:1 is panoramic."),
       imageSrc: commons("Bridge Vittorio Emanuele II at sunset.jpg"),
       imageAlt: text("Мост на закате", "Bridge at sunset"),
@@ -643,7 +643,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "format-5-4",
       prompt: text("Определить формат изображения.", "Identify the image aspect ratio."),
-      helper: text("Кадр чуть выше, чем 4:3.", "The frame is slightly taller than 4:3."),
+      helper: text("Оцените, насколько ширина и высота близки друг к другу.", "Assess how close the width and height are to each other."),
       explanation: text("Формат 5:4 — почти квадратный.", "5:4 is almost square."),
       imageSrc: commons("Lake Agnes im Banff National Park.jpg"),
       imageAlt: text("Озеро", "Lake"),
@@ -657,7 +657,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "format-3-4",
       prompt: text("Какой формат кадра?", "What is the frame aspect ratio?"),
-      helper: text("Кадр вертикальный.", "The frame is vertical."),
+      helper: text("Сравните высоту с шириной и оцените их соотношение.", "Compare height to width and estimate the ratio."),
       explanation: text("Формат 3:4 — портретный.", "3:4 is a portrait ratio."),
       imageSrc: commons("Girl_with_a_Pearl_Earring.jpg"),
       imageAlt: text("Портрет", "Portrait"),
@@ -685,7 +685,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "format-9-16",
       prompt: text("Определить формат изображения.", "Identify the image aspect ratio."),
-      helper: text("Вертикальный кадр, как в мобильном.", "Vertical frame, like on mobile."),
+      helper: text("Представьте, какому устройству соответствуют эти пропорции.", "Think about which device these proportions correspond to."),
       explanation: text("Это формат 9:16.", "This is 9:16."),
       imageSrc: commons("Forest road Slavne 2017 G8.jpg"),
       imageAlt: text("Лесная дорога", "Forest road"),
@@ -699,7 +699,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "format-21-9",
       prompt: text("Какой формат кадра?", "What is the frame aspect ratio?"),
-      helper: text("Очень широкий кадр, почти панорама.", "Very wide frame, almost panoramic."),
+      helper: text("Оцените, сколько раз высота помещается в ширину.", "Estimate how many times the height fits into the width."),
       explanation: text("Формат 21:9 — ультраширокий.", "21:9 is ultra-wide."),
       imageSrc: commons("River Narmada from Maheshwar Fort.jpg"),
       imageAlt: text("Река", "River"),
@@ -713,7 +713,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "format-4-5",
       prompt: text("Определить формат изображения.", "Identify the image aspect ratio."),
-      helper: text("Высота немного больше ширины.", "Height is slightly greater than width."),
+      helper: text("Посмотрите, насколько кадр отклоняется от квадрата.", "Observe how much the frame deviates from a square."),
       explanation: text("Формат 4:5 часто используется в соцсетях.", "4:5 is common on social media."),
       imageSrc: commons("Beach - San Agustín.jpg"),
       imageAlt: text("Пляж", "Beach"),
@@ -727,7 +727,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "format-3-1",
       prompt: text("Определить формат кадра.", "Identify the frame aspect ratio."),
-      helper: text("Очень широкий, почти баннер.", "Very wide, almost a banner."),
+      helper: text("Попробуйте оценить, сколько квадратов можно уложить в ширину.", "Try to estimate how many squares fit across the width."),
       explanation: text("Формат 3:1 — панорамный.", "3:1 is panoramic."),
       imageSrc: commons("City Skyline from Sidney Harbour.JPG"),
       imageAlt: text("Городской пейзаж", "Cityscape"),
@@ -1452,7 +1452,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "composition-symmetry",
       prompt: text("Какой приём композиции показан на схеме?", "Which composition technique is shown in the diagram?"),
-      helper: text("Элементы зеркально отражены.", "Elements are mirrored."),
+      helper: text("Обратите внимание на расположение элементов относительно центральной оси.", "Notice how elements are positioned relative to the central axis."),
       explanation: text("Композиция построена на симметрии.", "The composition is built on symmetry."),
       imageSrc: makeCompositionSvg("symmetry"),
       imageAlt: text("Схема: симметрия", "Diagram: symmetry"),
@@ -1471,7 +1471,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "composition-negative-space",
       prompt: text("Какой приём композиции показан на схеме?", "Which composition technique is shown in the diagram?"),
-      helper: text("Много пустоты вокруг небольшого объекта.", "Lots of empty space around a small subject."),
+      helper: text("Оцените соотношение пустого пространства и объекта.", "Evaluate the ratio of empty space to the subject."),
       explanation: text("Это негативное пространство.", "This is negative space."),
       imageSrc: makeCompositionSvg("negative-space"),
       imageAlt: text("Схема: негативное пространство", "Diagram: negative space"),
@@ -1490,7 +1490,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "composition-repetition",
       prompt: text("Какой приём композиции показан на схеме?", "Which composition technique is shown in the diagram?"),
-      helper: text("Повтор одинаковых форм.", "Repeated identical forms."),
+      helper: text("Посмотрите, как элементы соотносятся друг с другом.", "Look at how the elements relate to one another."),
       explanation: text("Повтор создаёт ритм.", "Repetition creates rhythm."),
       imageSrc: makeCompositionSvg("repetition"),
       imageAlt: text("Схема: повтор", "Diagram: repetition"),
@@ -1509,7 +1509,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "composition-framing",
       prompt: text("Какой приём композиции показан на схеме?", "Which composition technique is shown in the diagram?"),
-      helper: text("Объект обрамлён рамкой.", "The subject is framed."),
+      helper: text("Обратите внимание на то, что окружает главный объект.", "Notice what surrounds the main subject."),
       explanation: text("Это приём обрамления.", "This is framing."),
       imageSrc: makeCompositionSvg("framing"),
       imageAlt: text("Схема: обрамление", "Diagram: framing"),
@@ -1547,7 +1547,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "composition-s-curve",
       prompt: text("Какой приём композиции показан на схеме?", "Which composition technique is shown in the diagram?"),
-      helper: text("Линия плавно изгибается.", "The line curves smoothly."),
+      helper: text("Проследите за основной линией — какую форму она образует?", "Follow the main line — what shape does it form?"),
       explanation: text("Это S-образная линия.", "This is an S-curve."),
       imageSrc: makeCompositionSvg("s-curve"),
       imageAlt: text("Схема: S-образная линия", "Diagram: S-curve"),
@@ -1566,7 +1566,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "composition-pattern",
       prompt: text("Какой приём композиции показан на схеме?", "Which composition technique is shown in the diagram?"),
-      helper: text("Узор повторяется по всему кадру.", "A pattern repeats across the frame."),
+      helper: text("Обратите внимание на то, как организовано визуальное пространство.", "Notice how the visual space is organized."),
       explanation: text("Это паттерн и повтор.", "This is pattern and repetition."),
       imageSrc: makeCompositionSvg("pattern"),
       imageAlt: text("Схема: паттерн", "Diagram: pattern"),
@@ -1585,7 +1585,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
     {
       id: "composition-silhouette",
       prompt: text("Какой приём композиции показан на схеме?", "Which composition technique is shown in the diagram?"),
-      helper: text("Тёмная форма на светлом фоне.", "A dark shape on a light background."),
+      helper: text("Оцените контраст между формой и фоном.", "Assess the contrast between the shape and the background."),
       explanation: text("Это силуэт.", "This is a silhouette."),
       imageSrc: makeCompositionSvg("silhouette"),
       imageAlt: text("Схема: силуэт", "Diagram: silhouette"),
@@ -2120,7 +2120,7 @@ export const IMAGE_QUIZ_DATA: Record<ImageQuizGameId, ImageQuizQuestion[]> = {
         "Какой минимально комфортный размер текста для десктопного интерфейса?",
         "What is the minimum comfortable text size for a desktop UI?",
       ),
-      helper: text("Считай, что нужен размер не меньше 16px.", "Assume the size should be at least 16px."),
+      helper: text("Вспомните стандартный минимальный размер текста для комфортного чтения.", "Recall the standard minimum text size for comfortable reading."),
       explanation: text(
         "16px — минимально комфортный размер для большинства десктопных интерфейсов.",
         "16px is a minimum comfortable size for most desktop UIs.",

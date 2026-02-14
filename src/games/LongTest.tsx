@@ -1,21 +1,21 @@
 "use client";
-import { useCallback, useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import { Card } from "@/components/Card";
 import { HintToggle } from "@/components/HintToggle";
 import { Swatch } from "@/components/Swatch";
+import { QUIZ_QUESTIONS } from "@/games/Quiz";
 import { useKeyboard } from "@/hooks/useKeyboard";
 import { useSkipSignal } from "@/hooks/useSkipSignal";
 import { useSound } from "@/hooks/useSound";
 import { useGameStore } from "@/store/gameStore";
 import { GameId } from "@/types";
-import { GAMES } from "@/utils/gameConfig";
 import { Difficulty, difficultyDots, getDifficulty } from "@/utils/difficulty";
 import { getFontSizeClass } from "@/utils/fonts";
+import { DISABLED_GAME_IDS, GAMES } from "@/utils/gameConfig";
 import { shuffle } from "@/utils/helpers";
-import { ImageQuizOption, ImageQuizSource, IMAGE_QUIZ_DATA } from "@/utils/imageQuizData";
 import { Language, LocalizedText, localize, t } from "@/utils/i18n";
-import { QUIZ_QUESTIONS } from "@/games/Quiz";
+import { IMAGE_QUIZ_DATA, ImageQuizOption, ImageQuizSource } from "@/utils/imageQuizData";
+import { motion } from "framer-motion";
+import { useCallback, useMemo, useState } from "react";
 
 type LongTestOption = Omit<ImageQuizOption, "label"> & { label?: string };
 type LongTestImageSource = Omit<ImageQuizSource, "label"> & { label: string };
@@ -54,29 +54,31 @@ const buildLongTestPool = (language: Language): LongTestQuestion[] => {
     difficulty: question.difficulty,
   }));
 
-  const imageQuestions: LongTestQuestion[] = Object.entries(IMAGE_QUIZ_DATA).flatMap(([gameId, questions]) =>
-    questions.map((question) => ({
-      id: `${gameId}-${question.id}`,
-      sourceGameId: gameId as GameId,
-      prompt: resolveText(question.prompt),
-      helper: question.helper ? resolveText(question.helper) : undefined,
-      explanation: resolveText(question.explanation),
-      options: question.options.map((option) => ({
-        ...option,
-        label: option.label ? resolveText(option.label) : undefined,
+  const imageQuestions: LongTestQuestion[] = Object.entries(IMAGE_QUIZ_DATA)
+    .filter(([gameId]) => !DISABLED_GAME_IDS.has(gameId as GameId))
+    .flatMap(([gameId, questions]) =>
+      questions.map((question) => ({
+        id: `${gameId}-${question.id}`,
+        sourceGameId: gameId as GameId,
+        prompt: resolveText(question.prompt),
+        helper: question.helper ? resolveText(question.helper) : undefined,
+        explanation: resolveText(question.explanation),
+        options: question.options.map((option) => ({
+          ...option,
+          label: option.label ? resolveText(option.label) : undefined,
+        })),
+        correctIndex: question.correctIndex,
+        difficulty: question.difficulty,
+        imageSrc: question.imageSrc,
+        imageAlt: resolveText(question.imageAlt),
+        imageSource: question.imageSource
+          ? { ...question.imageSource, label: resolveText(question.imageSource.label) }
+          : undefined,
+        imageContainerClass: question.imageContainerClass,
+        imageFrameClass: question.imageFrameClass,
+        imageClass: question.imageClass,
       })),
-      correctIndex: question.correctIndex,
-      difficulty: question.difficulty,
-      imageSrc: question.imageSrc,
-      imageAlt: resolveText(question.imageAlt),
-      imageSource: question.imageSource
-        ? { ...question.imageSource, label: resolveText(question.imageSource.label) }
-        : undefined,
-      imageContainerClass: question.imageContainerClass,
-      imageFrameClass: question.imageFrameClass,
-      imageClass: question.imageClass,
-    })),
-  );
+    );
 
   return [...quizQuestions, ...imageQuestions];
 };
@@ -133,16 +135,8 @@ interface Props {
 }
 
 export const LongTestGame = ({ onAnswer, totalQuestions }: Props) => {
-  const {
-    addScore,
-    incrementStreak,
-    resetStreak,
-    updateStats,
-    addMistake,
-    language,
-    avoidRepeats,
-    setReviewPause,
-  } = useGameStore();
+  const { addScore, incrementStreak, resetStreak, updateStats, addMistake, language, avoidRepeats, setReviewPause } =
+    useGameStore();
   const { playCorrect, playWrong } = useSound();
   const [round, setRound] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -150,8 +144,7 @@ export const LongTestGame = ({ onAnswer, totalQuestions }: Props) => {
   const pointsPerCorrect = GAMES["long-test"].pointsPerCorrect;
 
   const pool = useMemo(() => buildLongTestPool(language), [language]);
-  const effectiveTotal =
-    avoidRepeats && pool.length > 0 ? Math.min(totalQuestions, pool.length) : totalQuestions;
+  const effectiveTotal = avoidRepeats && pool.length > 0 ? Math.min(totalQuestions, pool.length) : totalQuestions;
 
   const sequence = useMemo(() => {
     if (pool.length === 0 || effectiveTotal === 0) return [];
@@ -199,20 +192,20 @@ export const LongTestGame = ({ onAnswer, totalQuestions }: Props) => {
               ? {
                   type: "colors",
                   data: {
-                    Correct: correctOption.color || "",
-                    Selected: userOption.color || "",
+                    [language === "ru" ? "Правильный" : "Correct"]: correctOption.color || "",
+                    [language === "ru" ? "Выбранный" : "Selected"]: userOption.color || "",
                   },
                 }
               : userOption.palette || correctOption.palette
                 ? {
                     type: "colors",
                     data: {
-                      "Correct 1": correctOption.palette?.[0] || "",
-                      "Correct 2": correctOption.palette?.[1] || "",
-                      "Correct 3": correctOption.palette?.[2] || "",
-                      "Selected 1": userOption.palette?.[0] || "",
-                      "Selected 2": userOption.palette?.[1] || "",
-                      "Selected 3": userOption.palette?.[2] || "",
+                      [`${language === "ru" ? "Правильный" : "Correct"} 1`]: correctOption.palette?.[0] || "",
+                      [`${language === "ru" ? "Правильный" : "Correct"} 2`]: correctOption.palette?.[1] || "",
+                      [`${language === "ru" ? "Правильный" : "Correct"} 3`]: correctOption.palette?.[2] || "",
+                      [`${language === "ru" ? "Выбранный" : "Selected"} 1`]: userOption.palette?.[0] || "",
+                      [`${language === "ru" ? "Выбранный" : "Selected"} 2`]: userOption.palette?.[1] || "",
+                      [`${language === "ru" ? "Выбранный" : "Selected"} 3`]: userOption.palette?.[2] || "",
                     },
                   }
                 : undefined,

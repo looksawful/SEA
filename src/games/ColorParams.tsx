@@ -232,7 +232,7 @@ export const ColorParamsGame = ({ onAnswer }: Props) => {
               ? `${paramExplanation(challenge.paramType)}. Полные HSL значения для этого цвета: H=${challenge.hsl.h}°, S=${challenge.hsl.s}%, L=${challenge.hsl.l}%`
               : `${paramExplanation(challenge.paramType)}. Full HSL values for this color: H=${challenge.hsl.h}°, S=${challenge.hsl.s}%, L=${challenge.hsl.l}%`;
           addMistake({
-            question: language === "ru" ? `Определи ${label} цвета` : `Determine the ${label} of the color`,
+            question: language === "ru" ? `Определить ${label} цвета` : `Determine the ${label} of the color`,
             userAnswer: `${userAnswer}${unit}`,
             correctAnswer: `${challenge.correctValue}${unit}`,
             explanation,

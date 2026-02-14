@@ -30,7 +30,7 @@ const PALETTE_NAMES: Record<PaletteType, LocalizedText> = {
   complementary: text("комплементарная", "complementary"),
   triadic: text("триадная", "triadic"),
   split: text("сплит-комплементарная", "split-complementary"),
-  tetradic: text("тетра́дная", "tetradic"),
+  tetradic: text("тетрадная", "tetradic"),
 };
 
 const PALETTE_EXPLANATIONS: Record<PaletteType, LocalizedText> = {
